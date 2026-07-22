@@ -1,6 +1,4 @@
-# 🚀 SGP
-
-# Sistema de Gestão de Projetos de Software
+# 🚀 SGP: Sistema de Gestão de Projetos de Software
 
 O **SGP** é uma plataforma integrada para gerenciamento do ciclo de vida de projetos de software, desenvolvida para centralizar requisitos, tarefas, documentação, testes, reuniões, mudanças e entregas em um único ambiente.
 
@@ -14,7 +12,7 @@ O projeto foi idealizado para reduzir a fragmentação causada pelo uso de diver
 
 Disponibilizar uma plataforma única para apoiar todas as etapas do desenvolvimento de software, desde a concepção da ideia até a entrega final do produto.
 
-O SGP busca adaptar-se tanto a pequenos projetos quanto a iniciativas corporativas que exijam governança, rastreabilidade e produção de artefatos formais. :contentReference[oaicite:1]{index=1}
+O SGP busca adaptar-se tanto a pequenos projetos quanto a iniciativas corporativas que exijam governança, rastreabilidade e produção de artefatos formais. 
 
 ---
 
@@ -31,7 +29,7 @@ Equipes de desenvolvimento normalmente utilizam diversas ferramentas para contro
 - Versionamento
 - Entregas
 
-Essa fragmentação dificulta a gestão dos projetos, gera retrabalho, reduz a rastreabilidade e aumenta o esforço necessário para manter a documentação atualizada. :contentReference[oaicite:2]{index=2}
+Essa fragmentação dificulta a gestão dos projetos, gera retrabalho, reduz a rastreabilidade e aumenta o esforço necessário para manter a documentação atualizada.
 
 ---
 
@@ -45,89 +43,85 @@ A proposta é oferecer uma solução escalável:
 - Completa para projetos institucionais.
 - Robusta para ambientes que exigem auditoria e governança.
 
-:contentReference[oaicite:3]{index=3}
+
 
 ---
 
-# 🛠 Tecnologias
+## 🏗 Arquitetura
 
-- PHP 8
-- MySQL
-- Bootstrap 5
-- JavaScript
+O SGP está sendo desenvolvido como uma aplicação web utilizando a arquitetura MVC, adotada pelo Laravel:
+
+- **Model:** representação e manipulação dos dados;
+- **View:** apresentação das páginas por meio do Blade;
+- **Controller:** tratamento das requisições e aplicação das regras do sistema.
+
+O PostgreSQL será utilizado para persistência dos dados, enquanto o Eloquent ORM realizará a comunicação entre a aplicação e o banco de dados.
+
+--- 
+## 🛠 Tecnologias e ferramentas
+
+### Backend
+
+- PHP 8.2 ou superior
+- Laravel
+- PostgreSQL
+- Eloquent ORM
+- Blade Template Engine
+
+### Frontend
+
 - HTML5
 - CSS3
-- Docker
+- JavaScript
+- Bootstrap 5
+
+### Gerenciamento e construção
+
+- Composer
+- Node.js e npm
+- Vite
+
+### Versionamento
+
 - Git
 - GitHub
 
+### Ambiente de desenvolvimento
+
+- Windows
+- Visual Studio Code
+- PostgreSQL
+- Laravel Artisan
+
 ---
 
-# 📦 Módulos Previstos
+## 📦 Escopo do MVP
 
-## Gestão de Projetos
+A primeira versão do SGP será concentrada nas funcionalidades essenciais para criação e acompanhamento de projetos de software:
 
+- Autenticação de usuários
+- Gestão de usuários e perfis de acesso
 - Cadastro de projetos
-- Cronograma
-- Status
-- Equipes
+- Gestão de participantes do projeto
+- Gestão de requisitos funcionais e não funcionais
+- Registro de regras de negócio
+- Controle de tarefas
+- Histórico básico de alterações
+- Painel de acompanhamento do projeto
 
-## Gestão de Requisitos
+---
 
-- Requisitos Funcionais
-- Requisitos Não Funcionais
-- Priorização
-- Aprovação
-- Rastreabilidade
+## 🔭 Módulos Previstos
 
-## Gestão de Tarefas
-
-- Kanban
-- Scrum
-- Backlog
-- Sprints
-
-## Gestão de Reuniões
-
-- Atas
-- Decisões
-- Pendências
-
-## Gestão de Testes
-
-- Casos de Teste
-- Cenários
-- Evidências
-- Resultados
-
-## Gestão Documental
-
-- Documento de Visão
-- Documento de Requisitos
-- Regras de Negócio
-- Casos de Uso
-- Casos de Teste
-- Matriz de Rastreabilidade
-- Manual Técnico
-- Manual do Usuário
-
-## Gestão de Mudanças
-
-- Solicitações
-- Aprovações
-- Histórico
-
-## Gestão de Riscos
-
-- Cadastro
-- Classificação
-- Mitigação
-
-## Gestão da Qualidade
-
-- Validações
-- Aprovações
-- Conformidade
+- Gestão de reuniões
+- Gestão de testes e evidências
+- Gestão documental
+- Gestão de mudanças
+- Gestão de riscos
+- Gestão da qualidade
+- Matriz de rastreabilidade
+- Geração automática de artefatos
+- Integração com Inteligência Artificial
 
 ---
 
@@ -176,7 +170,7 @@ O sistema poderá ser utilizado conforme a complexidade do projeto.
 - Rastreabilidade
 - Documentação automática
 
-:contentReference[oaicite:4]{index=4}
+
 
 ---
 
@@ -190,7 +184,7 @@ O sistema poderá ser utilizado conforme a complexidade do projeto.
 - Preparado para integração com Inteligência Artificial.
 - Aderência às boas práticas de Engenharia de Software e MPS.BR.
 
-:contentReference[oaicite:5]{index=5}
+
 
 ---
 
@@ -205,7 +199,6 @@ Entre as evoluções previstas estão:
 - Apoio à gestão de projetos.
 - Integração com modelos de linguagem (LLMs).
 
-:contentReference[oaicite:6]{index=6}
 
 ---
 
@@ -220,7 +213,6 @@ Entre as evoluções previstas estão:
 - Órgãos Públicos
 - Empresas de Tecnologia
 
-:contentReference[oaicite:7]{index=7}
 
 ---
 
@@ -232,8 +224,10 @@ Analista de Requisitos • Desenvolvedora • Técnica em Tecnologia da Informa�
 
 ---
 
-# 📌 Status
+## 📌 Status do Projeto
 
-🚧 Projeto em desenvolvimento.
+🚧 **Em desenvolvimento**
 
-Este repositório acompanhará toda a evolução do Sistema de Gestão de Projetos de Software, desde a arquitetura inicial até sua versão estável.
+O projeto encontra-se na fase inicial de implementação, com o ambiente de desenvolvimento configurado, aplicação Laravel criada, banco de dados PostgreSQL integrado e repositório GitHub estruturado.
+
+A etapa atual está concentrada na construção da base do sistema, incluindo autenticação, controle de usuários, perfis de acesso e estrutura inicial dos projetos.
