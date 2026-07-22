@@ -76,6 +76,19 @@ git pull origin main
 | O -u cria o vínculo entre sua branch local main e a main do GitHub.| `git push -u origin`              |
 | Enviar pro GitHub                                                  | `git push`                        |
 
+
+
+# Principais Tipos Utilizados -- para usar nas mensagens de commit
+
+feat: Adiciona uma nova funcionalidade ao projeto.
+fix: Corrige um bug ou erro no código.
+docs: Alterações apenas na documentação (ex: README).
+style: Alterações de formatação (espaços, vírgulas) que não alteram a lógica do código.
+refactor: Melhorias no código que não adicionam novas funções nem corrigem bugs.
+test: Adiciona ou corrige testes ausentes.
+chore: Alterações em ferramentas de build ou processos auxiliares
+
+
 ---
 
 ## 🔐 Configuração SSH (PC de Casa e Trabalho)

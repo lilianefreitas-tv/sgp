@@ -1,3 +1,197 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --sgp-primary: #123b4a;
+    --sgp-primary-light: #1d5d73;
+    --sgp-accent: #287ea1;
+    --sgp-success: #2e8b74;
+    --sgp-success-light: #5ec6b2;
+    --sgp-warning: #d89427;
+    --sgp-danger: #c44b4b;
+    --sgp-background: #f5f7f9;
+    --sgp-surface: #ffffff;
+    --sgp-text: #24313a;
+    --sgp-text-muted: #667680;
+    --sgp-border: #dce3e7;
+}
+
+@layer base {
+    html {
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+            BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+        color: var(--sgp-text);
+        background-color: var(--sgp-background);
+    }
+}
+
+@layer components {
+    .sgp-login-page {
+        @apply min-h-screen lg:grid lg:grid-cols-2;
+        background-color: var(--sgp-surface);
+    }
+
+    .sgp-login-brand {
+        @apply relative hidden overflow-hidden px-12 py-10 lg:flex lg:flex-col lg:justify-between;
+        background:
+            radial-gradient(
+                circle at 85% 15%,
+                rgba(94, 198, 178, 0.16),
+                transparent 28%
+            ),
+            linear-gradient(145deg, #123b4a 0%, #174e60 55%, #1d5d73 100%);
+    }
+
+    .sgp-login-brand::before,
+    .sgp-login-brand::after {
+        content: "";
+        @apply absolute rounded-full border;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .sgp-login-brand::before {
+        width: 420px;
+        height: 420px;
+        right: -150px;
+        top: -130px;
+    }
+
+    .sgp-login-brand::after {
+        width: 300px;
+        height: 300px;
+        left: -150px;
+        bottom: -140px;
+    }
+
+    .sgp-login-form-area {
+        @apply flex min-h-screen items-center justify-center px-6 py-10 sm:px-10;
+        background-color: var(--sgp-background);
+    }
+
+    .sgp-login-card {
+        @apply w-full max-w-md rounded-2xl border bg-white p-7 shadow-sm sm:p-9;
+        border-color: var(--sgp-border);
+    }
+
+    .sgp-field-label {
+        @apply mb-2 block text-sm font-semibold;
+        color: var(--sgp-text);
+    }
+
+    .sgp-input {
+        @apply block w-full rounded-lg border px-4 py-3 text-sm outline-none transition;
+        border-color: var(--sgp-border);
+        background-color: var(--sgp-surface);
+        color: var(--sgp-text);
+    }
+
+    .sgp-input::placeholder {
+        color: #94a1a9;
+    }
+
+    .sgp-input:focus {
+        border-color: var(--sgp-accent);
+        box-shadow: 0 0 0 3px rgba(40, 126, 161, 0.14);
+    }
+
+    .sgp-button-primary {
+        @apply inline-flex w-full items-center justify-center rounded-lg px-5 py-3
+            text-sm font-semibold text-white transition duration-200;
+        background-color: var(--sgp-primary);
+    }
+
+    .sgp-button-primary:hover {
+        background-color: var(--sgp-primary-light);
+        transform: translateY(-1px);
+    }
+
+    .sgp-button-primary:focus {
+        @apply outline-none;
+        box-shadow: 0 0 0 3px rgba(40, 126, 161, 0.2);
+    }
+
+    .sgp-link {
+        @apply text-sm font-semibold transition;
+        color: var(--sgp-primary-light);
+    }
+
+    .sgp-link:hover {
+        color: var(--sgp-accent);
+    }
+
+    @layer components {
+    .sgp-welcome-banner {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        color: #ffffff;
+        background: linear-gradient(135deg, #123b4a 0%, #1d5d73 100%);
+        box-shadow: 0 1px 3px rgba(18, 59, 74, 0.12);
+    }
+
+    .sgp-welcome-banner h2,
+    .sgp-welcome-banner p,
+    .sgp-welcome-banner span {
+        position: relative;
+        z-index: 2;
+    }
+
+    .sgp-indicators-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .sgp-indicator-card {
+        min-height: 165px;
+        border: 1px solid #dce3e7;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        background-color: #ffffff;
+        box-shadow: 0 1px 3px rgba(18, 59, 74, 0.06);
+    }
+
+    .sgp-dashboard-columns {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .sgp-shortcuts-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    @media (max-width: 1100px) {
+        .sgp-indicators-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .sgp-dashboard-columns {
+            grid-template-columns: 1fr;
+        }
+
+        .sgp-shortcuts-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 700px) {
+        .sgp-indicators-grid,
+        .sgp-shortcuts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sgp-welcome-banner {
+            padding: 1.25rem;
+        }
+    }
+}
+}

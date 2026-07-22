@@ -1,100 +1,259 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
-                </div>
+<div>
+    <div
+        x-show="sidebarOpen"
+        x-transition.opacity
+        class="fixed inset-0 z-40 bg-slate-950/45 lg:hidden"
+        @click="sidebarOpen = false"
+        aria-hidden="true"
+        style="display: none;"
+    ></div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+    <aside
+        class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full
+               flex-col bg-[#123B4A] text-white shadow-xl
+               transition-transform duration-300 lg:translate-x-0"
+        :class="{ 'translate-x-0': sidebarOpen }"
+    >
+        <div
+            class="flex h-20 items-center justify-between
+                   border-b border-white/10 px-6"
+        >
+            <a
+                href="{{ route('dashboard') }}"
+                class="flex items-center gap-3"
+            >
+                <x-application-logo
+                    class="h-11 w-11 flex-none text-[#123B4A]"
+                />
+
+                <div>
+                    <p class="text-xl font-bold tracking-tight">
+                        SGP
+                    </p>
+
+                    <p class="text-xs text-slate-300">
+                        Gestão de Projetos
+                    </p>
                 </div>
+            </a>
+
+            <button
+                type="button"
+                class="rounded-lg p-2 text-slate-300
+                       hover:bg-white/10 lg:hidden"
+                @click="sidebarOpen = false"
+                aria-label="Fechar menu"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18 18 6M6 6l12 12"
+                    />
+                </svg>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto px-4 py-6">
+            <p
+                class="mb-3 px-3 text-xs font-semibold uppercase
+                       tracking-widest text-slate-400"
+            >
+                Visão geral
+            </p>
+
+            <a
+                href="{{ route('dashboard') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium transition
+                       {{ request()->routeIs('dashboard')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6Zm10-12h8V3h-8v6Z"
+                    />
+                </svg>
+
+                Painel
+            </a>
+
+            <p
+                class="mb-3 mt-8 px-3 text-xs font-semibold uppercase
+                       tracking-widest text-slate-400"
+            >
+                Gerenciamento
+            </p>
+
+            <div
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium text-slate-400"
+                title="Funcionalidade em desenvolvimento"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M4 7h16M4 7l2-3h5l2 3M5 7v13h14V7M9 11h6"
+                    />
+                </svg>
+
+                Projetos
+
+                <span
+                    class="ml-auto rounded-full bg-white/10
+                           px-2 py-1 text-[10px] uppercase"
+                >
+                    Em breve
+                </span>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+            <div
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium text-slate-400"
+                title="Funcionalidade em desenvolvimento"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M9 12h6M9 16h6M8 3h8l4 4v14H4V3h4Zm8 0v5h5"
+                    />
+                </svg>
 
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
+                Requisitos
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <div
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium text-slate-400"
+                title="Funcionalidade em desenvolvimento"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="m5 12 4 4L19 6M4 21h16"
+                    />
+                </svg>
+
+                Testes
+            </div>
+
+            <div
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium text-slate-400"
+                title="Funcionalidade em desenvolvimento"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M12 3 3 7.5 12 12l9-4.5L12 3Zm-9 9 9 4.5 9-4.5M3 16.5 12 21l9-4.5"
+                    />
+                </svg>
+
+                Rastreabilidade
+            </div>
+        </nav>
+
+        <div class="border-t border-white/10 p-4">
+            <a
+                href="{{ route('profile.edit') }}"
+                class="mb-2 flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium text-slate-300 transition
+                       hover:bg-white/10 hover:text-white"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 9a7 7 0 0 0-14 0"
+                    />
+                </svg>
+
+                Meu perfil
+            </a>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+
+                <button
+                    type="submit"
+                    class="flex w-full items-center gap-3 rounded-lg
+                           px-3 py-3 text-sm font-medium text-slate-300
+                           transition hover:bg-white/10 hover:text-white"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M10 17 15 12 10 7M15 12H3M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5"
+                        />
                     </svg>
+
+                    Sair
                 </button>
-            </div>
+            </form>
         </div>
-    </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
-        </div>
-    </div>
-</nav>
+    </aside>
+</div>

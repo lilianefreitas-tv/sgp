@@ -1,47 +1,116 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="sgp-login-card">
+        <div class="mb-8">
+            <p
+                class="mb-2 text-sm font-semibold uppercase tracking-wider
+                       text-[#287EA1]"
+            >
+                Acesso ao sistema
+            </p>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+            <h2 class="text-3xl font-bold tracking-tight text-[#24313A]">
+                Bem-vinda!
+            </h2>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <p class="mt-3 text-sm leading-6 text-[#667680]">
+                Informe seus dados para acessar o ambiente de gestão.
+            </p>
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <x-auth-session-status
+            class="mb-5 rounded-lg bg-emerald-50 px-4 py-3 text-sm
+                   text-emerald-800"
+            :status="session('status')"
+        />
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <div>
+                <label for="email" class="sgp-field-label">
+                    E-mail
+                </label>
+
+                <input
+                    id="email"
+                    class="sgp-input"
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    placeholder="nome@instituicao.br"
+                    required
+                    autofocus
+                    autocomplete="username"
+                >
+
+                @error('email')
+                    <p class="mt-2 text-sm text-[#C44B4B]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            <div class="mt-5">
+                <label for="password" class="sgp-field-label">
+                    Senha
+                </label>
+
+                <input
+                    id="password"
+                    class="sgp-input"
+                    type="password"
+                    name="password"
+                    placeholder="Digite sua senha"
+                    required
+                    autocomplete="current-password"
+                >
+
+                @error('password')
+                    <p class="mt-2 text-sm text-[#C44B4B]">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            <div class="mt-5 flex items-center justify-between gap-4">
+                <label
+                    for="remember_me"
+                    class="inline-flex cursor-pointer items-center"
+                >
+                    <input
+                        id="remember_me"
+                        type="checkbox"
+                        name="remember"
+                        class="rounded border-gray-300 text-[#123B4A]
+                               shadow-sm focus:ring-[#287EA1]"
+                    >
+
+                    <span class="ms-2 text-sm text-[#667680]">
+                        Lembrar de mim
+                    </span>
+                </label>
+
+                @if (Route::has('password.request'))
+                    <a
+                        class="sgp-link"
+                        href="{{ route('password.request') }}"
+                    >
+                        Esqueceu a senha?
+                    </a>
+                @endif
+            </div>
+
+            <button type="submit" class="sgp-button-primary mt-7">
+                Entrar
+            </button>
+        </form>
+
+        <div
+            class="mt-8 border-t border-[#DCE3E7] pt-5 text-center
+                   text-xs text-[#667680]"
+        >
+            <p>SGP • Sistema de Gestão de Projetos de Software</p>
+            <p class="mt-1">Versão 1.0 em desenvolvimento</p>
         </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+    </div>
 </x-guest-layout>
