@@ -1,59 +1,239 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚀 SGP
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Sistema de Gestão de Projetos de Software
 
-## About Laravel
+O **SGP** é uma plataforma integrada para gerenciamento do ciclo de vida de projetos de software, desenvolvida para centralizar requisitos, tarefas, documentação, testes, reuniões, mudanças e entregas em um único ambiente.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+O projeto foi idealizado para reduzir a fragmentação causada pelo uso de diversas ferramentas independentes, promovendo organização, rastreabilidade, produtividade e qualidade durante todo o desenvolvimento de software.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+> **Status do projeto:** Em desenvolvimento
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+# 🎯 Objetivo
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Disponibilizar uma plataforma única para apoiar todas as etapas do desenvolvimento de software, desde a concepção da ideia até a entrega final do produto.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+O SGP busca adaptar-se tanto a pequenos projetos quanto a iniciativas corporativas que exijam governança, rastreabilidade e produção de artefatos formais. :contentReference[oaicite:1]{index=1}
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 💡 Problema
 
-### Premium Partners
+Equipes de desenvolvimento normalmente utilizam diversas ferramentas para controlar:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Requisitos
+- Tarefas
+- Protótipos
+- Reuniões
+- Testes
+- Documentação
+- Versionamento
+- Entregas
 
-## Contributing
+Essa fragmentação dificulta a gestão dos projetos, gera retrabalho, reduz a rastreabilidade e aumenta o esforço necessário para manter a documentação atualizada. :contentReference[oaicite:2]{index=2}
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+# ✅ Solução Proposta
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+O SGP reúne todas essas atividades em uma única plataforma, permitindo que a equipe acompanhe todo o ciclo de vida do projeto em um ambiente integrado.
 
-## Security Vulnerabilities
+A proposta é oferecer uma solução escalável:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Simples para pequenos projetos.
+- Completa para projetos institucionais.
+- Robusta para ambientes que exigem auditoria e governança.
 
-## License
+:contentReference[oaicite:3]{index=3}
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+# 🛠 Tecnologias
+
+- PHP 8
+- MySQL
+- Bootstrap 5
+- JavaScript
+- HTML5
+- CSS3
+- Docker
+- Git
+- GitHub
+
+---
+
+# 📦 Módulos Previstos
+
+## Gestão de Projetos
+
+- Cadastro de projetos
+- Cronograma
+- Status
+- Equipes
+
+## Gestão de Requisitos
+
+- Requisitos Funcionais
+- Requisitos Não Funcionais
+- Priorização
+- Aprovação
+- Rastreabilidade
+
+## Gestão de Tarefas
+
+- Kanban
+- Scrum
+- Backlog
+- Sprints
+
+## Gestão de Reuniões
+
+- Atas
+- Decisões
+- Pendências
+
+## Gestão de Testes
+
+- Casos de Teste
+- Cenários
+- Evidências
+- Resultados
+
+## Gestão Documental
+
+- Documento de Visão
+- Documento de Requisitos
+- Regras de Negócio
+- Casos de Uso
+- Casos de Teste
+- Matriz de Rastreabilidade
+- Manual Técnico
+- Manual do Usuário
+
+## Gestão de Mudanças
+
+- Solicitações
+- Aprovações
+- Histórico
+
+## Gestão de Riscos
+
+- Cadastro
+- Classificação
+- Mitigação
+
+## Gestão da Qualidade
+
+- Validações
+- Aprovações
+- Conformidade
+
+---
+
+# 📄 Artefatos Gerados
+
+O SGP será capaz de gerar automaticamente documentos como:
+
+- Documento de Visão
+- Termo de Abertura
+- Especificação Funcional
+- Regras de Negócio
+- Casos de Uso
+- Casos de Teste
+- Matriz de Rastreabilidade
+- Plano de Testes
+- Termo de Aceite
+- Lições Aprendidas
+
+---
+
+# 📊 Níveis de Utilização
+
+O sistema poderá ser utilizado conforme a complexidade do projeto.
+
+## Simplificado
+
+- Documento de Visão
+- Requisitos
+- Tarefas
+
+## Intermediário
+
+- Documento de Visão
+- Requisitos
+- Protótipos
+- Tarefas
+- Reuniões
+- Testes
+- Termo de Aceite
+
+## Completo
+
+- Gestão integral do projeto
+- Governança
+- Qualidade
+- Rastreabilidade
+- Documentação automática
+
+:contentReference[oaicite:4]{index=4}
+
+---
+
+# ⭐ Diferenciais
+
+- Plataforma única para Engenharia de Software.
+- Documentação gerada automaticamente.
+- Rastreabilidade entre requisitos, tarefas, testes e entregas.
+- Suporte a metodologias ágeis.
+- Flexibilidade conforme o porte do projeto.
+- Preparado para integração com Inteligência Artificial.
+- Aderência às boas práticas de Engenharia de Software e MPS.BR.
+
+:contentReference[oaicite:5]{index=5}
+
+---
+
+# 🤖 Visão de Futuro
+
+Entre as evoluções previstas estão:
+
+- Assistente de IA para Engenharia de Requisitos.
+- Geração automática de documentação.
+- Sugestão automática de Casos de Teste.
+- Identificação de riscos.
+- Apoio à gestão de projetos.
+- Integração com modelos de linguagem (LLMs).
+
+:contentReference[oaicite:6]{index=6}
+
+---
+
+# 👥 Público-Alvo
+
+- Analistas de Requisitos
+- Gerentes de Projetos
+- Desenvolvedores
+- Testadores
+- Product Owners
+- Consultorias de Software
+- Órgãos Públicos
+- Empresas de Tecnologia
+
+:contentReference[oaicite:7]{index=7}
+
+---
+
+# 👩‍💻 Desenvolvedora
+
+**Liliane de Freitas Terra Vieira**
+
+Analista de Requisitos • Desenvolvedora • Técnica em Tecnologia da Informação
+
+---
+
+# 📌 Status
+
+🚧 Projeto em desenvolvimento.
+
+Este repositório acompanhará toda a evolução do Sistema de Gestão de Projetos de Software, desde a arquitetura inicial até sua versão estável.
