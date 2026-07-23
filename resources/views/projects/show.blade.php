@@ -20,6 +20,8 @@
             </div>
         @endif
 
+        @include('requirements._project-nav')
+
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('projects.index') }}" class="inline-flex items-center justify-center rounded-lg border border-[#DCE3E7] bg-white px-4 py-2.5 text-sm font-semibold text-[#24313A] hover:bg-[#F5F7F9]">Voltar</a>
             @if ($canManage)
@@ -39,6 +41,17 @@
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Prazo</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->expected_end_date?->format('d/m/Y') ?? 'Não definido' }}</p><p class="mt-1 text-xs text-[#667680]">Início: {{ $project->start_date?->format('d/m/Y') ?? 'não informado' }}</p></article>
         </section>
 
+        <a href="{{ route('projects.requirements.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+            <div>
+                <p class="font-bold text-[#123B4A]">Requisitos do projeto</p>
+                <p class="mt-1 text-sm text-[#667680]">Cadastre, priorize e acompanhe as necessidades desta solução.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#1D5D73]">{{ $project->active_requirements_count }} ativos</span>
+                <span class="text-xl text-[#287EA1]">→</span>
+            </div>
+        </a>
+
         <section class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
             <h2 class="text-base font-bold text-[#24313A]">Visão geral</h2>
             <div class="mt-5 grid gap-5 lg:grid-cols-3">
@@ -48,7 +61,7 @@
             </div>
         </section>
 
-        <section class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm">
+        <section id="equipe" class="scroll-mt-24 rounded-2xl border border-[#DCE3E7] bg-white shadow-sm">
             <div class="border-b border-[#DCE3E7] px-6 py-5">
                 <h2 class="text-base font-bold text-[#24313A]">Equipe e participantes</h2>
                 <p class="mt-1 text-sm text-[#667680]">Os papéis valem somente neste projeto e não alteram o perfil global do usuário.</p>

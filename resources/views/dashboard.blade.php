@@ -128,7 +128,7 @@
                             </p>
 
                             <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                0
+                                {{ $requirementsCount }}
                             </p>
                         </div>
 
@@ -155,7 +155,7 @@
                     </div>
 
                     <p class="mt-3 text-xs text-[#667680]">
-                        Aguardando projetos
+                        {{ $requirementsCount === 1 ? '1 requisito ativo' : $requirementsCount.' requisitos ativos' }}
                     </p>
                 </article>
 
@@ -347,10 +347,11 @@
                         </div>
                     </a>
 
-                    <div
+                    <a
+                        href="{{ route('projects.index') }}"
                         class="flex items-center gap-3 rounded-xl border
-                               border-[#DCE3E7] px-3 py-3 text-[#94A1A9]"
-                        title="Funcionalidade em desenvolvimento"
+                               border-[#DCE3E7] px-3 py-3 text-[#24313A]
+                               transition hover:border-[#287EA1] hover:bg-[#F8FBFC]"
                     >
                         <div
                             class="flex h-9 w-9 flex-none items-center
@@ -381,7 +382,7 @@
                                 Depende de um projeto
                             </p>
                         </div>
-                    </div>
+                    </a>
 
                     <a
                         href="{{ route('profile.edit') }}"

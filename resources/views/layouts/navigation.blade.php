@@ -106,7 +106,12 @@
                 href="{{ route('projects.index') }}"
                 class="flex items-center gap-3 rounded-lg px-3 py-3
                        text-sm font-medium transition
-                       {{ request()->routeIs('projects.*')
+                       {{ request()->routeIs(
+                                'projects.index',
+                                'projects.create',
+                                'projects.show',
+                                'projects.edit',
+                            )
                             ? 'bg-white/15 text-white'
                             : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
@@ -156,10 +161,13 @@
                 </a>
             @endif
 
-            <div
+            <a
+                href="{{ route('requirements.index') }}"
                 class="flex items-center gap-3 rounded-lg px-3 py-3
-                       text-sm font-medium text-slate-400"
-                title="Funcionalidade em desenvolvimento"
+                       text-sm font-medium transition
+                       {{ request()->routeIs('requirements.*', 'projects.requirements.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
                 <svg
                     class="h-5 w-5"
@@ -177,7 +185,7 @@
                 </svg>
 
                 Requisitos
-            </div>
+            </a>
 
             <div
                 class="flex items-center gap-3 rounded-lg px-3 py-3

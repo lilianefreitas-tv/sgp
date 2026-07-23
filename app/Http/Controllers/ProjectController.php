@@ -79,6 +79,9 @@ class ProjectController extends Controller
             ->where('is_active', true)
             ->with('user')
             ->orderBy('user_id')]);
+        $project->loadCount([
+            'requirements as active_requirements_count' => fn ($query) => $query->where('is_active', true),
+        ]);
 
         $members = $project->memberships
             ->groupBy('user_id')
