@@ -1,469 +1,173 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h1 class="text-xl font-bold text-[#24313A]">
-                Painel
-            </h1>
-
-            <p class="mt-1 text-sm text-[#667680]">
-                Visão geral do ambiente de gestão
-            </p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h1 class="text-xl font-bold text-[#24313A]">Painel</h1>
+                <p class="mt-1 text-sm text-[#667680]">Visão executiva dos projetos disponíveis para você</p>
+            </div>
+            <a href="{{ route('calendar.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-[#123B4A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1D5D73]">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" /></svg>
+                Abrir calendário
+            </a>
         </div>
     </x-slot>
 
     <div class="space-y-5">
-        {{-- Boas-vindas --}}
-        <section
-            class="relative overflow-hidden rounded-2xl px-6 py-5
-                   text-white shadow-sm sm:px-8"
-            style="background: linear-gradient(135deg, #123B4A 0%, #1D5D73 100%);"
-        >
-            <div class="relative z-10 max-w-2xl">
-                <p
-                    class="text-sm font-semibold uppercase tracking-widest
-                           text-[#A8E2D7]"
-                >
-                    Bem-vinda ao SGP
-                </p>
-
-                <h2 class="mt-2 text-2xl font-bold text-white">
-                    Olá, {{ Auth::user()->name }}!
-                </h2>
-
-                <p class="mt-2 max-w-2xl text-sm leading-6 text-[#E4EEF1]">
-                    Acompanhe projetos, requisitos, tarefas e decisões em um
-                    ambiente integrado e rastreável.
-                </p>
-
-                <div class="mt-4">
-                    <a
-                        href="{{ Auth::user()->canCreateProjects() ? route('projects.create') : route('projects.index') }}"
-                        class="inline-flex items-center rounded-lg border
-                               border-white/20 bg-white/10 px-4 py-2
-                               text-sm font-semibold text-white transition hover:bg-white/15"
-                    >
-                        {{ Auth::user()->canCreateProjects() ? 'Cadastrar novo projeto' : 'Ver meus projetos' }}
-                    </a>
-                </div>
+        <section class="relative overflow-hidden rounded-2xl px-6 py-5 text-white shadow-sm sm:px-8" style="background: linear-gradient(135deg, #123B4A 0%, #1D5D73 100%);">
+            <div class="relative z-10 max-w-3xl">
+                <p class="text-sm font-semibold uppercase tracking-widest text-[#A8E2D7]">Bem-vinda ao SGP</p>
+                <h2 class="mt-2 text-2xl font-bold text-white">Olá, {{ Auth::user()->name }}!</h2>
+                <p class="mt-2 text-sm leading-6 text-[#E4EEF1]">Os indicadores abaixo refletem os projetos, requisitos, tarefas, prazos e documentos registrados no sistema.</p>
             </div>
-
-            <div
-                class="absolute -right-16 -top-20 h-64 w-64
-                       rounded-full border border-white/10"
-                aria-hidden="true"
-            ></div>
-
-            <div
-                class="absolute -bottom-24 right-24 h-52 w-52
-                       rounded-full border border-white/10"
-                aria-hidden="true"
-            ></div>
+            <div class="absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" aria-hidden="true"></div>
+            <div class="absolute -bottom-24 right-24 h-52 w-52 rounded-full border border-white/10" aria-hidden="true"></div>
         </section>
 
-        {{-- Indicadores --}}
+        @php
+            $cards = [
+                ['label' => 'Projetos ativos', 'value' => $activeProjectsCount, 'detail' => 'disponíveis para acompanhamento', 'tone' => 'bg-[#E6F0F3] text-[#123B4A]'],
+                ['label' => 'Projetos atrasados', 'value' => $delayedProjectsCount, 'detail' => 'com entrega prevista vencida', 'tone' => 'bg-[#FBE8E8] text-[#C44B4B]'],
+                ['label' => 'Requisitos', 'value' => $requirementsCount, 'detail' => 'requisitos ativos cadastrados', 'tone' => 'bg-[#E8F1FA] text-[#287EA1]'],
+                ['label' => 'Aguardando análise', 'value' => $pendingRequirementsCount, 'detail' => 'propostos ou em análise', 'tone' => 'bg-[#FFF3DE] text-[#D89427]'],
+                ['label' => 'Tarefas pendentes', 'value' => $pendingTasksCount, 'detail' => 'tarefas ainda não concluídas', 'tone' => 'bg-[#F0F4F6] text-[#667680]'],
+                ['label' => 'Tarefas concluídas', 'value' => $completedTasksCount, 'detail' => 'tarefas finalizadas', 'tone' => 'bg-[#E4F3F0] text-[#2E8B74]'],
+                ['label' => 'Tarefas atrasadas', 'value' => $overdueTasksCount, 'detail' => 'prazos vencidos em aberto', 'tone' => 'bg-[#FBE8E8] text-[#C44B4B]'],
+                ['label' => 'Documentos gerados', 'value' => $documentsCount, 'detail' => 'versões registradas no histórico', 'tone' => 'bg-[#F2EAFB] text-[#7752A5]'],
+            ];
+        @endphp
+
         <section>
             <div class="mb-3">
-                <h2 class="text-lg font-bold text-[#24313A]">
-                    Indicadores gerais
-                </h2>
-
-                <p class="mt-1 text-sm text-[#667680]">
-                    Resumo atual dos registros do sistema
-                </p>
+                <h2 class="text-lg font-bold text-[#24313A]">Indicadores gerais</h2>
+                <p class="mt-1 text-sm text-[#667680]">Dados reais consolidados conforme sua permissão de acesso</p>
             </div>
-
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {{-- Projetos --}}
-                <article
-                    class="rounded-2xl border border-[#DCE3E7]
-                           bg-white p-4 shadow-sm"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-medium text-[#667680]">
-                                Projetos ativos
-                            </p>
-
-                            <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                {{ $activeProjectsCount }}
-                            </p>
+                @foreach ($cards as $card)
+                    <article class="rounded-2xl border border-[#DCE3E7] bg-white p-4 shadow-sm">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-medium text-[#667680]">{{ $card['label'] }}</p>
+                                <p class="mt-2 text-3xl font-bold text-[#24313A]">{{ $card['value'] }}</p>
+                            </div>
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl {{ $card['tone'] }}">
+                                <span class="h-2.5 w-2.5 rounded-full bg-current"></span>
+                            </div>
                         </div>
-
-                        <div
-                            class="flex h-10 w-10 flex-none items-center
-                                   justify-center rounded-xl bg-[#E6F0F3]
-                                   text-[#123B4A]"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M4 7h16M4 7l2-3h5l2 3M5 7v13h14V7M9 11h6"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <p class="mt-3 text-xs text-[#667680]">
-                        {{ $activeProjectsCount === 1 ? '1 projeto disponível' : $activeProjectsCount.' projetos disponíveis' }}
-                    </p>
-                </article>
-
-                {{-- Requisitos --}}
-                <article
-                    class="rounded-2xl border border-[#DCE3E7]
-                           bg-white p-4 shadow-sm"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-medium text-[#667680]">
-                                Requisitos
-                            </p>
-
-                            <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                {{ $requirementsCount }}
-                            </p>
-                        </div>
-
-                        <div
-                            class="flex h-10 w-10 flex-none items-center
-                                   justify-center rounded-xl bg-[#E8F1FA]
-                                   text-[#287EA1]"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M9 12h6M9 16h6M8 3h8l4 4v14H4V3h4Zm8 0v5h5"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <p class="mt-3 text-xs text-[#667680]">
-                        {{ $requirementsCount === 1 ? '1 requisito ativo' : $requirementsCount.' requisitos ativos' }}
-                    </p>
-                </article>
-
-                {{-- Tarefas concluídas --}}
-                <article
-                    class="rounded-2xl border border-[#DCE3E7]
-                           bg-white p-4 shadow-sm"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-medium text-[#667680]">
-                                Tarefas concluídas
-                            </p>
-
-                            <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                {{ $completedTasksCount }}
-                            </p>
-                        </div>
-
-                        <div
-                            class="flex h-10 w-10 flex-none items-center
-                                   justify-center rounded-xl bg-[#E4F3F0]
-                                   text-[#2E8B74]"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="m5 12 4 4L19 6M4 21h16"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <p class="mt-3 text-xs text-[#667680]">
-                        {{ $completedTasksCount === 1 ? '1 tarefa finalizada' : $completedTasksCount.' tarefas finalizadas' }}
-                    </p>
-                </article>
-
-                {{-- Tarefas pendentes --}}
-                <article
-                    class="rounded-2xl border border-[#DCE3E7]
-                           bg-white p-4 shadow-sm"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-medium text-[#667680]">
-                                Tarefas pendentes
-                            </p>
-
-                            <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                {{ $pendingTasksCount }}
-                            </p>
-                        </div>
-
-                        <div
-                            class="flex h-10 w-10 flex-none items-center
-                                   justify-center rounded-xl bg-[#FFF3DE]
-                                   text-[#D89427]"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M12 8v5m0 4h.01M10.3 4.4 2.8 18a2 2 0 0 0 1.8 3h14.8a2 2 0 0 0 1.8-3L13.7 4.4a2 2 0 0 0-3.4 0Z"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <p class="mt-3 text-xs text-[#667680]">
-                        {{ $pendingTasksCount === 1 ? '1 tarefa em aberto' : $pendingTasksCount.' tarefas em aberto' }}
-                    </p>
-                </article>
+                        <p class="mt-3 text-xs text-[#667680]">{{ $card['detail'] }}</p>
+                    </article>
+                @endforeach
             </div>
         </section>
 
-        {{-- Conteúdo inferior --}}
-        <section class="grid gap-4 lg:grid-cols-3">
-            {{-- Projetos recentes --}}
-            <article
-                class="rounded-2xl border border-[#DCE3E7]
-                       bg-white shadow-sm lg:col-span-2"
-            >
-                <div
-                    class="flex items-center justify-between
-                           border-b border-[#DCE3E7] px-5 py-4"
-                >
+        <section class="grid gap-4 xl:grid-cols-2">
+            @foreach ([['title' => 'Situação dos projetos', 'items' => $projectStatuses], ['title' => 'Tarefas por etapa', 'items' => $taskStatuses]] as $chart)
+                @php($chartTotal = max(1, $chart['items']->sum('value')))
+                <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm">
+                    <h2 class="font-bold text-[#24313A]">{{ $chart['title'] }}</h2>
+                    <div class="mt-5 space-y-4">
+                        @foreach ($chart['items'] as $item)
+                            <div>
+                                <div class="mb-1.5 flex items-center justify-between gap-3 text-sm">
+                                    <span class="font-medium text-[#52616A]">{{ $item['label'] }}</span>
+                                    <span class="font-bold text-[#24313A]">{{ $item['value'] }}</span>
+                                </div>
+                                <div class="h-2.5 overflow-hidden rounded-full bg-[#EEF2F4]">
+                                    <div class="h-full rounded-full" style="width: {{ ($item['value'] / $chartTotal) * 100 }}%; background-color: {{ $item['color'] }};"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </article>
+            @endforeach
+        </section>
+
+        <section class="grid gap-4 xl:grid-cols-3">
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm xl:col-span-2">
+                <div class="flex items-center justify-between border-b border-[#DCE3E7] px-5 py-4">
                     <div>
-                        <h2 class="font-bold text-[#24313A]">
-                            Projetos recentes
-                        </h2>
-
-                        <p class="mt-1 text-sm text-[#667680]">
-                            Últimos projetos cadastrados
-                        </p>
+                        <h2 class="font-bold text-[#24313A]">Progresso dos projetos</h2>
+                        <p class="mt-1 text-sm text-[#667680]">Tarefas concluídas ÷ total de tarefas ativas</p>
                     </div>
-
-                    <span
-                        class="rounded-full bg-[#F0F4F6] px-3 py-1
-                               text-xs font-semibold text-[#667680]"
-                    >
-                        {{ $recentProjects->count() }} {{ $recentProjects->count() === 1 ? 'registro' : 'registros' }}
-                    </span>
+                    <a href="{{ route('projects.index') }}" class="text-sm font-semibold text-[#287EA1] hover:underline">Ver projetos</a>
                 </div>
-
-                @forelse ($recentProjects as $project)
-                    <a href="{{ route('projects.show', $project) }}" class="flex items-center justify-between gap-4 border-b border-[#E8EDF0] px-5 py-4 last:border-b-0 hover:bg-[#F8FAFB]">
-                        <div class="min-w-0">
-                            <p class="text-xs font-semibold text-[#287EA1]">{{ $project->code }}</p>
-                            <p class="mt-1 truncate text-sm font-semibold text-[#24313A]">{{ $project->name }}</p>
-                            <p class="mt-1 truncate text-xs text-[#667680]">{{ $project->client->name }} • {{ $project->manager->name }}</p>
-                        </div>
-                        <span class="flex-none rounded-full px-3 py-1 text-xs font-semibold {{ $project->status->badgeClasses() }}">{{ $project->status->label() }}</span>
-                    </a>
-                @empty
-                    <div class="flex min-h-48 flex-col items-center justify-center px-6 py-7 text-center">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E6F0F3] text-[#123B4A]">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7h16M4 7l2-3h5l2 3M5 7v13h14V7M9 11h6" /></svg>
-                        </div>
-                        <h3 class="mt-4 font-bold text-[#24313A]">Nenhum projeto cadastrado</h3>
-                        <p class="mt-2 max-w-md text-sm leading-6 text-[#667680]">Assim que o primeiro projeto for criado, suas informações principais aparecerão aqui.</p>
-                    </div>
-                @endforelse
+                <div class="divide-y divide-[#E8EDF0]">
+                    @forelse ($progressProjects as $project)
+                        <a href="{{ route('projects.show', $project) }}" class="block px-5 py-4 transition hover:bg-[#F8FAFB]">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-[#287EA1]">{{ $project->code }}</p>
+                                    <p class="truncate text-sm font-bold text-[#24313A]">{{ $project->name }}</p>
+                                </div>
+                                <span class="text-sm font-bold text-[#24313A]">{{ $project->progress_percentage }}%</span>
+                            </div>
+                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-[#EEF2F4]">
+                                <div class="h-full rounded-full bg-[#1D5D73]" style="width: {{ $project->progress_percentage }}%"></div>
+                            </div>
+                            <p class="mt-2 text-xs text-[#667680]">{{ $project->completed_tasks_count }} de {{ $project->active_tasks_count }} tarefas concluídas</p>
+                        </a>
+                    @empty
+                        <p class="px-5 py-10 text-center text-sm text-[#667680]">Nenhum projeto disponível.</p>
+                    @endforelse
+                </div>
             </article>
 
-            {{-- Atalhos --}}
-            <article
-                class="rounded-2xl border border-[#DCE3E7]
-                       bg-white p-5 shadow-sm"
-            >
-                <h2 class="font-bold text-[#24313A]">
-                    Atalhos rápidos
-                </h2>
-
-                <p class="mt-1 text-sm text-[#667680]">
-                    Acesse as principais áreas
-                </p>
-
-                <div class="mt-4 space-y-2">
-                    <a
-                        href="{{ Auth::user()->canCreateProjects() ? route('projects.create') : route('projects.index') }}"
-                        class="flex items-center gap-3 rounded-xl border
-                               border-[#DCE3E7] px-3 py-3 text-[#24313A]
-                               transition hover:border-[#287EA1] hover:bg-[#F8FBFC]"
-                    >
-                        <div
-                            class="flex h-9 w-9 flex-none items-center
-                                   justify-center rounded-lg bg-[#E6F0F3] text-[#123B4A]"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M12 5v14M5 12h14"
-                                />
-                            </svg>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-semibold">
-                                Novo projeto
-                            </p>
-
-                            <p class="mt-0.5 text-xs">
-                                {{ Auth::user()->canCreateProjects() ? 'Cadastre a base do projeto' : 'Acesse seus projetos' }}
-                            </p>
-                        </div>
-                    </a>
-
-                    <a
-                        href="{{ route('projects.index') }}"
-                        class="flex items-center gap-3 rounded-xl border
-                               border-[#DCE3E7] px-3 py-3 text-[#24313A]
-                               transition hover:border-[#287EA1] hover:bg-[#F8FBFC]"
-                    >
-                        <div
-                            class="flex h-9 w-9 flex-none items-center
-                                   justify-center rounded-lg bg-[#F0F4F6]"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M9 12h6M9 16h6M8 3h8l4 4v14H4V3h4Zm8 0v5h5"
-                                />
-                            </svg>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-semibold">
-                                Novo requisito
-                            </p>
-
-                            <p class="mt-0.5 text-xs">
-                                Depende de um projeto
-                            </p>
-                        </div>
-                    </a>
-
-                    <a
-                        href="{{ route('profile.edit') }}"
-                        class="flex items-center gap-3 rounded-xl border
-                               border-[#DCE3E7] px-3 py-3 text-[#24313A]
-                               transition hover:border-[#287EA1]
-                               hover:bg-[#F8FBFC]"
-                    >
-                        <div
-                            class="flex h-9 w-9 flex-none items-center
-                                   justify-center rounded-lg bg-[#E4F3F0]
-                                   text-[#2E8B74]"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 9a7 7 0 0 0-14 0"
-                                />
-                            </svg>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-semibold">
-                                Meu perfil
-                            </p>
-
-                            <p class="mt-0.5 text-xs text-[#667680]">
-                                Gerencie seus dados de acesso
-                            </p>
-                        </div>
-                    </a>
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm">
+                <h2 class="font-bold text-[#24313A]">Exigem atenção</h2>
+                <p class="mt-1 text-sm text-[#667680]">Projetos ou tarefas com prazo vencido</p>
+                <div class="mt-4 space-y-3">
+                    @forelse ($attentionProjects as $project)
+                        <a href="{{ route('projects.show', $project) }}" class="block rounded-xl border border-[#F1D2D2] bg-[#FFF8F8] p-3 transition hover:border-[#C44B4B]">
+                            <p class="text-xs font-semibold text-[#C44B4B]">{{ $project->code }}</p>
+                            <p class="mt-1 text-sm font-bold text-[#24313A]">{{ $project->name }}</p>
+                            <p class="mt-1 text-xs text-[#667680]">{{ $project->overdue_tasks_count }} tarefa(s) atrasada(s)</p>
+                        </a>
+                    @empty
+                        <div class="rounded-xl bg-[#F3FAF8] p-4 text-sm text-[#26735F]">Nenhuma pendência crítica encontrada.</div>
+                    @endforelse
                 </div>
             </article>
         </section>
 
-        {{-- Atividades recentes --}}
-        <section
-            class="rounded-2xl border border-[#DCE3E7]
-                   bg-white p-5 shadow-sm"
-        >
-            <div class="flex items-start gap-4">
-                <div
-                    class="flex h-10 w-10 flex-none items-center
-                           justify-center rounded-xl bg-[#E8F1FA]
-                           text-[#287EA1]"
-                >
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        aria-hidden="true"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.8"
-                            d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                        />
-                    </svg>
+        <section class="grid gap-4 xl:grid-cols-2">
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm">
+                <div class="border-b border-[#DCE3E7] px-5 py-4">
+                    <h2 class="font-bold text-[#24313A]">Próximos prazos</h2>
+                    <p class="mt-1 text-sm text-[#667680]">Tarefas abertas ordenadas pela data de entrega</p>
                 </div>
-
-                <div>
-                    <h2 class="font-bold text-[#24313A]">
-                        Atividades recentes
-                    </h2>
-
-                    <p class="mt-1 text-sm leading-6 text-[#667680]">
-                        O histórico de alterações, movimentações e decisões
-                        dos projetos será apresentado aqui.
-                    </p>
+                <div class="divide-y divide-[#E8EDF0]">
+                    @forelse ($upcomingDeadlines as $task)
+                        <a href="{{ route('projects.tasks.show', [$task->project, $task]) }}" class="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-[#F8FAFB]">
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-semibold text-[#24313A]">{{ $task->code }} · {{ $task->title }}</p>
+                                <p class="mt-1 truncate text-xs text-[#667680]">{{ $task->project->name }} · {{ $task->responsible?->name ?? 'Sem responsável' }}</p>
+                            </div>
+                            <span class="flex-none text-xs font-bold text-[#9A6415]">{{ $task->due_date->format('d/m/Y') }}</span>
+                        </a>
+                    @empty
+                        <p class="px-5 py-10 text-center text-sm text-[#667680]">Nenhum prazo futuro cadastrado.</p>
+                    @endforelse
                 </div>
-            </div>
+            </article>
+
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm">
+                <div class="border-b border-[#DCE3E7] px-5 py-4">
+                    <h2 class="font-bold text-[#24313A]">Atividades recentes</h2>
+                    <p class="mt-1 text-sm text-[#667680]">Últimos eventos registrados no histórico consolidado</p>
+                </div>
+                <div class="divide-y divide-[#E8EDF0]">
+                    @forelse ($recentActivities as $activity)
+                        <a href="{{ route('projects.history.index', $activity->project) }}" class="flex gap-3 px-5 py-3.5 hover:bg-[#F8FAFB]">
+                            <span class="mt-1.5 h-2 w-2 flex-none rounded-full bg-[#2E8B74]"></span>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-[#24313A]">{{ $activity->description }}</p>
+                                <p class="mt-1 truncate text-xs text-[#667680]">{{ $activity->project->code }} · {{ $activity->user?->name ?? 'Sistema' }} · {{ $activity->created_at->format('d/m/Y H:i') }}</p>
+                            </div>
+                        </a>
+                    @empty
+                        <p class="px-5 py-10 text-center text-sm text-[#667680]">Nenhuma atividade registrada.</p>
+                    @endforelse
+                </div>
+            </article>
         </section>
     </div>
 </x-app-layout>

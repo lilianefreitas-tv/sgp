@@ -265,6 +265,21 @@
                 Documentos
             </a>
 
+            <a
+                href="{{ route('calendar.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium transition
+                       {{ request()->routeIs('calendar.*', 'projects.calendar.*', 'projects.schedule.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" />
+                </svg>
+
+                Calendário
+            </a>
+
             <div
                 class="flex items-center gap-3 rounded-lg px-3 py-3
                        text-sm font-medium text-slate-400"

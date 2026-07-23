@@ -13,38 +13,18 @@ use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\ProjectAttachmentController;
 use App\Http\Controllers\ProjectCommentController;
 use App\Http\Controllers\ProjectHistoryController;
-use App\Models\Project;
-use App\Models\Requirement;
-use App\Models\Task;
-use App\Enums\TaskStatus;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ProjectScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    $query = Project::query()->visibleTo(request()->user())->whereNull('archived_at');
-
-    return view('dashboard', [
-        'activeProjectsCount' => (clone $query)->where('is_active', true)->count(),
-        'requirementsCount' => Requirement::query()
-            ->where('is_active', true)
-            ->whereIn('project_id', (clone $query)->select('id'))
-            ->count(),
-        'pendingTasksCount' => Task::query()
-            ->where('is_active', true)
-            ->where('status', '!=', TaskStatus::Completed->value)
-            ->whereIn('project_id', (clone $query)->select('id'))
-            ->count(),
-        'completedTasksCount' => Task::query()
-            ->where('is_active', true)
-            ->where('status', TaskStatus::Completed->value)
-            ->whereIn('project_id', (clone $query)->select('id'))
-            ->count(),
-        'recentProjects' => (clone $query)->with(['client', 'manager'])->latest('updated_at')->limit(5)->get(),
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', DashboardController::class)
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -57,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/tasks', [TaskController::class, 'overview'])->name('tasks.index');
     Route::get('/kanban', [KanbanController::class, 'overview'])->name('kanban.index');
     Route::get('/documents', [DocumentController::class, 'overview'])->name('documents.index');
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
     Route::patch('/projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
     Route::patch('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
     Route::post('/projects/{project}/members', [ProjectMemberController::class, 'store'])->name('projects.members.store');
@@ -82,6 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/attachments/{attachment}/download', [ProjectAttachmentController::class, 'download'])->name('projects.attachments.download');
     Route::delete('/projects/{project}/attachments/{attachment}', [ProjectAttachmentController::class, 'destroy'])->name('projects.attachments.destroy');
     Route::get('/projects/{project}/history', [ProjectHistoryController::class, 'index'])->name('projects.history.index');
+    Route::get('/projects/{project}/calendar', [CalendarController::class, 'project'])->name('projects.calendar.index');
+    Route::get('/projects/{project}/schedule', ProjectScheduleController::class)->name('projects.schedule.show');
 });
 
 Route::middleware(['auth', 'administrator'])->group(function () {
