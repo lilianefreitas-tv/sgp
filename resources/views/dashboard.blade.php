@@ -36,13 +36,14 @@
                 </p>
 
                 <div class="mt-4">
-                    <span
+                    <a
+                        href="{{ Auth::user()->canCreateProjects() ? route('projects.create') : route('projects.index') }}"
                         class="inline-flex items-center rounded-lg border
                                border-white/20 bg-white/10 px-4 py-2
-                               text-sm font-semibold text-white"
+                               text-sm font-semibold text-white transition hover:bg-white/15"
                     >
-                        Primeiro projeto em breve
-                    </span>
+                        {{ Auth::user()->canCreateProjects() ? 'Cadastrar novo projeto' : 'Ver meus projetos' }}
+                    </a>
                 </div>
             </div>
 
@@ -84,7 +85,7 @@
                             </p>
 
                             <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                0
+                                {{ $activeProjectsCount }}
                             </p>
                         </div>
 
@@ -111,7 +112,7 @@
                     </div>
 
                     <p class="mt-3 text-xs text-[#667680]">
-                        Nenhum projeto cadastrado
+                        {{ $activeProjectsCount === 1 ? '1 projeto disponível' : $activeProjectsCount.' projetos disponíveis' }}
                     </p>
                 </article>
 
@@ -271,43 +272,28 @@
                         class="rounded-full bg-[#F0F4F6] px-3 py-1
                                text-xs font-semibold text-[#667680]"
                     >
-                        0 registros
+                        {{ $recentProjects->count() }} {{ $recentProjects->count() === 1 ? 'registro' : 'registros' }}
                     </span>
                 </div>
 
-                <div
-                    class="flex min-h-48 flex-col items-center
-                           justify-center px-6 py-7 text-center"
-                >
-                    <div
-                        class="flex h-12 w-12 items-center justify-center
-                               rounded-2xl bg-[#E6F0F3] text-[#123B4A]"
-                    >
-                        <svg
-                            class="h-6 w-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="1.8"
-                                d="M4 7h16M4 7l2-3h5l2 3M5 7v13h14V7M9 11h6"
-                            />
-                        </svg>
+                @forelse ($recentProjects as $project)
+                    <a href="{{ route('projects.show', $project) }}" class="flex items-center justify-between gap-4 border-b border-[#E8EDF0] px-5 py-4 last:border-b-0 hover:bg-[#F8FAFB]">
+                        <div class="min-w-0">
+                            <p class="text-xs font-semibold text-[#287EA1]">{{ $project->code }}</p>
+                            <p class="mt-1 truncate text-sm font-semibold text-[#24313A]">{{ $project->name }}</p>
+                            <p class="mt-1 truncate text-xs text-[#667680]">{{ $project->client->name }} • {{ $project->manager->name }}</p>
+                        </div>
+                        <span class="flex-none rounded-full px-3 py-1 text-xs font-semibold {{ $project->status->badgeClasses() }}">{{ $project->status->label() }}</span>
+                    </a>
+                @empty
+                    <div class="flex min-h-48 flex-col items-center justify-center px-6 py-7 text-center">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E6F0F3] text-[#123B4A]">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7h16M4 7l2-3h5l2 3M5 7v13h14V7M9 11h6" /></svg>
+                        </div>
+                        <h3 class="mt-4 font-bold text-[#24313A]">Nenhum projeto cadastrado</h3>
+                        <p class="mt-2 max-w-md text-sm leading-6 text-[#667680]">Assim que o primeiro projeto for criado, suas informações principais aparecerão aqui.</p>
                     </div>
-
-                    <h3 class="mt-4 font-bold text-[#24313A]">
-                        Nenhum projeto cadastrado
-                    </h3>
-
-                    <p class="mt-2 max-w-md text-sm leading-6 text-[#667680]">
-                        Assim que o primeiro projeto for criado, suas
-                        informações principais aparecerão aqui.
-                    </p>
-                </div>
+                @endforelse
             </article>
 
             {{-- Atalhos --}}
@@ -324,14 +310,15 @@
                 </p>
 
                 <div class="mt-4 space-y-2">
-                    <div
+                    <a
+                        href="{{ Auth::user()->canCreateProjects() ? route('projects.create') : route('projects.index') }}"
                         class="flex items-center gap-3 rounded-xl border
-                               border-[#DCE3E7] px-3 py-3 text-[#94A1A9]"
-                        title="Funcionalidade em desenvolvimento"
+                               border-[#DCE3E7] px-3 py-3 text-[#24313A]
+                               transition hover:border-[#287EA1] hover:bg-[#F8FBFC]"
                     >
                         <div
                             class="flex h-9 w-9 flex-none items-center
-                                   justify-center rounded-lg bg-[#F0F4F6]"
+                                   justify-center rounded-lg bg-[#E6F0F3] text-[#123B4A]"
                         >
                             <svg
                                 class="h-5 w-5"
@@ -355,10 +342,10 @@
                             </p>
 
                             <p class="mt-0.5 text-xs">
-                                Disponível na próxima etapa
+                                {{ Auth::user()->canCreateProjects() ? 'Cadastre a base do projeto' : 'Acesse seus projetos' }}
                             </p>
                         </div>
-                    </div>
+                    </a>
 
                     <div
                         class="flex items-center gap-3 rounded-xl border

@@ -102,10 +102,13 @@
                 Gerenciamento
             </p>
 
-            <div
+            <a
+                href="{{ route('projects.index') }}"
                 class="flex items-center gap-3 rounded-lg px-3 py-3
-                       text-sm font-medium text-slate-400"
-                title="Funcionalidade em desenvolvimento"
+                       text-sm font-medium transition
+                       {{ request()->routeIs('projects.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
                 <svg
                     class="h-5 w-5"
@@ -123,14 +126,35 @@
                 </svg>
 
                 Projetos
+            </a>
 
-                <span
-                    class="ml-auto rounded-full bg-white/10
-                           px-2 py-1 text-[10px] uppercase"
+            @if (Auth::user()->canCreateProjects())
+                <a
+                    href="{{ route('clients.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3
+                           text-sm font-medium transition
+                           {{ request()->routeIs('clients.*')
+                                ? 'bg-white/15 text-white'
+                                : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
                 >
-                    Em breve
-                </span>
-            </div>
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M3 21h18M5 21V7l7-4 7 4v14M9 10h6M9 14h6M9 18h6"
+                        />
+                    </svg>
+
+                    Clientes e unidades
+                </a>
+            @endif
 
             <div
                 class="flex items-center gap-3 rounded-lg px-3 py-3

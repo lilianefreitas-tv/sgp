@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -55,5 +56,30 @@ class User extends Authenticatable
     public function isAdministrator(): bool
     {
         return $this->global_profile === GlobalProfile::Administrator;
+    }
+
+    public function managedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'manager_id');
+    }
+
+    public function projectMemberships(): HasMany
+    {
+        return $this->hasMany(ProjectMembership::class);
+    }
+
+    public function hasProjectRole(\App\Enums\ProjectRole $role, ?Project $project = null): bool
+    {
+        return $this->projectMemberships()
+            ->where('role', $role->value)
+            ->where('is_active', true)
+            ->when($project, fn ($query) => $query->where('project_id', $project->id))
+            ->exists();
+    }
+
+    public function canCreateProjects(): bool
+    {
+        return $this->isAdministrator()
+            || $this->hasProjectRole(\App\Enums\ProjectRole::ProjectManager);
     }
 }
