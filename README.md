@@ -67,6 +67,8 @@ O PostgreSQL será utilizado para persistência dos dados, enquanto o Eloquent O
 - PostgreSQL
 - Eloquent ORM
 - Blade Template Engine
+- PHPWord para geração de arquivos DOCX
+- Dompdf para geração de arquivos PDF
 
 ### Frontend
 
@@ -107,6 +109,7 @@ A primeira versão do SGP será concentrada nas funcionalidades essenciais para 
 - Registro de regras de negócio
 - Controle de tarefas
 - Histórico básico de alterações
+- Geração e versionamento de documentos em DOCX e PDF
 - Painel de acompanhamento do projeto
 
 ---

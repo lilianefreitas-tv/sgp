@@ -239,6 +239,32 @@
                 Kanban
             </a>
 
+            <a
+                href="{{ route('documents.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium transition
+                       {{ request()->routeIs('documents.*', 'projects.documents.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M7 3h7l4 4v14H7V3Zm7 0v5h5M10 12h5M10 16h5"
+                    />
+                </svg>
+
+                Documentos
+            </a>
+
             <div
                 class="flex items-center gap-3 rounded-lg px-3 py-3
                        text-sm font-medium text-slate-400"
@@ -300,6 +326,18 @@
                     </svg>
 
                     Usuários
+                </a>
+
+                <a
+                    href="{{ route('document-templates.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('document-templates.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 4h9l3 3v13H6V4Zm9 0v4h4M9 12h6M9 16h6" />
+                    </svg>
+
+                    Modelos de documentos
                 </a>
             @endif
         </nav>

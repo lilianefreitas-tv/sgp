@@ -24,6 +24,16 @@ class Project extends Model
         'description',
         'objective',
         'justification',
+        'document_context',
+        'problem_statement',
+        'solution_summary',
+        'target_audience',
+        'scope_included',
+        'scope_excluded',
+        'assumptions',
+        'constraints',
+        'success_criteria',
+        'future_vision',
         'management_level',
         'methodology',
         'status',
@@ -86,6 +96,11 @@ class Project extends Model
     public function kanbanBoard(): HasOne
     {
         return $this->hasOne(KanbanBoard::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ProjectDocument::class);
     }
 
     public function scopeVisibleTo(Builder $query, User $user): Builder

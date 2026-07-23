@@ -82,6 +82,7 @@ class ProjectController extends Controller
         $project->loadCount([
             'requirements as active_requirements_count' => fn ($query) => $query->where('is_active', true),
             'tasks as active_tasks_count' => fn ($query) => $query->where('is_active', true),
+            'documents as documents_count',
         ]);
 
         $members = $project->memberships

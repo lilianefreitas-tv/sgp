@@ -63,6 +63,17 @@
             </div>
         </a>
 
+        <a href="{{ route('projects.documents.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#C9DCE4] bg-[#F5F9FB] p-5 transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+            <div>
+                <p class="font-bold text-[#1D5D73]">Documentos do projeto</p>
+                <p class="mt-1 text-sm text-[#667680]">Gere artefatos em DOCX e PDF e consulte o histórico de versões.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#287EA1]">{{ $project->documents_count }} gerados</span>
+                <span class="text-xl text-[#287EA1]">→</span>
+            </div>
+        </a>
+
         <section class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
             <h2 class="text-base font-bold text-[#24313A]">Visão geral</h2>
             <div class="mt-5 grid gap-5 lg:grid-cols-3">

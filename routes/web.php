@@ -8,6 +8,8 @@ use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\RequirementController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\KanbanController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentTemplateController;
 use App\Models\Project;
 use App\Models\Requirement;
 use App\Models\Task;
@@ -51,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/requirements', [RequirementController::class, 'overview'])->name('requirements.index');
     Route::get('/tasks', [TaskController::class, 'overview'])->name('tasks.index');
     Route::get('/kanban', [KanbanController::class, 'overview'])->name('kanban.index');
+    Route::get('/documents', [DocumentController::class, 'overview'])->name('documents.index');
     Route::patch('/projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
     Route::patch('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
     Route::post('/projects/{project}/members', [ProjectMemberController::class, 'store'])->name('projects.members.store');
@@ -64,10 +67,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/kanban', [KanbanController::class, 'show'])->name('projects.kanban.show');
     Route::patch('/projects/{project}/kanban/tasks/{task}/move', [KanbanController::class, 'move'])->name('projects.kanban.tasks.move');
     Route::patch('/projects/{project}/kanban/columns', [KanbanController::class, 'updateColumns'])->name('projects.kanban.columns.update');
+    Route::get('/projects/{project}/documents', [DocumentController::class, 'index'])->name('projects.documents.index');
+    Route::get('/projects/{project}/documents/information', [DocumentController::class, 'editSetup'])->name('projects.documents.setup.edit');
+    Route::put('/projects/{project}/documents/information', [DocumentController::class, 'updateSetup'])->name('projects.documents.setup.update');
+    Route::post('/projects/{project}/documents/generate', [DocumentController::class, 'generate'])->name('projects.documents.generate');
+    Route::get('/projects/{project}/documents/{document}/download/{format}', [DocumentController::class, 'download'])->name('projects.documents.download');
 });
 
 Route::middleware(['auth', 'administrator'])->group(function () {
     Route::resource('users', UserController::class)->except(['show', 'destroy']);
+    Route::resource('document-templates', DocumentTemplateController::class)->except(['show', 'destroy']);
+    Route::patch('/document-templates/{documentTemplate}/deactivate', [DocumentTemplateController::class, 'deactivate'])->name('document-templates.deactivate');
+    Route::patch('/document-templates/{documentTemplate}/reactivate', [DocumentTemplateController::class, 'reactivate'])->name('document-templates.reactivate');
 });
 
 require __DIR__.'/auth.php';

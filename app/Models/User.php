@@ -78,6 +78,11 @@ class User extends Authenticatable
         return $this->hasMany(Task::class, 'responsible_id');
     }
 
+    public function generatedDocuments(): HasMany
+    {
+        return $this->hasMany(ProjectDocument::class, 'generated_by');
+    }
+
     public function hasProjectRole(\App\Enums\ProjectRole $role, ?Project $project = null): bool
     {
         return $this->projectMemberships()
