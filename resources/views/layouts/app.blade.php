@@ -85,7 +85,7 @@
                                 class="max-w-48 truncate text-xs
                                        text-[#667680]"
                             >
-                                {{ Auth::user()->email }}
+                                {{ Auth::user()->global_profile->label() }}
                             </p>
                         </div>
 
