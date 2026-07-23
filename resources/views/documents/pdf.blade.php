@@ -10,7 +10,7 @@
         header { position: fixed; top: -48px; left: 0; right: 0; height: 34px; border-bottom: 1px solid #DCE3E7; color: #667680; font-size: 8pt; }
         header table { width: 100%; border: 0; }
         header td { padding: 0; border: 0; vertical-align: middle; }
-        footer { position: fixed; bottom: -39px; left: 0; right: 0; border-top: 1px solid #DCE3E7; padding-top: 7px; color: #667680; text-align: center; font-size: 8pt; }
+        footer { position: fixed; bottom: -43px; left: 0; right: 0; border-top: 1px solid #DCE3E7; padding-top: 5px; color: #667680; text-align: center; font-size: 7.5pt; line-height: 1.25; }
         footer .page-number:after { content: counter(page); }
         h1 { margin: 20px 0 8px; color: #123B4A; font-size: 16pt; page-break-after: avoid; }
         h2 { margin: 16px 0 7px; color: #287EA1; font-size: 12pt; page-break-after: avoid; }
@@ -21,7 +21,7 @@
         table.data th, table.data td { border: 1px solid #DCE3E7; padding: 7px 8px; vertical-align: middle; }
         table.data th { background: #123B4A; color: #FFF; font-size: 9pt; text-align: left; }
         table.data td.label { width: 28%; background: #F3F7F8; font-weight: bold; }
-        .cover { height: 800px; padding-top: 185px; text-align: center; page-break-after: always; }
+        .cover { min-height: 610px; padding-top: 145px; text-align: center; page-break-after: always; }
         .cover .brand { color: #287EA1; font-size: 15pt; font-weight: bold; letter-spacing: 1px; }
         .cover h1 { margin-top: 28px; font-size: 26pt; text-align: center; }
         .cover .project-name { margin-top: 20px; font-size: 17pt; text-align: center; }
@@ -29,6 +29,10 @@
         .cover .version { margin-top: 115px; text-align: center; }
         .item { page-break-inside: avoid; margin-bottom: 18px; }
         .muted { color: #667680; }
+        table.backlog { page-break-inside: auto; font-size: 8.2pt; }
+        table.backlog th, table.backlog td { padding: 5px 6px; }
+        table.backlog tr { page-break-inside: avoid; }
+        .requirement-meta { margin: -2px 0 7px; color: #667680; font-size: 8.5pt; text-align: left; }
     </style>
 </head>
 <body>
@@ -41,7 +45,8 @@
         </table>
     </header>
     <footer>
-        {{ $template->footer_text ?: 'Documento gerado automaticamente pelo SGP' }} | Página <span class="page-number"></span>
+        <div>{{ $template->footer_text ?: 'Documento gerado automaticamente pelo SGP' }}</div>
+        <div>Gerado por: {{ $generatedBy->name }} | {{ $generatedAt->format('d/m/Y H:i') }} | Página <span class="page-number"></span></div>
     </footer>
 
     <section class="cover">
@@ -146,7 +151,7 @@
             </section>
         @endforeach
         @endif
-    @else
+    @elseif ($type === \App\Enums\DocumentType::TasksList)
         <h1>1. Identificação</h1>
         <table class="data">
             <tr><td class="label">Projeto</td><td>{{ $project->name }}</td></tr>
@@ -173,6 +178,94 @@
                 <p><strong>Descrição:</strong><br>{!! nl2br(e($task->description ?: 'Não informada.')) !!}</p>
             </section>
         @endforeach
+        @endif
+    @else
+        <h1>1. Identificação</h1>
+        <table class="data">
+            <tr><td class="label">Projeto</td><td>{{ $project->name }}</td></tr>
+            <tr><td class="label">Código</td><td>{{ $project->code }}</td></tr>
+            <tr><td class="label">Responsável</td><td>{{ $project->manager->name }}</td></tr>
+            <tr><td class="label">Situação</td><td>{{ $project->status->label() }}</td></tr>
+            <tr><td class="label">Requisitos</td><td>{{ $requirements->count() }}</td></tr>
+            <tr><td class="label">Tarefas</td><td>{{ $tasks->count() }}</td></tr>
+        </table>
+
+        <h1>2. Backlog por requisito</h1>
+        @if ($requirements->isEmpty())
+            <p>Nenhum requisito cadastrado no projeto.</p>
+        @else
+            @foreach ($requirements as $requirement)
+                <h2>{{ $requirement->code }} - {{ $requirement->title }}</h2>
+                <p class="requirement-meta">
+                    Tipo: {{ $requirement->type->label() }} |
+                    Prioridade: {{ $requirement->priority->label() }} |
+                    Situação: {{ $requirement->status->label() }}
+                </p>
+                @php
+                    $requirementTasks = $tasks->where('requirement_id', $requirement->id);
+                @endphp
+                @if ($requirementTasks->isEmpty())
+                    <p class="muted">Nenhuma tarefa vinculada a este requisito.</p>
+                @else
+                    <table class="data backlog">
+                        <thead>
+                            <tr>
+                                <th style="width: 32%;">Tarefa</th>
+                                <th style="width: 13%;">Situação</th>
+                                <th style="width: 11%;">Prioridade</th>
+                                <th style="width: 18%;">Responsável</th>
+                                <th style="width: 12%;">Estimativa</th>
+                                <th style="width: 14%;">Prazo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($requirementTasks as $task)
+                                <tr>
+                                    <td>{{ $task->code }} - {{ $task->title }}</td>
+                                    <td>{{ $task->status->label() }}</td>
+                                    <td>{{ $task->priority->label() }}</td>
+                                    <td>{{ $task->responsible?->name ?: 'Não definido' }}</td>
+                                    <td>{{ $task->estimatedDuration() ?: 'N/I' }}</td>
+                                    <td>{{ $task->due_date?->format('d/m/Y') ?: 'N/I' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+            @endforeach
+        @endif
+
+        <h1>3. Tarefas sem requisito vinculado</h1>
+        @php
+            $unlinkedTasks = $tasks->whereNull('requirement_id');
+        @endphp
+        @if ($unlinkedTasks->isEmpty())
+            <p class="muted">Nenhuma tarefa sem requisito vinculado.</p>
+        @else
+            <table class="data backlog">
+                <thead>
+                    <tr>
+                        <th style="width: 32%;">Tarefa</th>
+                        <th style="width: 13%;">Situação</th>
+                        <th style="width: 11%;">Prioridade</th>
+                        <th style="width: 18%;">Responsável</th>
+                        <th style="width: 12%;">Estimativa</th>
+                        <th style="width: 14%;">Prazo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($unlinkedTasks as $task)
+                        <tr>
+                            <td>{{ $task->code }} - {{ $task->title }}</td>
+                            <td>{{ $task->status->label() }}</td>
+                            <td>{{ $task->priority->label() }}</td>
+                            <td>{{ $task->responsible?->name ?: 'Não definido' }}</td>
+                            <td>{{ $task->estimatedDuration() ?: 'N/I' }}</td>
+                            <td>{{ $task->due_date?->format('d/m/Y') ?: 'N/I' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         @endif
     @endif
 </body>

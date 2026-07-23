@@ -47,7 +47,7 @@
                 @endif
             </div>
 
-            <div class="grid gap-4 lg:grid-cols-3">
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 @foreach ($types as $type)
                     @php
                         $typeTemplates = $templates->get($type->value, collect());
@@ -66,8 +66,10 @@
                                 Consolida visão, contexto, problema, solução, escopo e equipe.
                             @elseif ($type === \App\Enums\DocumentType::RequirementsList)
                                 Reúne requisitos, versões, prioridades, responsáveis e critérios de aceite.
-                            @else
+                            @elseif ($type === \App\Enums\DocumentType::TasksList)
                                 Reúne tarefas, vínculos, responsáveis, estimativas, prazos e situação.
+                            @else
+                                Apresenta requisitos e tarefas essenciais em uma visão compacta do backlog.
                             @endif
                         </p>
 

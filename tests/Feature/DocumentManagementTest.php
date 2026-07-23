@@ -19,9 +19,9 @@ class DocumentManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_migration_creates_three_default_active_templates(): void
+    public function test_migration_creates_four_default_active_templates(): void
     {
-        $this->assertSame(3, DocumentTemplate::query()->where('is_active', true)->count());
+        $this->assertSame(4, DocumentTemplate::query()->where('is_active', true)->count());
         foreach (DocumentType::cases() as $type) {
             $this->assertDatabaseHas('document_templates', [
                 'type' => $type->value,
@@ -107,6 +107,95 @@ class DocumentManagementTest extends TestCase
         }
 
         $this->assertDatabaseCount('project_documents', 2);
+    }
+
+    public function test_generation_creates_consolidated_backlog_with_project_counts(): void
+    {
+        Storage::fake('local');
+        $administrator = User::factory()->administrator()->create();
+        $project = Project::factory()->create();
+        $requirement = Requirement::factory()->create(['project_id' => $project->id]);
+        Task::factory()->create([
+            'project_id' => $project->id,
+            'requirement_id' => $requirement->id,
+            'responsible_id' => $administrator->id,
+        ]);
+        Task::factory()->create([
+            'project_id' => $project->id,
+            'requirement_id' => null,
+        ]);
+        $template = DocumentTemplate::query()
+            ->where('type', DocumentType::ConsolidatedBacklog->value)
+            ->firstOrFail();
+
+        $this->actingAs($administrator)
+            ->post(route('projects.documents.generate', $project), [
+                'document_template_id' => $template->id,
+            ])
+            ->assertRedirect(route('projects.documents.index', $project))
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+
+        $document = ProjectDocument::query()->firstOrFail();
+        $this->assertSame(DocumentType::ConsolidatedBacklog, $document->type);
+        $this->assertSame(1, $document->metadata['requirements_count']);
+        $this->assertSame(2, $document->metadata['tasks_count']);
+        $this->assertStringContainsString('backlog-consolidado', $document->docx_file_name);
+        Storage::disk('local')->assertExists($document->docx_path);
+        Storage::disk('local')->assertExists($document->pdf_path);
+    }
+
+    public function test_pdf_layout_contains_audit_footer_and_backlog_sections(): void
+    {
+        $generator = User::factory()->create(['name' => 'Liliane Auditora']);
+        $project = Project::factory()->create();
+        $requirement = Requirement::factory()->create([
+            'project_id' => $project->id,
+            'title' => 'Gerenciar documentos',
+        ]);
+        Task::factory()->create([
+            'project_id' => $project->id,
+            'requirement_id' => $requirement->id,
+            'title' => 'Gerar backlog',
+        ]);
+        Task::factory()->create([
+            'project_id' => $project->id,
+            'requirement_id' => null,
+            'title' => 'Revisar rodapé',
+        ]);
+        $project->load([
+            'client',
+            'manager',
+            'requirements.responsible',
+            'tasks.responsible',
+            'tasks.requirement',
+            'tasks.parent',
+        ]);
+        $generatedAt = now()->setDate(2026, 7, 23)->setTime(11, 35);
+        $template = DocumentTemplate::query()
+            ->where('type', DocumentType::ConsolidatedBacklog->value)
+            ->firstOrFail();
+
+        $html = view('documents.pdf', [
+            'project' => $project,
+            'template' => $template,
+            'generatedBy' => $generator,
+            'type' => DocumentType::ConsolidatedBacklog,
+            'title' => DocumentType::ConsolidatedBacklog->label(),
+            'version' => 1,
+            'generatedAt' => $generatedAt,
+            'members' => collect(),
+            'requirements' => $project->requirements,
+            'tasks' => $project->tasks,
+        ])->render();
+
+        $this->assertStringContainsString('Gerado por: Liliane Auditora', $html);
+        $this->assertStringContainsString('23/07/2026 11:35', $html);
+        $this->assertStringContainsString('2. Backlog por requisito', $html);
+        $this->assertStringContainsString('Gerenciar documentos', $html);
+        $this->assertStringContainsString('Gerar backlog', $html);
+        $this->assertStringContainsString('3. Tarefas sem requisito vinculado', $html);
+        $this->assertStringContainsString('Revisar rodapé', $html);
     }
 
     public function test_observer_can_download_existing_document_but_cannot_generate_one(): void

@@ -7,6 +7,7 @@ enum DocumentType: string
     case Vision = 'vision';
     case RequirementsList = 'requirements_list';
     case TasksList = 'tasks_list';
+    case ConsolidatedBacklog = 'consolidated_backlog';
 
     public function label(): string
     {
@@ -14,6 +15,7 @@ enum DocumentType: string
             self::Vision => 'Documento de Visão',
             self::RequirementsList => 'Lista de Requisitos',
             self::TasksList => 'Lista de Tarefas',
+            self::ConsolidatedBacklog => 'Backlog Consolidado do Projeto',
         };
     }
 
@@ -23,6 +25,7 @@ enum DocumentType: string
             self::Vision => 'VIS',
             self::RequirementsList => 'REQ',
             self::TasksList => 'TAR',
+            self::ConsolidatedBacklog => 'BKL',
         };
     }
 
@@ -32,6 +35,7 @@ enum DocumentType: string
             self::Vision => 'documento-de-visao',
             self::RequirementsList => 'lista-de-requisitos',
             self::TasksList => 'lista-de-tarefas',
+            self::ConsolidatedBacklog => 'backlog-consolidado',
         };
     }
 

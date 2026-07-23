@@ -14,12 +14,21 @@ O módulo implementa os requisitos `RF044` a `RF049` do MVP 1.0 e as regras
 | RF048 | Exportação e download em PDF |
 | RF049 | Exportação e download em DOCX |
 | RN042 | Geração automática a partir dos registros do SGP |
-| RN043 | Modelos versionados e personalizáveis dentro dos três tipos suportados no MVP |
+| RN043 | Modelos versionados e personalizáveis dentro dos tipos suportados pelo módulo |
 | RN044 | Nova versão criada a cada geração, sem sobrescrever documentos anteriores |
+
+### Ampliação controlada do MVP
+
+`EV-DOC-001` inclui o **Backlog Consolidado do Projeto** como quarto tipo de
+artefato, sem renumerar os requisitos existentes. O relatório apresenta os
+dados essenciais do projeto, agrupa as tarefas por requisito e mantém uma seção
+própria para tarefas sem requisito vinculado.
 
 ## Decisões
 
 - Uma geração produz DOCX e PDF na mesma versão.
+- Os quatro tipos disponíveis são Documento de Visão, Lista de Requisitos,
+  Lista de Tarefas e Backlog Consolidado do Projeto.
 - Os arquivos ficam no disco privado configurado como `local`.
 - O Documento de Visão exige contexto, problema, solução, público-alvo e escopo.
 - Informações complementares ficam armazenadas no projeto e podem ser revistas.
@@ -28,6 +37,10 @@ O módulo implementa os requisitos `RF044` a `RF049` do MVP 1.0 e as regras
 - Qualquer participante ativo do projeto pode consultar e baixar documentos.
 - O MVP permite personalizar nome, versão, descrição, cabeçalho e rodapé.
 - A estrutura de conteúdo continua controlada pelo tipo do artefato.
+- O rodapé preserva o texto configurado no modelo e acrescenta usuário, data,
+  hora e paginação como trilha de auditoria.
+- A capa utiliza somente a área útil da página, evitando a criação de uma folha
+  inicial vazia no PDF.
 
 ## Dependências
 
@@ -48,4 +61,4 @@ com verificação de participação no projeto.
 
 Os cenários automatizados cobrem modelos iniciais, visibilidade, permissões,
 preenchimento do Documento de Visão, geração dos dois formatos, versionamento,
-download e isolamento entre projetos.
+download, isolamento entre projetos, Backlog Consolidado e rodapé de auditoria.

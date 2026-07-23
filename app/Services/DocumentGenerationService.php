@@ -12,6 +12,7 @@ use Dompdf\Options;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
@@ -40,7 +41,8 @@ class DocumentGenerationService
             'tasks' => fn ($query) => $query->with(['responsible', 'requirement', 'parent'])->orderBy('code'),
         ]);
 
-        $payload = $this->payload($project, $template, $version);
+        $generatedAt = now();
+        $payload = $this->payload($project, $template, $user, $version, $generatedAt);
         $folder = 'generated-documents/'.$project->id.'/'.$template->type->value;
         $baseName = Str::slug($project->code.'-'.$template->type->slug().'-v'.$version);
         $storageBaseName = $baseName.'-'.Str::lower(Str::random(8));
@@ -74,7 +76,7 @@ class DocumentGenerationService
                     'requirements_count' => $project->requirements->count(),
                     'tasks_count' => $project->tasks->count(),
                 ],
-                'generated_at' => now(),
+                'generated_at' => $generatedAt,
             ]);
         } catch (\Throwable $exception) {
             Storage::disk('local')->delete([$docxPath, $pdfPath]);
@@ -83,15 +85,22 @@ class DocumentGenerationService
     }
 
     /** @return array<string, mixed> */
-    private function payload(Project $project, DocumentTemplate $template, int $version): array
+    private function payload(
+        Project $project,
+        DocumentTemplate $template,
+        User $user,
+        int $version,
+        Carbon $generatedAt,
+    ): array
     {
         return [
             'project' => $project,
             'template' => $template,
+            'generatedBy' => $user,
             'type' => $template->type,
             'title' => $template->type->label(),
             'version' => $version,
-            'generatedAt' => now(),
+            'generatedAt' => $generatedAt,
             'members' => $project->memberships
                 ->groupBy('user_id')
                 ->map(fn (Collection $memberships) => [
@@ -137,6 +146,7 @@ class DocumentGenerationService
             DocumentType::Vision => $this->addVisionContent($section, $payload),
             DocumentType::RequirementsList => $this->addRequirementsContent($section, $payload),
             DocumentType::TasksList => $this->addTasksContent($section, $payload),
+            DocumentType::ConsolidatedBacklog => $this->addBacklogContent($section, $payload),
         };
 
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
@@ -163,8 +173,15 @@ class DocumentGenerationService
         );
 
         $footer = $section->addFooter();
+        $footer->addText(
+            $payload['template']->footer_text ?: 'Documento gerado automaticamente pelo SGP',
+            ['size' => 8, 'color' => self::MUTED],
+            ['alignment' => Jc::CENTER],
+        );
         $footer->addPreserveText(
-            ($payload['template']->footer_text ?: 'Documento gerado automaticamente pelo SGP').' | Página {PAGE} de {NUMPAGES}',
+            'Gerado por: '.$payload['generatedBy']->name
+                .' | '.$payload['generatedAt']->format('d/m/Y H:i')
+                .' | Página {PAGE} de {NUMPAGES}',
             ['size' => 8, 'color' => self::MUTED],
             ['alignment' => Jc::CENTER],
         );
@@ -298,6 +315,82 @@ class DocumentGenerationService
             $section->addText('Descrição', ['bold' => true, 'color' => self::TEXT], ['spaceBefore' => 100]);
             $section->addText($task->description ?: 'Não informada.');
         }
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function addBacklogContent(Section $section, array $payload): void
+    {
+        $project = $payload['project'];
+        $requirements = $payload['requirements'];
+        $tasks = $payload['tasks'];
+
+        $section->addTitle('1. Identificação', 1);
+        $this->addKeyValueTable($section, [
+            ['Projeto', $project->name],
+            ['Código', $project->code],
+            ['Responsável', $project->manager->name],
+            ['Situação', $project->status->label()],
+            ['Requisitos', (string) $requirements->count()],
+            ['Tarefas', (string) $tasks->count()],
+        ]);
+
+        $section->addTitle('2. Backlog por requisito', 1);
+
+        if ($requirements->isEmpty()) {
+            $section->addText('Nenhum requisito cadastrado no projeto.');
+        }
+
+        foreach ($requirements as $requirement) {
+            $section->addTitle($requirement->code.' - '.$requirement->title, 2);
+            $section->addText(
+                'Tipo: '.$requirement->type->label()
+                    .' | Prioridade: '.$requirement->priority->label()
+                    .' | Situação: '.$requirement->status->label(),
+                ['size' => 9, 'color' => self::MUTED],
+                ['spaceAfter' => 80],
+            );
+
+            $requirementTasks = $tasks->where('requirement_id', $requirement->id);
+            $this->addCompactTaskTable($section, $requirementTasks);
+        }
+
+        $unlinkedTasks = $tasks->whereNull('requirement_id');
+        $section->addTitle('3. Tarefas sem requisito vinculado', 1);
+        $this->addCompactTaskTable($section, $unlinkedTasks);
+    }
+
+    private function addCompactTaskTable(Section $section, Collection $tasks): void
+    {
+        if ($tasks->isEmpty()) {
+            $section->addText('Nenhuma tarefa nesta seção.', ['italic' => true, 'color' => self::MUTED]);
+
+            return;
+        }
+
+        $table = $section->addTable('SgpTable');
+        $table->addRow();
+        foreach ([
+            ['Tarefa', 3000],
+            ['Situação', 1400],
+            ['Prioridade', 1100],
+            ['Responsável', 1800],
+            ['Estimativa', 1000],
+            ['Prazo', 1200],
+        ] as [$heading, $width]) {
+            $table->addCell($width)->addText($heading, ['bold' => true, 'color' => 'FFFFFF', 'size' => 8]);
+        }
+
+        foreach ($tasks as $task) {
+            $table->addRow();
+            $table->addCell(3000)->addText($task->code.' - '.$task->title, ['size' => 8]);
+            $table->addCell(1400)->addText($task->status->label(), ['size' => 8]);
+            $table->addCell(1100)->addText($task->priority->label(), ['size' => 8]);
+            $table->addCell(1800)->addText($task->responsible?->name ?: 'Não definido', ['size' => 8]);
+            $table->addCell(1000)->addText($task->estimatedDuration() ?: 'N/I', ['size' => 8]);
+            $table->addCell(1200)->addText($task->due_date?->format('d/m/Y') ?: 'N/I', ['size' => 8]);
+        }
+
+        $section->addTextBreak();
     }
 
     /** @param array<int, array{0:string,1:string}> $rows */
