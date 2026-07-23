@@ -77,6 +77,11 @@ class Requirement extends Model
         return $this->hasMany(RequirementVersion::class)->orderByDesc('version_number');
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
     public function dependencies(): BelongsToMany
     {
         return $this->belongsToMany(

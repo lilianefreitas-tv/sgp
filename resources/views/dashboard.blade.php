@@ -31,7 +31,7 @@
                 </h2>
 
                 <p class="mt-2 max-w-2xl text-sm leading-6 text-[#E4EEF1]">
-                    Acompanhe projetos, requisitos, testes e decisões em um
+                    Acompanhe projetos, requisitos, tarefas e decisões em um
                     ambiente integrado e rastreável.
                 </p>
 
@@ -159,7 +159,7 @@
                     </p>
                 </article>
 
-                {{-- Testes --}}
+                {{-- Tarefas concluídas --}}
                 <article
                     class="rounded-2xl border border-[#DCE3E7]
                            bg-white p-4 shadow-sm"
@@ -167,11 +167,11 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <p class="text-sm font-medium text-[#667680]">
-                                Testes executados
+                                Tarefas concluídas
                             </p>
 
                             <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                0
+                                {{ $completedTasksCount }}
                             </p>
                         </div>
 
@@ -198,11 +198,11 @@
                     </div>
 
                     <p class="mt-3 text-xs text-[#667680]">
-                        Nenhum teste registrado
+                        {{ $completedTasksCount === 1 ? '1 tarefa finalizada' : $completedTasksCount.' tarefas finalizadas' }}
                     </p>
                 </article>
 
-                {{-- Pendências --}}
+                {{-- Tarefas pendentes --}}
                 <article
                     class="rounded-2xl border border-[#DCE3E7]
                            bg-white p-4 shadow-sm"
@@ -210,11 +210,11 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <p class="text-sm font-medium text-[#667680]">
-                                Pendências
+                                Tarefas pendentes
                             </p>
 
                             <p class="mt-2 text-3xl font-bold text-[#24313A]">
-                                0
+                                {{ $pendingTasksCount }}
                             </p>
                         </div>
 
@@ -241,7 +241,7 @@
                     </div>
 
                     <p class="mt-3 text-xs text-[#667680]">
-                        Tudo em ordem
+                        {{ $pendingTasksCount === 1 ? '1 tarefa em aberto' : $pendingTasksCount.' tarefas em aberto' }}
                     </p>
                 </article>
             </div>

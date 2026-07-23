@@ -77,6 +77,11 @@ class Project extends Model
         return $this->hasMany(Requirement::class);
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         if ($user->isAdministrator()) {

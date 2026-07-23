@@ -52,6 +52,17 @@
             </div>
         </a>
 
+        <a href="{{ route('projects.tasks.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFE2D9] bg-[#F3FAF8] p-5 transition hover:border-[#2E8B74] hover:bg-[#EDF8F5]">
+            <div>
+                <p class="font-bold text-[#256C5C]">Tarefas do projeto</p>
+                <p class="mt-1 text-sm text-[#667680]">Planeje, atribua responsáveis e acompanhe a execução das atividades.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#2E8B74]">{{ $project->active_tasks_count }} ativas</span>
+                <span class="text-xl text-[#2E8B74]">→</span>
+            </div>
+        </a>
+
         <section class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
             <h2 class="text-base font-bold text-[#24313A]">Visão geral</h2>
             <div class="mt-5 grid gap-5 lg:grid-cols-3">

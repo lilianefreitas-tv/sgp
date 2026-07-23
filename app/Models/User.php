@@ -73,6 +73,11 @@ class User extends Authenticatable
         return $this->hasMany(Requirement::class, 'responsible_id');
     }
 
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'responsible_id');
+    }
+
     public function hasProjectRole(\App\Enums\ProjectRole $role, ?Project $project = null): bool
     {
         return $this->projectMemberships()
