@@ -9,6 +9,7 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\ProjectActivity;
 use App\Models\ProjectMembership;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -64,6 +65,14 @@ class ProjectController extends Controller
             $project = Project::create($data);
 
             $this->activateManagerMembership($project);
+            ProjectActivity::record(
+                $project,
+                $request->user(),
+                'project_created',
+                'Projeto cadastrado',
+                'project',
+                $project->id,
+            );
 
             return $project;
         });
@@ -116,6 +125,22 @@ class ProjectController extends Controller
             $project->update($this->normalizeDates($request->validated()));
 
             $this->activateManagerMembership($project);
+
+            $changedFields = array_values(array_diff(
+                array_keys($project->getChanges()),
+                ['updated_at'],
+            ));
+            if ($changedFields !== []) {
+                ProjectActivity::record(
+                    $project,
+                    $request->user(),
+                    'project_updated',
+                    'Informações do projeto atualizadas',
+                    'project',
+                    $project->id,
+                    ['fields' => $changedFields],
+                );
+            }
         });
 
         return to_route('projects.show', $project)->with('success', 'Projeto atualizado com sucesso.');
@@ -126,6 +151,14 @@ class ProjectController extends Controller
         abort_unless($this->canManage($request, $project), 403);
 
         $project->update(['archived_at' => now(), 'is_active' => false]);
+        ProjectActivity::record(
+            $project,
+            $request->user(),
+            'project_archived',
+            'Projeto arquivado',
+            'project',
+            $project->id,
+        );
 
         return to_route('projects.index')->with('success', 'Projeto arquivado. O histórico permanece disponível.');
     }
@@ -135,6 +168,14 @@ class ProjectController extends Controller
         abort_unless($this->canManage($request, $project), 403);
 
         $project->update(['archived_at' => null, 'is_active' => true]);
+        ProjectActivity::record(
+            $project,
+            $request->user(),
+            'project_restored',
+            'Projeto restaurado',
+            'project',
+            $project->id,
+        );
 
         return to_route('projects.show', $project)->with('success', 'Projeto restaurado com sucesso.');
     }

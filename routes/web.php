@@ -10,6 +10,9 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\KanbanController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentTemplateController;
+use App\Http\Controllers\ProjectAttachmentController;
+use App\Http\Controllers\ProjectCommentController;
+use App\Http\Controllers\ProjectHistoryController;
 use App\Models\Project;
 use App\Models\Requirement;
 use App\Models\Task;
@@ -72,6 +75,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/projects/{project}/documents/information', [DocumentController::class, 'updateSetup'])->name('projects.documents.setup.update');
     Route::post('/projects/{project}/documents/generate', [DocumentController::class, 'generate'])->name('projects.documents.generate');
     Route::get('/projects/{project}/documents/{document}/download/{format}', [DocumentController::class, 'download'])->name('projects.documents.download');
+    Route::get('/projects/{project}/comments', [ProjectCommentController::class, 'index'])->name('projects.comments.index');
+    Route::post('/projects/{project}/comments', [ProjectCommentController::class, 'store'])->name('projects.comments.store');
+    Route::get('/projects/{project}/attachments', [ProjectAttachmentController::class, 'index'])->name('projects.attachments.index');
+    Route::post('/projects/{project}/attachments', [ProjectAttachmentController::class, 'store'])->name('projects.attachments.store');
+    Route::get('/projects/{project}/attachments/{attachment}/download', [ProjectAttachmentController::class, 'download'])->name('projects.attachments.download');
+    Route::delete('/projects/{project}/attachments/{attachment}', [ProjectAttachmentController::class, 'destroy'])->name('projects.attachments.destroy');
+    Route::get('/projects/{project}/history', [ProjectHistoryController::class, 'index'])->name('projects.history.index');
 });
 
 Route::middleware(['auth', 'administrator'])->group(function () {

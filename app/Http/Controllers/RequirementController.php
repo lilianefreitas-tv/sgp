@@ -9,6 +9,7 @@ use App\Enums\RequirementType;
 use App\Http\Requests\StoreRequirementRequest;
 use App\Http\Requests\UpdateRequirementRequest;
 use App\Models\Project;
+use App\Models\ProjectActivity;
 use App\Models\Requirement;
 use App\Models\RequirementVersion;
 use Illuminate\Http\RedirectResponse;
@@ -108,7 +109,18 @@ class RequirementController extends Controller
         $requirement = DB::transaction(function () use ($request, $project): Requirement {
             $project->newQuery()->whereKey($project->id)->lockForUpdate()->first();
 
-            return $project->requirements()->create($request->validated());
+            $requirement = $project->requirements()->create($request->validated());
+            ProjectActivity::record(
+                $project,
+                $request->user(),
+                'requirement_created',
+                'Requisito cadastrado',
+                'requirement',
+                $requirement->id,
+                ['details' => $requirement->code.' · '.$requirement->title],
+            );
+
+            return $requirement;
         });
 
         return to_route('projects.requirements.show', [$project, $requirement])

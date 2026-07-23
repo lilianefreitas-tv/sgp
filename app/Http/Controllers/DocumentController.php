@@ -8,6 +8,7 @@ use App\Http\Requests\GenerateDocumentRequest;
 use App\Http\Requests\UpdateProjectDocumentationRequest;
 use App\Models\DocumentTemplate;
 use App\Models\Project;
+use App\Models\ProjectActivity;
 use App\Models\ProjectDocument;
 use App\Services\DocumentGenerationService;
 use Illuminate\Http\RedirectResponse;
@@ -77,6 +78,14 @@ class DocumentController extends Controller
         abort_unless($this->canGenerate($request, $project), 403);
 
         $project->update($request->validated());
+        ProjectActivity::record(
+            $project,
+            $request->user(),
+            'documentation_information_updated',
+            'Informações documentais do projeto atualizadas',
+            'project',
+            $project->id,
+        );
 
         return to_route('projects.documents.index', $project)
             ->with('success', 'Informações documentais atualizadas com sucesso.');

@@ -23,4 +23,16 @@
        class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.documents.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
         Documentos
     </a>
+    <a href="{{ route('projects.comments.index', $project) }}"
+       class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.comments.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
+        Comentários
+    </a>
+    <a href="{{ route('projects.attachments.index', $project) }}"
+       class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.attachments.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
+        Anexos
+    </a>
+    <a href="{{ route('projects.history.index', $project) }}"
+       class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.history.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
+        Histórico
+    </a>
 </nav>

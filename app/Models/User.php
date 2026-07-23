@@ -83,6 +83,16 @@ class User extends Authenticatable
         return $this->hasMany(ProjectDocument::class, 'generated_by');
     }
 
+    public function projectComments(): HasMany
+    {
+        return $this->hasMany(ProjectComment::class);
+    }
+
+    public function uploadedAttachments(): HasMany
+    {
+        return $this->hasMany(ProjectAttachment::class, 'uploaded_by');
+    }
+
     public function hasProjectRole(\App\Enums\ProjectRole $role, ?Project $project = null): bool
     {
         return $this->projectMemberships()

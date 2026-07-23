@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ProjectRole;
 use App\Http\Requests\StoreProjectMemberRequest;
 use App\Models\Project;
+use App\Models\ProjectActivity;
 use App\Models\ProjectMembership;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -55,6 +56,21 @@ class ProjectMemberController extends Controller
             }
         });
 
+        $member = User::findOrFail($data['user_id']);
+        ProjectActivity::record(
+            $project,
+            $request->user(),
+            'team_updated',
+            'Equipe do projeto atualizada',
+            'user',
+            $member->id,
+            [
+                'details' => $member->name.' · '.collect($data['roles'])
+                    ->map(fn (string $role) => ProjectRole::from($role)->label())
+                    ->join(', '),
+            ],
+        );
+
         return to_route('projects.show', $project)->with('success', 'Equipe do projeto atualizada com sucesso.');
     }
 
@@ -72,11 +88,23 @@ class ProjectMemberController extends Controller
             ]);
         }
 
-        ProjectMembership::query()
+        $updated = ProjectMembership::query()
             ->where('project_id', $project->id)
             ->where('user_id', $user->id)
             ->where('is_active', true)
             ->update(['is_active' => false, 'ended_at' => today()]);
+
+        if ($updated > 0) {
+            ProjectActivity::record(
+                $project,
+                $request->user(),
+                'member_removed',
+                'Participante removido da equipe',
+                'user',
+                $user->id,
+                ['details' => $user->name],
+            );
+        }
 
         return to_route('projects.show', $project)->with('success', 'Participante removido da equipe. O histórico do vínculo foi preservado.');
     }
