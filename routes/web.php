@@ -7,6 +7,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\RequirementController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\KanbanController;
 use App\Models\Project;
 use App\Models\Requirement;
 use App\Models\Task;
@@ -49,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('projects', ProjectController::class)->except('destroy');
     Route::get('/requirements', [RequirementController::class, 'overview'])->name('requirements.index');
     Route::get('/tasks', [TaskController::class, 'overview'])->name('tasks.index');
+    Route::get('/kanban', [KanbanController::class, 'overview'])->name('kanban.index');
     Route::patch('/projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
     Route::patch('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
     Route::post('/projects/{project}/members', [ProjectMemberController::class, 'store'])->name('projects.members.store');
@@ -59,6 +61,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('projects.tasks', TaskController::class)->except('destroy');
     Route::patch('/projects/{project}/tasks/{task}/deactivate', [TaskController::class, 'deactivate'])->name('projects.tasks.deactivate');
     Route::patch('/projects/{project}/tasks/{task}/reactivate', [TaskController::class, 'reactivate'])->name('projects.tasks.reactivate');
+    Route::get('/projects/{project}/kanban', [KanbanController::class, 'show'])->name('projects.kanban.show');
+    Route::patch('/projects/{project}/kanban/tasks/{task}/move', [KanbanController::class, 'move'])->name('projects.kanban.tasks.move');
+    Route::patch('/projects/{project}/kanban/columns', [KanbanController::class, 'updateColumns'])->name('projects.kanban.columns.update');
 });
 
 Route::middleware(['auth', 'administrator'])->group(function () {

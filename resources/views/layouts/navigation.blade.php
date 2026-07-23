@@ -213,6 +213,32 @@
                 Tarefas
             </a>
 
+            <a
+                href="{{ route('kanban.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3
+                       text-sm font-medium transition
+                       {{ request()->routeIs('kanban.*', 'projects.kanban.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M4 5h4v14H4V5Zm6 0h4v9h-4V5Zm6 0h4v11h-4V5Z"
+                    />
+                </svg>
+
+                Kanban
+            </a>
+
             <div
                 class="flex items-center gap-3 rounded-lg px-3 py-3
                        text-sm font-medium text-slate-400"

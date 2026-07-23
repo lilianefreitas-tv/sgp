@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Task extends Model
 {
@@ -127,6 +128,11 @@ class Task extends Model
     public function histories(): HasMany
     {
         return $this->hasMany(TaskHistory::class)->latest();
+    }
+
+    public function kanbanPosition(): HasOne
+    {
+        return $this->hasOne(KanbanTaskPosition::class);
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder

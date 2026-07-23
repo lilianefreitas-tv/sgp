@@ -15,4 +15,8 @@
        class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.tasks.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
         Tarefas
     </a>
+    <a href="{{ route('projects.kanban.show', $project) }}"
+       class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.kanban.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
+        Kanban
+    </a>
 </nav>
