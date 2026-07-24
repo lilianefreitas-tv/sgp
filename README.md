@@ -1,236 +1,131 @@
-# 🚀 SGP: Sistema de Gestão de Projetos de Software
+# SGP - Sistema de Gestão de Projetos de Software
 
-O **SGP** é uma plataforma integrada para gerenciamento do ciclo de vida de projetos de software, desenvolvida para centralizar requisitos, tarefas, documentação, testes, reuniões, mudanças e entregas em um único ambiente.
+O SGP centraliza o planejamento, a execução, a documentação e a
+rastreabilidade de projetos de software. A release `v1.0.0` corresponde ao MVP
+homologado, com gestão de usuários, clientes, projetos, requisitos, tarefas,
+Kanban, documentos, colaboração, histórico e visualizações gerenciais.
 
-O projeto foi idealizado para reduzir a fragmentação causada pelo uso de diversas ferramentas independentes, promovendo organização, rastreabilidade, produtividade e qualidade durante todo o desenvolvimento de software.
+## Status
 
-> **Status do projeto:** Em desenvolvimento
+**Release:** MVP 1.0.0  
+**Situação:** pronta para homologação final integrada  
+**Testes automatizados:** 93 cenários  
+**Banco oficial:** PostgreSQL
 
----
+## Funcionalidades do MVP
 
-# 🎯 Objetivo
+- autenticação e perfil do usuário;
+- administração de usuários, perfis globais e ativação ou desativação;
+- cadastro de clientes, unidades e projetos;
+- equipe do projeto com papéis contextuais;
+- requisitos com versões, prioridade, situação e critérios de aceite;
+- tarefas, subtarefas, estimativa em HH:MM e histórico;
+- quadro Kanban com seis etapas configuráveis;
+- documentos em DOCX e PDF, com modelos e versionamento;
+- Backlog Consolidado do Projeto;
+- comentários e anexos privados;
+- histórico consolidado do projeto;
+- dashboard com indicadores reais;
+- calendário geral e por projeto;
+- cronograma Gantt básico;
+- página inicial, login e identidade visual próprios do SGP.
 
-Disponibilizar uma plataforma única para apoiar todas as etapas do desenvolvimento de software, desde a concepção da ideia até a entrega final do produto.
-
-O SGP busca adaptar-se tanto a pequenos projetos quanto a iniciativas corporativas que exijam governança, rastreabilidade e produção de artefatos formais. 
-
----
-
-# 💡 Problema
-
-Equipes de desenvolvimento normalmente utilizam diversas ferramentas para controlar:
-
-- Requisitos
-- Tarefas
-- Protótipos
-- Reuniões
-- Testes
-- Documentação
-- Versionamento
-- Entregas
-
-Essa fragmentação dificulta a gestão dos projetos, gera retrabalho, reduz a rastreabilidade e aumenta o esforço necessário para manter a documentação atualizada.
-
----
-
-# ✅ Solução Proposta
-
-O SGP reúne todas essas atividades em uma única plataforma, permitindo que a equipe acompanhe todo o ciclo de vida do projeto em um ambiente integrado.
-
-A proposta é oferecer uma solução escalável:
-
-- Simples para pequenos projetos.
-- Completa para projetos institucionais.
-- Robusta para ambientes que exigem auditoria e governança.
-
-
-
----
-
-## 🏗 Arquitetura
-
-O SGP está sendo desenvolvido como uma aplicação web utilizando a arquitetura MVC, adotada pelo Laravel:
-
-- **Model:** representação e manipulação dos dados;
-- **View:** apresentação das páginas por meio do Blade;
-- **Controller:** tratamento das requisições e aplicação das regras do sistema.
-
-O PostgreSQL será utilizado para persistência dos dados, enquanto o Eloquent ORM realizará a comunicação entre a aplicação e o banco de dados.
-
---- 
-## 🛠 Tecnologias e ferramentas
+## Tecnologias
 
 ### Backend
 
-- PHP 8.2 ou superior
-- Laravel
-- PostgreSQL
-- Eloquent ORM
-- Blade Template Engine
-- PHPWord para geração de arquivos DOCX
-- Dompdf para geração de arquivos PDF
+- PHP 8.2 ou superior;
+- Laravel 12.64;
+- PostgreSQL;
+- Eloquent ORM e Blade;
+- PHPWord 1.4 para DOCX;
+- Dompdf 3.1.6 para PDF.
 
 ### Frontend
 
-- HTML5
-- CSS3
-- JavaScript
-- Bootstrap 5
+- HTML5, CSS3 e JavaScript;
+- Tailwind CSS 3.4;
+- Alpine.js 3.15;
+- Vite 7.3.
 
-### Gerenciamento e construção
+## Requisitos do ambiente
 
-- Composer
-- Node.js e npm
-- Vite
+- PHP 8.2 ou superior, com `dom`, `gd`, `mbstring`, `openssl`, `pdo_pgsql`,
+  `tokenizer`, `xml`, `xmlwriter` e `zip`;
+- Composer 2;
+- PostgreSQL 14 ou superior;
+- Node.js 20 ou superior e npm;
+- Git, recomendado para versionamento.
 
-### Versionamento
+## Instalação
 
-- Git
-- GitHub
+Consulte [INSTALL.md](INSTALL.md) para a instalação completa, atualização,
+backup, restauração e checklist de produção.
 
-### Ambiente de desenvolvimento
+Resumo:
 
-- Windows
-- Visual Studio Code
-- PostgreSQL
-- Laravel Artisan
+```powershell
+Copy-Item .env.example .env
+composer install
+php artisan key:generate
+npm ci
+npm run build
+php artisan migrate --seed
+php artisan optimize:clear
+php artisan serve
+```
 
----
+Antes de executar as migrations, configure no `.env` a conexão PostgreSQL e
+troque credenciais de exemplo.
 
-## 📦 Escopo do MVP
+## Testes
 
-A primeira versão do SGP será concentrada nas funcionalidades essenciais para criação e acompanhamento de projetos de software:
+```powershell
+php artisan test
+```
 
-- Autenticação de usuários
-- Gestão de usuários e perfis de acesso
-- Cadastro de projetos
-- Gestão de participantes do projeto
-- Gestão de requisitos funcionais e não funcionais
-- Registro de regras de negócio
-- Controle de tarefas
-- Histórico básico de alterações
-- Geração e versionamento de documentos em DOCX e PDF
-- Painel de acompanhamento do projeto
+Resultado esperado:
 
----
+```text
+Tests: 93 passed
+```
 
-## 🔭 Módulos Previstos
+O conjunto automatizado utiliza SQLite em memória para rapidez e isolamento. A
+homologação final também prevê instalação e testes manuais em PostgreSQL.
 
-- Gestão de reuniões
-- Gestão de testes e evidências
-- Gestão documental
-- Gestão de mudanças
-- Gestão de riscos
-- Gestão da qualidade
-- Matriz de rastreabilidade
-- Geração automática de artefatos
-- Integração com Inteligência Artificial
+## Armazenamento
 
----
+Documentos e anexos são armazenados no disco privado do Laravel. Não publique
+`storage/app/private` nem crie link público para esse diretório.
 
-# 📄 Artefatos Gerados
+O limite e as extensões de anexos são configuráveis:
 
-O SGP será capaz de gerar automaticamente documentos como:
+```dotenv
+SGP_ATTACHMENT_MAX_KB=10240
+SGP_ATTACHMENT_EXTENSIONS=pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,webp,zip
+```
 
-- Documento de Visão
-- Termo de Abertura
-- Especificação Funcional
-- Regras de Negócio
-- Casos de Uso
-- Casos de Teste
-- Matriz de Rastreabilidade
-- Plano de Testes
-- Termo de Aceite
-- Lições Aprendidas
+## Segurança
 
----
+- cadastro público e recuperação pública de senha permanecem desabilitados;
+- usuários são administrados por perfil autorizado;
+- contas são desativadas sem exclusão física;
+- acesso aos projetos respeita participação ativa e papel contextual;
+- anexos e documentos exigem rota autenticada e autorização;
+- eventos relevantes preservam usuário, data e hora.
 
-# 📊 Níveis de Utilização
+## Escopo posterior ao MVP
 
-O sistema poderá ser utilizado conforme a complexidade do projeto.
+Wiki por projeto, Sprints, reuniões e atas, testes dentro do sistema, releases,
+riscos, mudanças, aceite, Gantt avançado e recursos de IA permanecem registrados
+para versões futuras.
 
-## Simplificado
+## Autoria
 
-- Documento de Visão
-- Requisitos
-- Tarefas
+**Liliane de Freitas Terra Vieira**  
+Analista de Requisitos, Desenvolvedora e Técnica em Tecnologia da Informação
 
-## Intermediário
+## Licença
 
-- Documento de Visão
-- Requisitos
-- Protótipos
-- Tarefas
-- Reuniões
-- Testes
-- Termo de Aceite
-
-## Completo
-
-- Gestão integral do projeto
-- Governança
-- Qualidade
-- Rastreabilidade
-- Documentação automática
-
-
-
----
-
-# ⭐ Diferenciais
-
-- Plataforma única para Engenharia de Software.
-- Documentação gerada automaticamente.
-- Rastreabilidade entre requisitos, tarefas, testes e entregas.
-- Suporte a metodologias ágeis.
-- Flexibilidade conforme o porte do projeto.
-- Preparado para integração com Inteligência Artificial.
-- Aderência às boas práticas de Engenharia de Software e MPS.BR.
-
-
-
----
-
-# 🤖 Visão de Futuro
-
-Entre as evoluções previstas estão:
-
-- Assistente de IA para Engenharia de Requisitos.
-- Geração automática de documentação.
-- Sugestão automática de Casos de Teste.
-- Identificação de riscos.
-- Apoio à gestão de projetos.
-- Integração com modelos de linguagem (LLMs).
-
-
----
-
-# 👥 Público-Alvo
-
-- Analistas de Requisitos
-- Gerentes de Projetos
-- Desenvolvedores
-- Testadores
-- Product Owners
-- Consultorias de Software
-- Órgãos Públicos
-- Empresas de Tecnologia
-
-
----
-
-# 👩‍💻 Desenvolvedora
-
-**Liliane de Freitas Terra Vieira**
-
-Analista de Requisitos • Desenvolvedora • Técnica em Tecnologia da Informação
-
----
-
-## 📌 Status do Projeto
-
-🚧 **Em desenvolvimento**
-
-O projeto encontra-se na fase inicial de implementação, com o ambiente de desenvolvimento configurado, aplicação Laravel criada, banco de dados PostgreSQL integrado e repositório GitHub estruturado.
-
-A etapa atual está concentrada na construção da base do sistema, incluindo autenticação, controle de usuários, perfis de acesso e estrutura inicial dos projetos.
+A definição de licença e distribuição deve ser formalizada antes de qualquer
+publicação externa. As dependências mantêm suas respectivas licenças.

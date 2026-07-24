@@ -110,7 +110,7 @@
                    text-xs text-[#667680]"
         >
             <p>SGP • Sistema de Gestão de Projetos de Software</p>
-            <p class="mt-1">Versão 1.0 em desenvolvimento</p>
+            <p class="mt-1">Release MVP 1.0.0</p>
         </div>
     </div>
 </x-guest-layout>
