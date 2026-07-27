@@ -23,10 +23,10 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', DashboardController::class)
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'active', 'verified'])
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/schedule', ProjectScheduleController::class)->name('projects.schedule.show');
 });
 
-Route::middleware(['auth', 'administrator'])->group(function () {
+Route::middleware(['auth', 'active', 'administrator'])->group(function () {
     Route::resource('users', UserController::class)->except(['show', 'destroy']);
     Route::resource('document-templates', DocumentTemplateController::class)->except(['show', 'destroy']);
     Route::patch('/document-templates/{documentTemplate}/deactivate', [DocumentTemplateController::class, 'deactivate'])->name('document-templates.deactivate');

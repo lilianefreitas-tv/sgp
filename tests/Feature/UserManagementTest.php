@@ -93,9 +93,15 @@ class UserManagementTest extends TestCase
         $this->assertTrue($administrator->fresh()->is_active);
     }
 
-    public function test_inactive_user_cannot_authenticate(): void
+    public function test_inactive_user_cannot_authenticate_or_keep_an_active_session(): void
     {
-        $user = User::factory()->inactive()->create();
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+        $user->update(['is_active' => false]);
+
+        $this->get('/dashboard')->assertRedirect('/login');
+        $this->assertGuest();
 
         $this->post('/login', ['email' => $user->email, 'password' => 'password'])
             ->assertSessionHasErrors('email');

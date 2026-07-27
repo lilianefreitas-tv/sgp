@@ -2,10 +2,10 @@ f78cc5a2ef8ba61ad956d0f5db453748a981270f6a1b9f4a5a00df8690e7946d  ./.editorconfi
 608aa6320616f341b9e5edaea31ea8926e342aacb07810a17f6034d698f3c489  ./.env.example
 a40eb27ee0b545ca5b5542daaf99fec51f84f23b3766a6353864ef2a115bc51c  ./.gitattributes
 41e54abd62aa86fd5b731e0cd411c5bc7d4196a1f7aef363f434672da8fffa5d  ./.gitignore
-229deb76c75da8e311bf261dcec31484931c7587c11d37d724bd4e91645809c1  ./CHANGELOG.md
-00cda3e005e1e6c80f6ae9731a07497db7d0016773eb97f08cf310bb16daac20  ./INSTALL.md
-05246a40b53767d0b0ff73bc20150453043b4a6515737a611deb692355797d7a  ./README.md
-53dbc01366d62d1427c198bed1a7886f8faa84cd7f809a1fd01a15fdba114bc3  ./SHA256SUMS
+7afbd6f5c7538e724068c6168eeaed5254bcad79466bea03f2c290bf03c2dc38  ./CHANGELOG.md
+8682610b1489e7ac7a068bea14d087dfddb01c14e5b135512faba49677b57781  ./INSTALL.md
+9e923489ec0767ce16298d08863378943664200f480b300216238175fc8c8414  ./README.md
+598dc17306ba53f7524e1d2f895403a46ada7dc4fda4ea0deb07b23c5ad6b44d  ./app/Console/Commands/CreateFirstAdministrator.php
 1e549a84b05165c7502a641095edd4465f18b8039a6e221db9abc8a308b76104  ./app/Enums/ClientType.php
 2bc50bd39f3ecbd77b4626ac058bf7c51337b1132fee3cb99e81ac6ee7246e99  ./app/Enums/DocumentType.php
 8e5b71f13669cc6962d80843d86f46a5ba1b0ff8ec228711399a1e0eac55fd49  ./app/Enums/GlobalProfile.php
@@ -43,6 +43,7 @@ c8b374dc69757a5a1a95f1253a89f781b13687f72b2e499baed1175836e92269  ./app/Http/Con
 9c96f0291407ab29c8502ab5ef74f934fe8ed4b848ed4d0b9dcd0f58389daae3  ./app/Http/Controllers/RequirementController.php
 eee9067b3dc94d870835aeac396d56b0e81df8e58c92ddf91e473f8d04ba844b  ./app/Http/Controllers/TaskController.php
 9d704697a2df7efaa0c82b9c54d416e9e92c7bef3d18986cade3897b117b628c  ./app/Http/Controllers/UserController.php
+6fba4cf42cb31e8619c222585ff39ac590725c20c0badba1a407b5905709c9c0  ./app/Http/Middleware/EnsureUserIsActive.php
 aeaba5cf35a63581fd5f66723a156df3073665b18d84df42477836269ef76690  ./app/Http/Middleware/EnsureUserIsAdministrator.php
 36265799a20e4fab1c7acec70de8e152e98dd383c8139ae7d44a6d43e0da1c7d  ./app/Http/Requests/Auth/LoginRequest.php
 12147fcd7787e35dcae107c91e9496daa05aa49709738e9cdf41417a079afab0  ./app/Http/Requests/GenerateDocumentRequest.php
@@ -87,12 +88,10 @@ af99d08da730d1151bd1fe520dec85bbc0f3a24a2fed77ea74fd97a18ef64302  ./app/Services
 c57c4ac36e5603ca09b66674a3a01b427528948ecf1f7a93d06d52818d9319b5  ./app/View/Components/AppLayout.php
 35663740cd39dc5f726b24e402babb41d0af62e09567c0e717235586fa3d9f80  ./app/View/Components/GuestLayout.php
 f91a517c0c5d3a904c3f390933964a5e08ec1fc68146882730daac4aca4ffcec  ./artisan
-9f659132cdc4247084eaee415ad8d0450363d104e1045dbe24af8fc9377f1ea8  ./bootstrap/app.php
+98afa24d2287ff6438c1131ba9f79c690d244004ad19be24a8ca0543542b5cfe  ./bootstrap/app.php
 240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./bootstrap/cache/.gitignore
-2da6c268be8647017fa33570daa37964bdabc8b6c3db62b0cd9ebff0ffdd26d7  ./bootstrap/cache/packages.php
-6499cadef088bcc15473e4b1d1b2ba716cfcd92370153b0fc3303be96d856712  ./bootstrap/cache/services.php
 f720e185207a343d4c19fc99dbb317a4187efbcd7d38a303a695bbdd77ffb943  ./bootstrap/providers.php
-12a955ee5ce561cb0995713c49f4121c65704462c0acbf4a14e3722c107b6ea1  ./composer.json
+e8e7b739570f67e26e6f4103ac50835bf266fc8bfe3a6b877d21379015f21991  ./composer.json
 64749319f4b737c359c1712e0c7b8f663442e3d35e6673681e136205c6370e5f  ./composer.lock
 78dcd36b226fd7b24057cb95f567cb6e96561c2406653892d8aef6dcea8461e4  ./config/app.php
 c7e204e9785c9f596d66fb884b493f658f2327f157646bdb4088efd6b3a7773f  ./config/auth.php
@@ -122,47 +121,7 @@ c9c1e667166883aac3271de80f4f90f0a18d2b8cbe3d090d3a397059c025a9c3  ./database/mig
 758a0d3975a6428c4f75fafee7282c4533b0f96e354f30c00909e79e5dc8faf6  ./database/migrations/2026_07_23_400000_create_document_management_tables.php
 e595764e0037573670d229c1aa86396888cbbb6e7718a259e07ddb461f2f9913  ./database/migrations/2026_07_23_410000_add_consolidated_backlog_document_template.php
 fb812582ad8253901919b498913532b1db284e28ce3262bd8974210dba920cad  ./database/migrations/2026_07_23_500000_create_collaboration_and_project_history_tables.php
-cf8e4b6e48360218bb5534f66419c955288f78338eb8a3dba9d8ac3394ec3dbc  ./database/seeders/DatabaseSeeder.php
-8fc682407fe10f09cb5f493846892183b912cc502995c11c51bada4361fecd84  ./docs/dashboard-calendario-cronograma.md
-237c6812125d7915fa77007a226e49c9f952fb7bdaeede133e92c5013747a692  ./docs/dashboard.png
-e923f64fde7445a85083e138f132038520759b4fd2ac6dcfe7cf86e58608d923  ./docs/identidade-visual.png
-2ff6325b27600f0d4b2d0392e72420e1c722c255311e68c7ab5b31b1ae350858  ./docs/logo.png
-b07820cb69168d2517f9af4100935668b868be55a285ab8a2f6740336e612ea8  ./docs/modulo-cadastro-projetos.md
-6c3fc018cd570be872d90154296f7b698cf67e0e9c3bc1d1dba17be18de86aad  ./docs/modulo-gestao-requisitos.md
-438ac1f020b8c1da60475d1a3272bcb6cb257cb0f262a7e537ce2bbd7868f4b4  ./docs/modulo-gestao-tarefas.md
-b75d61a397aae1f8ca75cabf94245d285d9c606936777724d4314af7f562851c  ./docs/modulo-kanban.md
-9ece05a3d72a77d1e364f7b304d80a5a029b5b01e2fa0aa082d834d0c47176f9  ./docs/modulo-modelos-geracao-documentos.md
-7778127e5df871bd10a211775574ebb410c46d0946e2b80a0c106c940e14fbc7  ./docs/modulos-comentarios-anexos-historico.md
-f2497ea546f30fad38c1b80ba07110ebe0955be3107b2e8ebbe79a976c842cfc  ./docs/oficiais/01 - Documento de Visão - MVP 1.0.0.docx
-8b1a89a4eb8cd82aa226f20f3602bf41694a70a8777330816bfdbe66487f3d57  ./docs/oficiais/02 - Regras de Negócio - MVP 1.0.0.docx
-d6e3d967bc6ea00633a35017f2934056506a4f7cea69cf9cbad6aa83993230e4  ./docs/oficiais/03 - Especificação Funcional - MVP 1.0.0.docx
-498a9c53835e00ec76466dde721bd8e7ab9d8aaeeb81f1c2c5185f5c26ceefd8  ./docs/oficiais/04 - Modelo Conceitual do Negócio - MVP 1.0.0.docx
-e7c7e67b548c6c6bdb92acd6e4551ff4b9b3a24279863999d1f963c29818f922  ./docs/oficiais/05 - Plano de Projeto MVP - v1.0.0.docx
-fe38a1049a054ea43df8627d89e250de998638d7fe92b71a1cad3129b595ad7e  ./docs/oficiais/06 - Casos de Uso - MVP 1.0.0.docx
-e3c05d153c72ec9552b2edde4243bda5597827051958995a0074f9e26c6d4828  ./docs/oficiais/07 - Requisitos Funcionais - MVP 1.0.0.docx
-7c62ca31cbd1eabf3579fb050514ed90398760fc187b6cda3ce68f7a4fc17a3c  ./docs/oficiais/08 - Requisitos Não Funcionais - MVP 1.0.0.docx
-f54aeb41f6b4f7d82770aae5946f9c1e15379c0388fbf22db22ae39e62fc08a2  ./docs/oficiais/09 - Matriz de Rastreabilidade - MVP 1.0.0.docx
-a08bca4c02c5b7a4b6d2abb63e984e348bdfd5d4950649980f182e4b5b1717ab  ./docs/oficiais/10 - DER Físico Definitivo - MVP 1.0.0.docx
-ec6bb355167abb3fb10e4b31fc55cca360616fdc9aa1a262035a74991c5ab97f  ./docs/oficiais/11 - Dicionário de Dados - MVP 1.0.0.docx
-e05ac53ec34064ee7e24816b66a53c12a53e883342b4f5800844450ccb079a22  ./docs/oficiais/12 - Plano e Registro de Homologação Final - MVP 1.0.0.docx
-fb139a3a42ae7f79698caf4f34d58618070ff6755807019e34ec6f41ec439cd2  ./docs/oficiais/13 - Manual de Instalação e Operação - MVP 1.0.0.docx
-198da3b863fb073f06738d9196cdf33669d03c1c72d0d0e4364a42173c59d4d4  ./docs/oficiais/14 - Registro da Release MVP 1.0.0.docx
-d8f03ce5b69b9aa0401442946ea79a8355d69b8fb249acb8a992be352ed1f4b3  ./docs/oficiais/LEIA-ME.md
-d9d25a63ed202360c3da1fb86359fa993fcf09166820292f8e3ebe19b5651ab4  ./docs/oficiais/pdf/01 - Documento de Visão - MVP 1.0.0.pdf
-372fa8fc26e6a06c862da9c44e91f0a3dd3a0809d2beee62a850bde8a58c26e6  ./docs/oficiais/pdf/02 - Regras de Negócio - MVP 1.0.0.pdf
-e3bc662fb6a7c49629175217c533acbc084b297feffd7f9832d51c059e8d793e  ./docs/oficiais/pdf/03 - Especificação Funcional - MVP 1.0.0.pdf
-e1f4d3cfd81c702185615888561bd489d9fca9bddf54f24edbc9bed42a4e3f93  ./docs/oficiais/pdf/04 - Modelo Conceitual do Negócio - MVP 1.0.0.pdf
-763d9f73f940f85b72ec1b7e7328c077a721c703612517947e7aa13389e38cf0  ./docs/oficiais/pdf/05 - Plano de Projeto MVP - v1.0.0.pdf
-e01da8518fca1983a7b01be05f7857683c696c690f0893c8a67629f3967e81b7  ./docs/oficiais/pdf/06 - Casos de Uso - MVP 1.0.0.pdf
-5ce36d6602a219e6890b9c000cf6d1a11467924bd4b71182157e3dc5519f784b  ./docs/oficiais/pdf/07 - Requisitos Funcionais - MVP 1.0.0.pdf
-0ea49085cf13459f43972144ba8cb40445e7f4079aedf8fee0cd283fb26fa82c  ./docs/oficiais/pdf/08 - Requisitos Não Funcionais - MVP 1.0.0.pdf
-20ff587332b66fb2b97cf36ab598e0ff35142fca12ce92f55661ea2af2facf7b  ./docs/oficiais/pdf/09 - Matriz de Rastreabilidade - MVP 1.0.0.pdf
-c857938b48daec1585054dd578c3d4544b19835e867e6c9e0ac51e6ae33abe55  ./docs/oficiais/pdf/10 - DER Físico Definitivo - MVP 1.0.0.pdf
-3b18b53a4f3fd450d446a181ea8e650ec0fb6327b832ce6ba2c23b5697f49a69  ./docs/oficiais/pdf/11 - Dicionário de Dados - MVP 1.0.0.pdf
-b75934aa0392059b43f596a232b1a47150b3f1a7c9ed83ec1ebbf3a2bec39feb  ./docs/oficiais/pdf/12 - Plano e Registro de Homologação Final - MVP 1.0.0.pdf
-d4afbad2068049788c25f024d7b070ef2115e472059b505628087a6bdd523b75  ./docs/oficiais/pdf/13 - Manual de Instalação e Operação - MVP 1.0.0.pdf
-f4af8efcb7dda3af1c0ee499140c5a83d0b3066df38ff3e73ccb3d0836b4c9a8  ./docs/oficiais/pdf/14 - Registro da Release MVP 1.0.0.pdf
-542c1be0af18017df13b58ee66ae30317656032bd9e87e8c232d70bceded89fd  ./docs/sgp-logo-1080.png
+aae88e3d7b837c09ff58c03fcbac62b66e021adf18ea1bdd8a1952142d61bda9  ./database/seeders/DatabaseSeeder.php
 029823d4e0f2a8cce3b9ccb90e3eacdb4c9f28947ba59a5525bd39c14c869716  ./lang/en/auth.php
 5c9bed6d2c965666d0c8b9f17f93f87cbfc7a240ead19b3b061764e8238e219f  ./lang/en/pagination.php
 adc7b6b72a144e9a5321a66c365192c54b85502de96af9c6b629a78fc8c0d3b4  ./lang/en/passwords.php
@@ -177,9 +136,9 @@ e55ac6a1b3eb8ffa56f804a38c7e1b2bd3b7eae9548063d7bb7936e564256889  ./lang/pt_BR/p
 493369cfb7feea104da4bec214c2cc6526ca2f1b9d937c50a2961fc59cb61aaf  ./phpunit.xml
 c713dcb623f3a959b28f6e7f724440660f890288c7b796d8c9ce42372ee7f36b  ./postcss.config.js
 b7e379c77639fd56144947dbae84c84eb466d9c686ea81f2f013ae85421da923  ./public/.htaccess
-e91fcbc2b7a0a302dc041a700ae4d36749f382bba9f1d03b404cd875c810c2c2  ./public/build/assets/app-C98CnneL.css
+69fc52f853940d825a60677eedba045c53df10ed186bbf19082c4236bab6b4e1  ./public/build/assets/app-B_yuRKE7.css
 4d5ce18f0614464656a2e63394126a2c851b5af5e25430286fed2268e4824bb3  ./public/build/assets/app-DrfMOLoO.js
-83a00a92ffe75848c37fef86027eabd5efbb2355b041be4d1c5d4ab97566f876  ./public/build/manifest.json
+e6a8347ad3bfa946b093915be7f3b2cbec63bf316b847bbf971d92a09f13d5e6  ./public/build/manifest.json
 6025d2f1604bbd5cf74dc59f36348f2361fd6815111f4b5ef73e06768a961d1e  ./public/favicon.ico
 542c1be0af18017df13b58ee66ae30317656032bd9e87e8c232d70bceded89fd  ./public/images/sgp-logo.png
 eba77cba39695b6bd091fe5211d481f7ebb2ce2d8d26230b5a609465d0a4aff9  ./public/index.php
@@ -230,6 +189,7 @@ b7710a5c87f2f328e66ff7ae592500acf602afedca896a739b985204a67f0495  ./resources/vi
 821c4804e1f91a37f75ad51a7309da4ab5fa67b46f3fe48acd135d3f6ca68259  ./resources/views/layouts/guest.blade.php
 ae6cba9cc55a56eed835467437188e225212fac368931dc2cfc5422457a34044  ./resources/views/layouts/navigation.blade.php
 ee2fda72e5083b6801539bad7449615a34e35952c2c5240985dcc39f54822d49  ./resources/views/profile/edit.blade.php
+7d2991ebd38ee627620c6a95a7f58cc5b4c408fa279e460d108baa7663bee33c  ./resources/views/profile/partials/delete-user-form.blade.php
 1838f20b3d1b16c8d85ac4d3a87c2e7dd940a8b2484d68463a01b242f891cd98  ./resources/views/profile/partials/update-password-form.blade.php
 bb9a00ce8885915857508106b5451ff69a809c09d05c8bf5ac6752f1e4e3d58f  ./resources/views/profile/partials/update-profile-information-form.blade.php
 0713dd15babb69a1eee461cfd5af1f68c88d1eb9af1653219c69d3990dbf5c20  ./resources/views/projects/_form.blade.php
@@ -258,14 +218,19 @@ d237497b3ea4dc149bedf0fe72d6caab263e6132257a75c2700ba14a96b49552  ./resources/vi
 bb96831f038b9ba990b4e36f6e91e854bdd1ef855d17b094561ffc979150dee7  ./resources/views/users/index.blade.php
 e34e11b66d915efb7de55c2a8f7857f8e5d94178a6834109f8d7f5c87528db1f  ./resources/views/welcome.blade.php
 47f663975b02fb663234a1e0bc52770f1c60cf0c45acd97953ca4e2ccc310e5b  ./rotina-git-lili.md
-64a88f2d2183900f69da2ea3679b59dc683f58ff2677a5fe5c73e17fd617e604  ./routes/auth.php
+36cf4db7de7fd6ea0f118a3259206685009ff2dfe5f7693852f5e3cecb514171  ./routes/auth.php
 9adccc33e7dd400683e434774077c7fdb2f299c5712cedf16a43fdf56f2850fa  ./routes/console.php
-de1299d85fa1cfe066e4e6e4774fda0c362544fb10b9eddebaed8d1f00a678eb  ./routes/web.php
+fc9e5227bef3ebd41a9e4e7906e75a0b81be4619898d5b6583eb3d685473b292  ./routes/web.php
 993b9e3709d7b5189da331725d1169d79e561a509db2490b722b525073d2d976  ./storage/app/.gitignore
 240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./storage/app/private/.gitignore
 240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./storage/app/public/.gitignore
 2d452d65596636197757afa17df52331c84da7bb74ee0f3462fd5be4eb6afdc6  ./storage/framework/.gitignore
 32f79194633ddb34f013c6ee8819d112104ff822357adf308ec385b46a7f42f6  ./storage/framework/cache/.gitignore
+240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./storage/framework/cache/data/.gitignore
+240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./storage/framework/sessions/.gitignore
+240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./storage/framework/testing/.gitignore
+240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./storage/framework/views/.gitignore
+240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d  ./storage/logs/.gitignore
 c57c50e5816a545cbc8b412239f01fb7df1a212abec635eb000c06b6e66688fa  ./tailwind.config.js
 08685bdecdf5c6c8050faa59ebbe8ec6ef4204abea7d7493572f541ead16b601  ./tests/Feature/Auth/AuthenticationTest.php
 ee9fe6e9df4a60968a0857d3a2ea6b5d79248308db0b8a4844ce094c1d89143c  ./tests/Feature/Auth/EmailVerificationTest.php
@@ -277,12 +242,12 @@ b49d1eb834508c50629e55b21b7a23be2dd4434b66a6fced14c67a948c5b8208  ./tests/Featur
 0068294c45e10761fa35b4d048f3006b35b9a0b90bff10f7babb07962a4c0bc9  ./tests/Feature/DashboardCalendarScheduleTest.php
 c8eff4b231cd76f112e2e7fe93f5fb3e5ee4e9a2fb4b34803e41b2d06a8695d2  ./tests/Feature/DocumentManagementTest.php
 a6afc34067b5a48ba93dfa2b4b4d0fc0fc907f84e36c4c2371a7100ebcfa91ac  ./tests/Feature/ExampleTest.php
+178764373b7713266bd8ff1bd9a131f4b51542702c3831068e5a6d333871c821  ./tests/Feature/FirstAdministratorCommandTest.php
 289636d86790eaccbed4ba4abaacf849be8f9bbf31c17f70a4c6c67b698c631c  ./tests/Feature/KanbanManagementTest.php
 31f81a4e9dfb7edf9de982a16c34e7dcb00d01bacada3081169dd7eddcd3cb9d  ./tests/Feature/ProfileTest.php
 0226f1ce11e3e9c1bc8ad5559e3b31f07b521875cc44eb069fa3c68f157bbeee  ./tests/Feature/ProjectManagementTest.php
 e0d374b58dec1fcb97f20411f2cba79e963bd8599ff0e5c150bcc398c6aa7e5e  ./tests/Feature/RequirementManagementTest.php
 af222c14b92ee76d90a33d92fd3d1c229f79d076544661e25766bfb343592c48  ./tests/Feature/TaskManagementTest.php
-503edd08053d9d1c5b41accbee17129bdb115f5cc8f57814c744893034f1695f  ./tests/Feature/UserManagementTest.php
+4a23e44d5e15695918704e47515ad3b8163b1669c6c2575384c0ff00b4519682  ./tests/Feature/UserManagementTest.php
 c7c209f5579c42647c1f7b2a79ac828e8b54ac62a98442045a6e94fa2c0d0ebc  ./tests/TestCase.php
-ffacae5c1a2a44c809420af5b3b404910da1b12167d58764dac6d10b8ba8cfaf  ./tests/Unit/ExampleTest.php
 b79dffc57362f908a5f6a451c4c4bc1543a7f43b596300691f754f5c8b320312  ./vite.config.js

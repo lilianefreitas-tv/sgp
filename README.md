@@ -71,12 +71,14 @@ php artisan key:generate
 npm ci
 npm run build
 php artisan migrate --seed
+php artisan sgp:create-first-administrator
 php artisan optimize:clear
 php artisan serve
 ```
 
 Antes de executar as migrations, configure no `.env` a conexão PostgreSQL e
-troque credenciais de exemplo.
+troque credenciais de exemplo. O comando interativo cria o primeiro
+administrador sem distribuir usuário ou senha padrão.
 
 ## Testes
 
@@ -108,6 +110,8 @@ SGP_ATTACHMENT_EXTENSIONS=pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,webp,zip
 ## Segurança
 
 - cadastro público e recuperação pública de senha permanecem desabilitados;
+- não existem usuários ou senhas padrão na instalação;
+- o primeiro administrador é criado por comando interativo e controlado;
 - usuários são administrados por perfil autorizado;
 - contas são desativadas sem exclusão física;
 - acesso aos projetos respeita participação ativa e papel contextual;
@@ -127,5 +131,8 @@ Analista de Requisitos, Desenvolvedora e Técnica em Tecnologia da Informação
 
 ## Licença
 
-A definição de licença e distribuição deve ser formalizada antes de qualquer
-publicação externa. As dependências mantêm suas respectivas licenças.
+O código do SGP é proprietário e não pode ser copiado, modificado, distribuído
+ou comercializado sem autorização expressa da autora. As condições contratuais
+e de licenciamento de cada implantação devem ser formalizadas antes da
+disponibilização externa. As dependências de terceiros mantêm suas respectivas
+licenças.
