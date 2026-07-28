@@ -9,7 +9,7 @@
             content="SGP - Sistema de Gestão de Projetos de Software"
         >
 
-        <title>{{ config('app.name', 'SGP') }}</title>
+        <title>SGP</title>
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
         <link
             rel="icon"

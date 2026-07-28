@@ -16,8 +16,10 @@ class ExampleTest extends TestCase
 
         $response
             ->assertStatus(200)
+            ->assertSee('<title>SGP</title>', false)
             ->assertSee('Sistema de Gestão de Projetos de Software')
             ->assertSee('Projetos organizados. Decisões rastreáveis.')
+            ->assertSee('Bem-vindo(a) ao SGP')
             ->assertSee('Acessar o sistema');
     }
 }

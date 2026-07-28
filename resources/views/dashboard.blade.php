@@ -1,21 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-                <h1 class="text-xl font-bold text-[#24313A]">Painel</h1>
-                <p class="mt-1 text-sm text-[#667680]">Visão executiva dos projetos disponíveis para você</p>
-            </div>
-            <a href="{{ route('calendar.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-[#123B4A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1D5D73]">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" /></svg>
-                Abrir calendário
-            </a>
+        <div>
+            <h1 class="text-xl font-bold text-[#24313A]">Painel</h1>
+            <p class="mt-1 text-sm text-[#667680]">Visão executiva dos projetos disponíveis para você</p>
         </div>
     </x-slot>
 
     <div class="space-y-5">
         <section class="relative overflow-hidden rounded-2xl px-6 py-5 text-white shadow-sm sm:px-8" style="background: linear-gradient(135deg, #123B4A 0%, #1D5D73 100%);">
             <div class="relative z-10 max-w-3xl">
-                <p class="text-sm font-semibold uppercase tracking-widest text-[#A8E2D7]">Bem-vinda ao SGP</p>
+                <p class="text-sm font-semibold uppercase tracking-widest text-[#A8E2D7]">Bem-vindo(a) ao SGP</p>
                 <h2 class="mt-2 text-2xl font-bold text-white">Olá, {{ Auth::user()->name }}!</h2>
                 <p class="mt-2 text-sm leading-6 text-[#E4EEF1]">Os indicadores abaixo refletem os projetos, requisitos, tarefas, prazos e documentos registrados no sistema.</p>
             </div>

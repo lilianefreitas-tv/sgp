@@ -9,7 +9,7 @@
             </p>
 
             <h2 class="text-3xl font-bold tracking-tight text-[#24313A]">
-                Bem-vinda!
+                Bem-vindo(a)!
             </h2>
 
             <p class="mt-3 text-sm leading-6 text-[#667680]">

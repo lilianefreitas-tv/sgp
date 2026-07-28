@@ -54,6 +54,23 @@ class DashboardCalendarScheduleTest extends TestCase
             ->assertSee('Aguardando análise');
     }
 
+    public function test_dashboard_uses_sgp_title_and_places_calendar_below_panel(): void
+    {
+        $administrator = User::factory()->administrator()->create();
+
+        $this->actingAs($administrator)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('<title>SGP</title>', false)
+            ->assertSee('Bem-vindo(a) ao SGP')
+            ->assertDontSee('Abrir calendário')
+            ->assertSeeInOrder([
+                'Painel',
+                'Calendário',
+                'Gerenciamento',
+            ]);
+    }
+
     public function test_calendar_displays_project_and_task_dates(): void
     {
         $administrator = User::factory()->administrator()->create();

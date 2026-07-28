@@ -27,6 +27,8 @@
   proprietário, removendo a declaração MIT herdada do esqueleto Laravel;
 - README, tecnologias, status e instruções de implantação atualizados;
 - referências herdadas do Laravel e do RotaMP removidas da experiência pública;
+- título das abas fixado como SGP, saudações iniciais tornadas inclusivas e
+  acesso ao Calendário reposicionado logo abaixo do Painel;
 - artefatos temporários excluídos do pacote de release.
 
 ### Conhecido
