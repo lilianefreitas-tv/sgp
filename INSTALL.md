@@ -18,6 +18,7 @@ php artisan key:generate
 npm ci
 npm run build
 php artisan migrate --seed
+php artisan sgp:create-first-administrator
 php artisan optimize:clear
 php artisan storage:unlink
 php artisan serve
@@ -40,6 +41,12 @@ DB_PASSWORD=troque_esta_senha
 ```
 
 Não execute `php artisan storage:link`: documentos e anexos são privados.
+
+O comando do primeiro administrador solicita nome, e-mail e senha no terminal.
+A senha não aparece na tela nem é aceita como argumento de linha de comando. Ela
+deve ter pelo menos 12 caracteres, letras maiúsculas e minúsculas, número e
+símbolo. O comando se recusa a criar outra conta quando já existe administrador
+ativo.
 
 ## 3. Atualização de instalação existente
 
@@ -99,4 +106,5 @@ documentos e anexos.
 - servidor web apontando somente para `public`;
 - fila e agendador configurados quando forem adotados;
 - primeiro administrador criado por procedimento controlado;
+- nenhuma credencial padrão ou previsível mantida no banco;
 - homologação final aprovada antes da tag `v1.0.0`.

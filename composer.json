@@ -2,9 +2,9 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
-    "license": "MIT",
+    "description": "SGP - Sistema de Gestão de Projetos de Software",
+    "keywords": ["sgp", "gestao-de-projetos", "requisitos", "laravel"],
+    "license": "proprietary",
     "require": {
         "php": "^8.2",
         "dompdf/dompdf": "^3.1",

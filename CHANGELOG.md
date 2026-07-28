@@ -19,8 +19,16 @@
 
 - removida a exclusão física de conta pelo próprio usuário;
 - `.env.example` alinhado ao SGP e ao PostgreSQL;
+- removida a credencial previsível do seeder e criado procedimento interativo
+  para o primeiro administrador;
+- sessões autenticadas passam a ser encerradas imediatamente quando a conta é
+  desativada;
+- licença do pacote corrigida para identificar o SGP como software
+  proprietário, removendo a declaração MIT herdada do esqueleto Laravel;
 - README, tecnologias, status e instruções de implantação atualizados;
 - referências herdadas do Laravel e do RotaMP removidas da experiência pública;
+- título das abas fixado como SGP, saudações iniciais tornadas inclusivas e
+  acesso ao Calendário reposicionado logo abaixo do Painel;
 - artefatos temporários excluídos do pacote de release.
 
 ### Conhecido
