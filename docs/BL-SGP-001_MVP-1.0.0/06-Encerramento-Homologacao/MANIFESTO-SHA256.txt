@@ -1,0 +1,10 @@
+f7773a40da12f00f6be1a332d3bfe197df7217f8a0e5455dff868743964b1b46  ./03_Matriz_Final_de_Homologacao_MVP_1.0.xlsx
+2587c40a3ccd188bdfe1705afcbaa595cfd19d2f343e0d51e454dc04c1a7bb82  ./Evidencias/EV-HOM-035-001_Recursos-Conectados-e-Deploys.png
+36172fb25513958d63a6a2193c798c707812bd648acbcbb09730be88d63199c2  ./Evidencias/EV-HOM-035-002_Deploy-Concluido-Parte-1.png
+68dd325a81ac1c530f79cf14fad84a746bc4a92ded5f43c448a21501bf22f84f  ./Evidencias/EV-HOM-035-003_Criacao-Primeira-Administradora.png
+31fbcd08e071b3be8b0c3b3cbdc28d6900ee0f9a81202e6b8085a9f81d4d939c  ./Evidencias/EV-HOM-035-004_Login-Administradora.png
+b228e72c43a1175e0de61d2fe2bbf590f6976aff93e93155beebab3571fe9a79  ./Evidencias/EV-HOM-035-005_Checklist-Producao-Segura.png
+c6720b1b72012338a072f146ed1faa410e654a444684cf3003d3e3d3c3dbbe71  ./Evidencias/EV-HOM-GERAL-001_Registro-da-Declaracao-Final.txt
+ae323db5842bcdd0d5c55bda139e51996e252024020c2e2d64c1d8a63b872c40  ./LEIA-ME.md
+3dfa4769d416c9144a24ad03458df9abc008c3bd9880f09f7c5718ba674bf66c  ./Pacote_Consolidado_Encerramento_Formal_MVP_1.0.docx
+0bae013538382d20549a1c0f4f77d5b2a1d41d6ab7f243c8e3a960106f75ec76  ./Pacote_Consolidado_Encerramento_Formal_MVP_1.0.pdf
