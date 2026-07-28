@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.0.1] - 2026-07-28
+
+Correção operacional do MVP para implantação em plataformas com filesystem
+efêmero, sem ampliação do escopo funcional da `BL-SGP-001`.
+
+### Adicionado
+
+- dependência `league/flysystem-aws-s3-v3` para Object Storage compatível com
+  S3;
+- configuração `SGP_PRIVATE_DISK`, com herança de `FILESYSTEM_DISK`;
+- geração temporária de DOCX e PDF antes do envio ao disco persistente;
+- bootstrap não interativo do primeiro administrador por variável protegida;
+- testes de anexos e documentos usando disco privado configurado.
+
+### Corrigido
+
+- removidos os usos fixos do disco `local` nos fluxos permanentes de anexos e
+  documentos;
+- anexos novos registram o disco efetivamente utilizado, preservando a leitura
+  dos registros anteriores;
+- downloads continuam passando pelas rotas autenticadas e autorizações do SGP;
+- falhas de geração removem objetos parciais e arquivos temporários;
+- criação do primeiro administrador passa a funcionar no console não
+  interativo do Laravel Cloud;
+- README e manual de instalação atualizados para ambiente local e nuvem.
+
+### Validação
+
+- 100 testes automatizados aprovados, com 358 asserções;
+- compatibilidade regressiva do disco local preservada;
+- nenhuma migração de banco necessária;
+- `HOM-035` permanece pendente para validação no ambiente real após novo deploy.
+
 ## [1.0.0] - 2026-07-28
 
 Primeira release estável e homologada do SGP.

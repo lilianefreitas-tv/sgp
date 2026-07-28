@@ -40,4 +40,45 @@ class FirstAdministratorCommandTest extends TestCase
 
         $this->assertDatabaseCount('users', 1);
     }
+
+    public function test_non_interactive_creation_uses_protected_configuration_password(): void
+    {
+        config(['sgp.bootstrap.administrator_password' => 'Senha@123456']);
+
+        $this->artisan('sgp:create-first-administrator', [
+            '--name' => 'Administradora da Produção',
+            '--email' => 'producao@example.com',
+            '--no-interaction' => true,
+        ])->assertSuccessful();
+
+        $administrator = User::query()->sole();
+
+        $this->assertSame('Administradora da Produção', $administrator->name);
+        $this->assertSame('producao@example.com', $administrator->email);
+        $this->assertTrue(Hash::check('Senha@123456', $administrator->password));
+    }
+
+    public function test_non_interactive_creation_fails_without_protected_password(): void
+    {
+        config(['sgp.bootstrap.administrator_password' => null]);
+
+        $this->artisan('sgp:create-first-administrator', [
+            '--name' => 'Administradora da Produção',
+            '--email' => 'producao@example.com',
+            '--no-interaction' => true,
+        ])->assertFailed();
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_non_interactive_creation_still_validates_required_identity(): void
+    {
+        config(['sgp.bootstrap.administrator_password' => 'Senha@123456']);
+
+        $this->artisan('sgp:create-first-administrator', [
+            '--no-interaction' => true,
+        ])->assertFailed();
+
+        $this->assertDatabaseCount('users', 0);
+    }
 }

@@ -1,30 +1,30 @@
 # SGP - Sistema de Gestão de Projetos de Software
 
 O SGP centraliza o planejamento, a execução, a documentação e a rastreabilidade
-de projetos de software. A release `v1.0.0` corresponde ao primeiro MVP
-homologado do produto, com gestão de usuários, clientes, projetos, requisitos,
-tarefas, documentos, colaboração, auditoria e visualizações gerenciais.
+de projetos de software. A release `v1.0.1` preserva o escopo funcional do
+primeiro MVP homologado e acrescenta a compatibilidade operacional necessária
+para implantação em plataformas com filesystem efêmero, como o Laravel Cloud.
 
 ## Situação atual
 
 | Item | Situação |
 |---|---|
-| Release estável | `v1.0.0` |
-| Baseline documental vigente | `BL-SGP-001`, revisão 1.0.1 |
+| Release estável | `v1.0.1` |
+| Baseline de referência | `BL-SGP-001`, com correção operacional `v1.0.1` |
 | Branch estável | `main` |
-| Commit da release `v1.0.0` | `a5bc837` |
-| Tag | `v1.0.0`, publicada no GitHub |
-| Testes automatizados | 95 aprovados, com 337 asserções |
+| Base homologada | `v1.0.0`, commit `a5bc837` |
+| Testes automatizados | 100 aprovados, com 358 asserções |
 | Homologação manual | `HOM-001` a `HOM-034` aprovados |
 | Produção segura | `HOM-035` pendente de conclusão no ambiente real |
 | Banco oficial | PostgreSQL |
 
-A homologação do MVP 1.0.0 foi aprovada com ressalva operacional. Não permanece
-aberta nenhuma falha funcional impeditiva ou de alta criticidade. A ressalva
-consiste em revalidar HTTPS, `APP_DEBUG=false`, webroot apontado para `public` e
-permissões do servidor quando o ambiente externo de produção for implantado.
+A homologação funcional do MVP 1.0.0 foi aprovada. A `v1.0.1` implementa o
+armazenamento privado configurável, a persistência em Object Storage e o
+bootstrap não interativo do primeiro administrador. O `HOM-035` permanece
+pendente para validar HTTPS, `APP_DEBUG=false`, recursos vinculados e
+persistência dos arquivos após novo deploy no ambiente real.
 
-## Funcionalidades da v1.0.0
+## Funcionalidades preservadas na v1.0.1
 
 - autenticação e manutenção do perfil do usuário;
 - administração de usuários, perfis globais e ativação ou desativação;
@@ -52,7 +52,8 @@ permissões do servidor quando o ambiente externo de produção for implantado.
 - PostgreSQL 14 ou superior;
 - Eloquent ORM e Blade;
 - PHPWord 1.4 para documentos DOCX;
-- Dompdf 3.1.6 para documentos PDF.
+- Dompdf 3.1.6 para documentos PDF;
+- Flysystem AWS S3 v3 para Object Storage compatível com S3.
 
 ### Frontend
 
@@ -75,7 +76,9 @@ permissões do servidor quando o ambiente externo de produção for implantado.
 - Composer 2;
 - PostgreSQL 14 ou superior;
 - Node.js 20 ou superior e npm;
-- Git.
+- Git;
+- Object Storage compatível com S3 quando o filesystem da plataforma for
+  efêmero.
 
 ## Instalação
 
@@ -97,8 +100,10 @@ php artisan serve
 ```
 
 Antes de executar as migrations, configure no `.env` a conexão PostgreSQL e
-substitua as credenciais de exemplo. O comando interativo cria o primeiro
-administrador sem distribuir usuário ou senha padrão.
+substitua as credenciais de exemplo. Em instalações locais ou com terminal
+interativo, o comando cria o primeiro administrador sem distribuir usuário ou
+senha padrão. O procedimento não interativo para nuvem está descrito no
+[INSTALL.md](INSTALL.md).
 
 ## Testes e homologação
 
@@ -108,11 +113,11 @@ Execute a suíte automatizada:
 php artisan test
 ```
 
-Resultado de referência da release `v1.0.0`:
+Resultado de referência da release `v1.0.1`:
 
 ```text
-Tests: 95 passed
-Assertions: 337
+Tests: 100 passed
+Assertions: 358
 ```
 
 Os testes automatizados utilizam SQLite em memória para rapidez e isolamento.
@@ -125,31 +130,38 @@ O `HOM-035` deverá ser concluído no servidor real de produção.
 
 ## Armazenamento e backup
 
-Na `v1.0.0`, documentos e anexos são armazenados no disco privado do Laravel,
-em `storage/app/private`. Esse diretório não deve ser publicado nem exposto por
-link público.
+Na `v1.0.1`, documentos e anexos usam um disco privado configurável. Em
+instalações locais, o padrão permanece `local`, em `storage/app/private`. Em
+plataformas com filesystem efêmero, deve ser usado um bucket privado compatível
+com S3.
 
-O limite e as extensões de anexos são configuráveis:
+O disco, o limite e as extensões de anexos são configuráveis:
 
 ```dotenv
+SGP_PRIVATE_DISK=local
 SGP_ATTACHMENT_MAX_KB=10240
 SGP_ATTACHMENT_EXTENSIONS=pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,webp,zip
 ```
 
-O backup completo exige o dump PostgreSQL e uma cópia de
-`storage/app/private` pertencentes ao mesmo ponto no tempo. O procedimento de
-restauração deve ser testado em ambiente alternativo.
+Quando `SGP_PRIVATE_DISK` não é definido, o SGP herda `FILESYSTEM_DISK`. No
+Laravel Cloud, o bucket vinculado injeta essa variável e as credenciais
+compatíveis com S3. O bucket deve ser privado.
+
+O backup completo exige o dump PostgreSQL e uma cópia consistente do disco
+privado, local ou remoto, pertencentes ao mesmo ponto no tempo. O procedimento
+de restauração deve ser testado em ambiente alternativo.
 
 ## Segurança
 
 - cadastro público e recuperação pública de senha permanecem desabilitados;
 - não existem usuários ou senhas padrão na instalação;
-- o primeiro administrador é criado por comando interativo e controlado;
+- o primeiro administrador é criado por procedimento interativo ou bootstrap
+  não interativo controlado;
 - usuários são administrados por perfil autorizado;
 - contas são desativadas sem exclusão física;
 - acesso aos projetos respeita participação ativa e papel contextual;
 - anexos e documentos exigem rota autenticada e autorização;
-- arquivos privados permanecem fora da pasta pública;
+- arquivos privados permanecem fora da pasta pública ou em bucket privado;
 - eventos relevantes preservam usuário, data e hora;
 - o arquivo `.env` não é versionado;
 - em produção, `APP_DEBUG` deve permanecer desativado e o servidor web deve
@@ -163,13 +175,14 @@ A `BL-SGP-001` representa o estado implementado e homologado do MVP 1.0.0.
 Ela preserva o escopo histórico da release e não deve ser alterada para incluir
 funcionalidades futuras.
 
-### Adaptação operacional para nuvem
+### Correção operacional v1.0.1
 
-Antes da implantação em uma plataforma com sistema de arquivos efêmero, o SGP
-precisará substituir os usos fixos do disco local por um disco privado
-configurável e armazenar arquivos permanentes em Object Storage. Essa correção
-de compatibilidade operacional está prevista para a versão `v1.0.1` e não
-amplia o escopo funcional do MVP.
+A `v1.0.1` remove os usos fixos do disco local nos fluxos permanentes, permite
+configurar o disco privado, gera DOCX e PDF em arquivos temporários e envia os
+resultados ao armazenamento persistente. Também permite criar o primeiro
+administrador de forma não interativa usando uma variável protegida e
+temporária. A correção não altera o escopo funcional do MVP nem antecipa a
+`BL-SGP-002`.
 
 ### BL-SGP-002
 
@@ -192,7 +205,7 @@ Seu escopo comprometido inclui:
 
 ## Fora do escopo atual
 
-Não fazem parte da release `v1.0.0` nem da implementação comprometida da
+Não fazem parte da release `v1.0.1` nem da implementação comprometida da
 `BL-SGP-002`:
 
 - cobrança automática, billing e integração com meios de pagamento;
@@ -210,6 +223,7 @@ uma entrega após aprovação em nova baseline.
 
 - `main` contém somente código estável;
 - `v1.0.0` identifica o commit homologado do MVP;
+- `v1.0.1` identifica a correção operacional para implantação em nuvem;
 - a branch `release/sgp-mvp-1.0.0-rc1` permanece como registro histórico;
 - correções de produção devem partir da versão estável;
 - o desenvolvimento da `BL-SGP-002` deve ocorrer em branch própria;

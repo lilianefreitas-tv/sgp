@@ -9,10 +9,10 @@ use App\Models\ProjectDocument;
 use App\Models\User;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
@@ -21,10 +21,15 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 class DocumentGenerationService
 {
     private const PRIMARY = '123B4A';
+
     private const ACCENT = '287EA1';
+
     private const TEXT = '24313A';
+
     private const MUTED = '667680';
+
     private const BORDER = 'DCE3E7';
+
     private const LIGHT = 'F3F7F8';
 
     public function generate(
@@ -51,11 +56,17 @@ class DocumentGenerationService
         $docxPath = $folder.'/'.$storageBaseName.'.docx';
         $pdfPath = $folder.'/'.$storageBaseName.'.pdf';
 
-        Storage::disk('local')->makeDirectory($folder);
+        $disk = (string) config('sgp.storage.private_disk', 'local');
+        $temporaryDocxPath = null;
+        $temporaryPdfPath = null;
 
         try {
-            $this->writeDocx($payload, Storage::disk('local')->path($docxPath));
-            $this->writePdf($payload, Storage::disk('local')->path($pdfPath));
+            $temporaryDocxPath = $this->temporaryPath('sgp-docx-');
+            $temporaryPdfPath = $this->temporaryPath('sgp-pdf-');
+            $this->writeDocx($payload, $temporaryDocxPath);
+            $this->writePdf($payload, $temporaryPdfPath);
+            $this->upload($disk, $docxPath, $temporaryDocxPath);
+            $this->upload($disk, $pdfPath, $temporaryPdfPath);
 
             return ProjectDocument::create([
                 'project_id' => $project->id,
@@ -79,8 +90,42 @@ class DocumentGenerationService
                 'generated_at' => $generatedAt,
             ]);
         } catch (\Throwable $exception) {
-            Storage::disk('local')->delete([$docxPath, $pdfPath]);
+            Storage::disk($disk)->delete([$docxPath, $pdfPath]);
             throw $exception;
+        } finally {
+            foreach ([$temporaryDocxPath, $temporaryPdfPath] as $temporaryPath) {
+                if (is_string($temporaryPath) && is_file($temporaryPath)) {
+                    @unlink($temporaryPath);
+                }
+            }
+        }
+    }
+
+    private function temporaryPath(string $prefix): string
+    {
+        $path = tempnam(sys_get_temp_dir(), $prefix);
+
+        if ($path === false) {
+            throw new \RuntimeException('Não foi possível criar o arquivo temporário.');
+        }
+
+        return $path;
+    }
+
+    private function upload(string $disk, string $targetPath, string $temporaryPath): void
+    {
+        $stream = fopen($temporaryPath, 'rb');
+
+        if ($stream === false) {
+            throw new \RuntimeException('Não foi possível abrir o arquivo temporário.');
+        }
+
+        try {
+            if (! Storage::disk($disk)->put($targetPath, $stream)) {
+                throw new \RuntimeException('Não foi possível armazenar o documento gerado.');
+            }
+        } finally {
+            fclose($stream);
         }
     }
 
@@ -91,8 +136,7 @@ class DocumentGenerationService
         User $user,
         int $version,
         Carbon $generatedAt,
-    ): array
-    {
+    ): array {
         return [
             'project' => $project,
             'template' => $template,
@@ -116,7 +160,7 @@ class DocumentGenerationService
     /** @param array<string, mixed> $payload */
     private function writeDocx(array $payload, string $path): void
     {
-        $phpWord = new PhpWord();
+        $phpWord = new PhpWord;
         $phpWord->setDefaultFontName('Arial');
         $phpWord->setDefaultFontSize(10);
         $phpWord->addTitleStyle(1, ['name' => 'Arial', 'size' => 16, 'bold' => true, 'color' => self::PRIMARY], ['spaceBefore' => 240, 'spaceAfter' => 120]);
@@ -263,6 +307,7 @@ class DocumentGenerationService
 
         if ($payload['requirements']->isEmpty()) {
             $section->addText('Nenhum requisito cadastrado no projeto.');
+
             return;
         }
 
@@ -298,6 +343,7 @@ class DocumentGenerationService
 
         if ($payload['tasks']->isEmpty()) {
             $section->addText('Nenhuma tarefa cadastrada no projeto.');
+
             return;
         }
 
@@ -422,6 +468,7 @@ class DocumentGenerationService
         $items = $this->lines($text);
         if ($items === []) {
             $section->addText($empty);
+
             return;
         }
         foreach ($items as $item) {
@@ -447,7 +494,7 @@ class DocumentGenerationService
     /** @param array<string, mixed> $payload */
     private function writePdf(array $payload, string $path): void
     {
-        $options = new Options();
+        $options = new Options;
         $options->set('isRemoteEnabled', false);
         $options->set('defaultFont', 'Arial');
         $dompdf = new Dompdf($options);

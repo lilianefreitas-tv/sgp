@@ -37,10 +37,27 @@ class CreateFirstAdministrator extends Command
             return self::FAILURE;
         }
 
-        $name = trim((string) ($this->option('name') ?: $this->ask('Nome completo')));
-        $email = mb_strtolower(trim((string) ($this->option('email') ?: $this->ask('E-mail'))));
-        $password = (string) $this->secret('Senha');
-        $passwordConfirmation = (string) $this->secret('Confirme a senha');
+        $interactive = $this->input->isInteractive();
+        $name = trim((string) (
+            $this->option('name') ?: ($interactive ? $this->ask('Nome completo') : '')
+        ));
+        $email = mb_strtolower(trim((string) (
+            $this->option('email') ?: ($interactive ? $this->ask('E-mail') : '')
+        )));
+
+        if ($interactive) {
+            $password = (string) $this->secret('Senha');
+            $passwordConfirmation = (string) $this->secret('Confirme a senha');
+        } else {
+            $password = (string) config('sgp.bootstrap.administrator_password');
+            $passwordConfirmation = $password;
+
+            if ($password === '') {
+                $this->components->error('Defina SGP_BOOTSTRAP_ADMIN_PASSWORD antes da execução não interativa.');
+
+                return self::FAILURE;
+            }
+        }
 
         $validator = Validator::make(
             [

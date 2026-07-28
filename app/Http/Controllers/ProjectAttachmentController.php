@@ -48,17 +48,18 @@ class ProjectAttachmentController extends Controller
         $this->ensureCanView($request, $project);
         $context = $contexts->resolve($project, $request->string('context')->toString());
         $file = $request->file('file');
-        $path = $file->store('project-attachments/'.$project->id, 'local');
+        $disk = (string) config('sgp.storage.private_disk', 'local');
+        $path = $file->store('project-attachments/'.$project->id, $disk);
 
         abort_if($path === false, 500, 'Não foi possível armazenar o arquivo.');
 
         try {
-            DB::transaction(function () use ($request, $project, $context, $file, $path): void {
+            DB::transaction(function () use ($request, $project, $context, $file, $disk, $path): void {
                 $project->attachments()->create([
                     'uploaded_by' => $request->user()->id,
                     'context_type' => $context['type'],
                     'context_id' => $context['id'],
-                    'disk' => 'local',
+                    'disk' => $disk,
                     'path' => $path,
                     'original_name' => Str::limit(basename($file->getClientOriginalName()), 255, ''),
                     'mime_type' => $file->getMimeType(),
@@ -68,7 +69,7 @@ class ProjectAttachmentController extends Controller
                 ]);
             });
         } catch (Throwable $exception) {
-            Storage::disk('local')->delete($path);
+            Storage::disk($disk)->delete($path);
             throw $exception;
         }
 

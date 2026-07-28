@@ -145,9 +145,10 @@ class DocumentController extends Controller
 
         $path = $format === 'docx' ? $document->docx_path : $document->pdf_path;
         $fileName = $format === 'docx' ? $document->docx_file_name : $document->pdf_file_name;
-        abort_unless(Storage::disk('local')->exists($path), 404, 'Arquivo não encontrado no armazenamento.');
+        $disk = (string) config('sgp.storage.private_disk', 'local');
+        abort_unless(Storage::disk($disk)->exists($path), 404, 'Arquivo não encontrado no armazenamento.');
 
-        return Storage::disk('local')->download($path, $fileName);
+        return Storage::disk($disk)->download($path, $fileName);
     }
 
     private function ensureCanView(Request $request, Project $project): void

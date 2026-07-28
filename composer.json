@@ -7,13 +7,14 @@
     "license": "proprietary",
     "require": {
         "php": "^8.2",
-        "dompdf/dompdf": "^3.1",
         "ext-dom": "*",
         "ext-gd": "*",
         "ext-xmlwriter": "*",
         "ext-zip": "*",
+        "dompdf/dompdf": "^3.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "phpoffice/phpword": "^1.3"
     },
     "require-dev": {
