@@ -1,0 +1,32 @@
+75ac69c0ffecb9a1ae2da4daba7d2954ae15d5a799754e79e93fabbcbd2ca63e  00 - Termo de Consolidação da Baseline BL-SGP-001.docx
+353cb7d0deac48bacc96f33659a7b4ba8370fedb5f06ca94f8bcde2b63b1b0ef  00 - Termo de Consolidação da Baseline BL-SGP-001.pdf
+5bbee909c4e2b6876996356a3fa9f88e563f8da2e7649fc65a6421d720f23b48  01 - Documento de Visão - MVP 1.0.0.docx
+7fea6cae7905ee06f119576e99da7b8689278b212d072d417b8f6db7df23580a  01 - Documento de Visão - MVP 1.0.0.pdf
+49eccdbf377a8b616be37d0c2bd7ba731850dccefa1d27966c0a6a63c5709513  02 - Regras de Negócio - MVP 1.0.0.docx
+517465d78e178c905f8cb8bfd8960b1da8549ecfaa4955896e4a29600c0638f8  02 - Regras de Negócio - MVP 1.0.0.pdf
+be283c1d33a848a42550b8415f2f7ca4e2a17d2586d5ec5f7e2b8b3a048178ac  03 - Especificação Funcional - MVP 1.0.0.docx
+34179501f5f02695ee655e9afe94cbc7da6892ba7cdaaf2878c4be7a395df012  03 - Especificação Funcional - MVP 1.0.0.pdf
+da589c32598868f6cacaec978a8c3ed3bf495de2a4865060e7a65b087ce5625d  04 - Modelo Conceitual do Negócio - MVP 1.0.0.docx
+83c0c3cd8911dcf4d975f7b38242db311e760ec8c3de67703639d67dddec858d  04 - Modelo Conceitual do Negócio - MVP 1.0.0.pdf
+e0b8ab00ffe84776fe5c408d0c8537fa6a27bab6f6256eb19c45bbce68042597  05 - Plano de Projeto MVP - v1.0.0.docx
+620eb8bdb09638d5e7c5578e547e8fa1c02e6d5ab2d2efae79147ab7f8665560  05 - Plano de Projeto MVP - v1.0.0.pdf
+90720f0d8b5b9fda8ce0d5b43a0ed3f63e2f4dfbddfc87205d7eda744a36ae67  06 - Casos de Uso - MVP 1.0.0.docx
+6a7a3f9a9fb556ada39bb33bef6ffd268dbe1c2c9e48292d5408fc31b048f7d2  06 - Casos de Uso - MVP 1.0.0.pdf
+91adadca00d9b58152efbf1f2bf293dc8c73f6b5e38db66173baba271122c045  07 - Requisitos Funcionais - MVP 1.0.0.docx
+f6f6afd56641a773f47f6fd7ba7c4d61ba9ac1db25c57cc31840e3f88e5a98c4  07 - Requisitos Funcionais - MVP 1.0.0.pdf
+180f060a492c01706b41ba72a3667d97e6689890f55e50b05d834a7e5e5e283a  08 - Requisitos Não Funcionais - MVP 1.0.0.docx
+40df61180dc936735114092d8e97eb8d2b356cd8efeccbd257fcb26bcbb37394  08 - Requisitos Não Funcionais - MVP 1.0.0.pdf
+8c6ea16fca8c0162341c8706e781586b4fcaea3e9a0eaa831c9eb01b54056b3c  09 - Matriz de Rastreabilidade - MVP 1.0.0.docx
+0f8ebf33e8032d5d811b3f2344d7ff8710252b5a30f6d44443cb40de0de6ad15  09 - Matriz de Rastreabilidade - MVP 1.0.0.pdf
+ed7a959a73340a17159ba96855740b1fe54f7d4092b33284ba6b6f70ead400b0  10 - DER Físico Definitivo - MVP 1.0.0.docx
+824a30e6c04c97cdbe03b7c06e49e3b870d684a8bc8710cb87ce86693d425515  10 - DER Físico Definitivo - MVP 1.0.0.pdf
+73e4293996384c3c3f18901e108f3dba40bb5f1803152505ddf22cb2be6cf9b2  11 - Dicionário de Dados - MVP 1.0.0.docx
+f15b3043330dd0aab1eeaa9c45213aa55d4868d1cffd2ddb26af549ebc73443d  11 - Dicionário de Dados - MVP 1.0.0.pdf
+63fe3be1e7c7ee9266975ffdbb09993d7b2cec665a676a6285a6e74390de11b5  12 - Plano e Registro de Homologação Final - MVP 1.0.0.docx
+7aa7195b53b32b964d24b64d3a8461bcea1d2464abbf874f755303026e40ba7e  12 - Plano e Registro de Homologação Final - MVP 1.0.0.pdf
+c140f30dfd8ebd8a23ec58bab5161405a32f391038bcfd7017c43ac32b5f197a  13 - Manual de Instalação e Operação - MVP 1.0.0.docx
+5f477a467f1db07694a6ac413f2827021a061004013db4ea86c02f91b4ccd694  13 - Manual de Instalação e Operação - MVP 1.0.0.pdf
+80e0e0824fda81a5d808e28260816d5c09e63607962108678cfd0027e01df34e  14 - Registro da Release MVP 1.0.0.docx
+c6492d7d0ed15165399ee7dd23a19a8dfe41c1c5bf2cd3662c831a07e495f8c2  14 - Registro da Release MVP 1.0.0.pdf
+5e298855f6d4b9482efe428beb39386299185d6a1de961d3ce8da82ed2375395  15 - Catálogo da Baseline BL-SGP-001.docx
+e1b57665c495cc7bbefba5c440ad3bdd5a8a7d6875f89c2220862484d67ab022  15 - Catálogo da Baseline BL-SGP-001.pdf
