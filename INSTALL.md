@@ -1,14 +1,14 @@
-# InstalaÃ§Ã£o e operaÃ§Ã£o do SGP MVP 1.0.0
+# Instalação e operação do SGP MVP 1.0.0
 
-## 1. PreparaÃ§Ã£o
+## 1. Preparação
 
 Instale PHP 8.2 ou superior, Composer 2, PostgreSQL 14 ou superior, Node.js 20
-ou superior e npm. Habilite as extensÃµes PHP exigidas pelo README.
+ou superior e npm. Habilite as extensões PHP exigidas pelo README.
 
-Crie o banco e o usuÃ¡rio da aplicaÃ§Ã£o no PostgreSQL. Em produÃ§Ã£o, use uma conta
-prÃ³pria, senha forte e apenas os privilÃ©gios necessÃ¡rios sobre o banco do SGP.
+Crie o banco e o usuário da aplicação no PostgreSQL. Em produção, use uma conta
+própria, senha forte e apenas os privilégios necessários sobre o banco do SGP.
 
-## 2. InstalaÃ§Ã£o do zero
+## 2. Instalação do zero
 
 ```powershell
 Set-Location C:\Projetos\sgp
@@ -40,17 +40,17 @@ DB_USERNAME=sgp_app
 DB_PASSWORD=troque_esta_senha
 ```
 
-NÃ£o execute `php artisan storage:link`: documentos e anexos sÃ£o privados.
+Não execute `php artisan storage:link`: documentos e anexos são privados.
 
 O comando do primeiro administrador solicita nome, e-mail e senha no terminal.
-A senha nÃ£o aparece na tela nem Ã© aceita como argumento de linha de comando. Ela
-deve ter pelo menos 12 caracteres, letras maiÃºsculas e minÃºsculas, nÃºmero e
-sÃ­mbolo. O comando se recusa a criar outra conta quando jÃ¡ existe administrador
+A senha não aparece na tela nem é aceita como argumento de linha de comando. Ela
+deve ter pelo menos 12 caracteres, letras maiúsculas e minúsculas, número e
+símbolo. O comando se recusa a criar outra conta quando já existe administrador
 ativo.
 
-## 3. AtualizaÃ§Ã£o de instalaÃ§Ã£o existente
+## 3. Atualização de instalação existente
 
-FaÃ§a backup do banco e de `storage/app/private` antes de atualizar.
+Faça backup do banco e de `storage/app/private` antes de atualizar.
 
 ```powershell
 php artisan down
@@ -68,7 +68,7 @@ php artisan up
 php artisan test
 ```
 
-Resultado de referÃªncia da release `v1.0.0`:
+Resultado de referência da release `v1.0.0`:
 
 ```text
 Tests: 95 passed
@@ -76,7 +76,7 @@ Assertions: 337
 ```
 
 Os casos `HOM-001` a `HOM-034` foram aprovados em PostgreSQL. Em novas
-homologaÃ§Ãµes, use um banco separado, nunca a produÃ§Ã£o.
+homologações, use um banco separado, nunca a produção.
 
 ## 5. Backup
 
@@ -90,49 +90,49 @@ Arquivos privados: copie integralmente `storage/app/private` para o mesmo
 conjunto de backup. Banco e arquivos precisam pertencer ao mesmo ponto no
 tempo.
 
-## 6. RestauraÃ§Ã£o
+## 6. Restauração
 
 ```powershell
 createdb -h 127.0.0.1 -U postgres sgp_restaurado
 pg_restore -h 127.0.0.1 -U postgres -d sgp_restaurado --clean --if-exists sgp_backup.dump
 ```
 
-Restaure tambÃ©m `storage/app/private`, ajuste permissÃµes e valide downloads de
+Restaure também `storage/app/private`, ajuste permissões e valide downloads de
 documentos e anexos.
 
-A restauraÃ§Ã£o da release `v1.0.0` foi validada em banco e diretÃ³rio
+A restauração da release `v1.0.0` foi validada em banco e diretório
 alternativos, com login, consultas, documentos e anexos preservados.
 
 ## 7. Armazenamento em plataformas de nuvem
 
 A release `v1.0.0` utiliza `storage/app/private` em disco local persistente.
-Antes de implantar em plataforma com sistema de arquivos efÃªmero, adapte o SGP
-para utilizar um disco privado configurÃ¡vel e Object Storage.
+Antes de implantar em plataforma com sistema de arquivos efêmero, adapte o SGP
+para utilizar um disco privado configurável e Object Storage.
 
-Essa adaptaÃ§Ã£o estÃ¡ prevista para a versÃ£o `v1.0.1` e deverÃ¡ preservar:
+Essa adaptação está prevista para a versão `v1.0.1` e deverá preservar:
 
-- autorizaÃ§Ã£o de download pelo SGP;
+- autorização de download pelo SGP;
 - privacidade de documentos e anexos;
-- geraÃ§Ã£o temporÃ¡ria de DOCX e PDF;
-- backup e restauraÃ§Ã£o do PostgreSQL e do armazenamento de objetos;
+- geração temporária de DOCX e PDF;
+- backup e restauração do PostgreSQL e do armazenamento de objetos;
 - testes de documentos, anexos e isolamento.
 
-## 8. Checklist de produÃ§Ã£o
+## 8. Checklist de produção
 
 - `APP_ENV=production`;
 - `APP_DEBUG=false`;
 - HTTPS ativo;
 - credenciais exclusivas para o banco;
-- diretÃ³rios `storage` e `bootstrap/cache` gravÃ¡veis pela aplicaÃ§Ã£o;
-- tarefa de backup e teste periÃ³dico de restauraÃ§Ã£o;
-- logs fora da Ã¡rea pÃºblica e com rotaÃ§Ã£o;
+- diretórios `storage` e `bootstrap/cache` graváveis pela aplicação;
+- tarefa de backup e teste periódico de restauração;
+- logs fora da área pública e com rotação;
 - servidor web apontando somente para `public`;
 - fila e agendador configurados quando forem adotados;
 - primeiro administrador criado por procedimento controlado;
-- nenhuma credencial padrÃ£o ou previsÃ­vel mantida no banco;
-- arquivos privados fora da pasta pÃºblica;
-- `HOM-035` executado no ambiente real de produÃ§Ã£o.
+- nenhuma credencial padrão ou previsível mantida no banco;
+- arquivos privados fora da pasta pública;
+- `HOM-035` executado no ambiente real de produção.
 
-A tag `v1.0.0` jÃ¡ foi publicada apÃ³s a aprovaÃ§Ã£o dos casos `HOM-001` a
-`HOM-034`. O `HOM-035` permanece como ressalva operacional atÃ© a implantaÃ§Ã£o
+A tag `v1.0.0` já foi publicada após a aprovação dos casos `HOM-001` a
+`HOM-034`. O `HOM-035` permanece como ressalva operacional até a implantação
 externa.

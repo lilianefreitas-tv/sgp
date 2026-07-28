@@ -2,45 +2,45 @@
 
 ## [1.0.0] - 2026-07-28
 
-Primeira release estÃ¡vel e homologada do SGP.
+Primeira release estável e homologada do SGP.
 
 ### Adicionado
 
-- identidade visual oficial, pÃ¡gina inicial e favicon do SGP;
-- autenticaÃ§Ã£o e administraÃ§Ã£o de usuÃ¡rios;
-- clientes, projetos, equipes e papÃ©is contextuais;
-- requisitos versionados e tarefas com histÃ³rico;
-- Kanban, calendÃ¡rio e Gantt bÃ¡sico;
-- geraÃ§Ã£o versionada de DOCX e PDF;
+- identidade visual oficial, página inicial e favicon do SGP;
+- autenticação e administração de usuários;
+- clientes, projetos, equipes e papéis contextuais;
+- requisitos versionados e tarefas com histórico;
+- Kanban, calendário e Gantt básico;
+- geração versionada de DOCX e PDF;
 - Backlog Consolidado do Projeto;
-- comentÃ¡rios, anexos privados e histÃ³rico consolidado;
+- comentários, anexos privados e histórico consolidado;
 - dashboard com indicadores reais;
-- roteiro integrado de homologaÃ§Ã£o final.
+- roteiro integrado de homologação final.
 
 ### Corrigido
 
-- removida a exclusÃ£o fÃ­sica de conta pelo prÃ³prio usuÃ¡rio;
+- removida a exclusão física de conta pelo próprio usuário;
 - `.env.example` alinhado ao SGP e ao PostgreSQL;
-- removida a credencial previsÃ­vel do seeder e criado procedimento interativo
+- removida a credencial previsível do seeder e criado procedimento interativo
   para o primeiro administrador;
-- sessÃµes autenticadas passam a ser encerradas imediatamente quando a conta Ã©
+- sessões autenticadas passam a ser encerradas imediatamente quando a conta é
   desativada;
-- licenÃ§a do pacote corrigida para identificar o SGP como software
-  proprietÃ¡rio, removendo a declaraÃ§Ã£o MIT herdada do esqueleto Laravel;
-- README, tecnologias, status e instruÃ§Ãµes de implantaÃ§Ã£o atualizados;
-- referÃªncias herdadas do Laravel e do RotaMP removidas da experiÃªncia pÃºblica;
-- artefatos temporÃ¡rios excluÃ­dos do pacote de release.
+- licença do pacote corrigida para identificar o SGP como software
+  proprietário, removendo a declaração MIT herdada do esqueleto Laravel;
+- README, tecnologias, status e instruções de implantação atualizados;
+- referências herdadas do Laravel e do RotaMP removidas da experiência pública;
+- artefatos temporários excluídos do pacote de release.
 
 ### Conhecido
 
-- recuperaÃ§Ã£o pÃºblica de senha nÃ£o integra o MVP;
-- 95 testes automatizados, com 337 asserÃ§Ãµes, usam SQLite em memÃ³ria;
+- recuperação pública de senha não integra o MVP;
+- 95 testes automatizados, com 337 asserções, usam SQLite em memória;
 - `HOM-001` a `HOM-034` foram aprovados em PostgreSQL;
-- `HOM-035` depende da implantaÃ§Ã£o externa para validar HTTPS, webroot e
-  permissÃµes do servidor;
-- a compatibilidade com Object Storage estÃ¡ prevista para `v1.0.1`, antes do
-  primeiro deploy em plataforma com sistema de arquivos efÃªmero;
-- a FundaÃ§Ã£o SaaS Multiempresa e a ConfiguraÃ§Ã£o Adaptativa de Projetos estÃ£o
-  aprovadas na `BL-SGP-002`, mas ainda nÃ£o foram implementadas;
-- Wiki, Sprints, reuniÃµes, gestÃ£o interna de testes, contratos, baselines
-  operacionais, mudanÃ§as, IA e Gantt avanÃ§ado permanecem como evoluÃ§Ã£o futura.
+- `HOM-035` depende da implantação externa para validar HTTPS, webroot e
+  permissões do servidor;
+- a compatibilidade com Object Storage está prevista para `v1.0.1`, antes do
+  primeiro deploy em plataforma com sistema de arquivos efêmero;
+- a Fundação SaaS Multiempresa e a Configuração Adaptativa de Projetos estão
+  aprovadas na `BL-SGP-002`, mas ainda não foram implementadas;
+- Wiki, Sprints, reuniões, gestão interna de testes, contratos, baselines
+  operacionais, mudanças, IA e Gantt avançado permanecem como evolução futura.
