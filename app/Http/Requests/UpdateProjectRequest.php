@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ExecutionNature;
+use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\ProjectMethodology;
 use App\Enums\ProjectRole;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
@@ -27,7 +30,7 @@ class UpdateProjectRequest extends StoreProjectRequest
 
         return [
             'client_id' => [
-                'required',
+                'nullable',
                 Rule::exists('clients', 'id')->where(
                     fn ($query) => $query->where('is_active', true)->orWhere('id', $project->client_id)
                 ),
@@ -42,8 +45,10 @@ class UpdateProjectRequest extends StoreProjectRequest
             'description' => ['nullable', 'string'],
             'objective' => ['required', 'string'],
             'justification' => ['nullable', 'string'],
+            'execution_nature' => ['required', Rule::enum(ExecutionNature::class)],
+            'financial_management_mode' => ['required', Rule::enum(FinancialManagementMode::class)],
             'management_level' => ['required', Rule::enum(ManagementLevel::class)],
-            'methodology' => ['nullable', 'string', 'max:80'],
+            'methodology' => ['required', Rule::enum(ProjectMethodology::class)],
             'status' => ['required', Rule::enum(ProjectStatus::class)],
             'start_date' => ['nullable', 'date'],
             'expected_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],

@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Enums\ClientType;
+use App\Enums\ExecutionNature;
+use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\ProjectMethodology;
 use App\Enums\ProjectRole;
 use App\Enums\ProjectStatus;
 use App\Models\Client;
@@ -186,8 +189,10 @@ class ProjectManagementTest extends TestCase
             'description' => 'Descrição do projeto.',
             'objective' => 'Organizar o ciclo de vida dos projetos.',
             'justification' => 'Centralizar informações e artefatos.',
+            'execution_nature' => ExecutionNature::Internal->value,
+            'financial_management_mode' => FinancialManagementMode::NotApplicable->value,
             'management_level' => ManagementLevel::Intermediate->value,
-            'methodology' => 'Kanban',
+            'methodology' => ProjectMethodology::Kanban->value,
             'status' => ProjectStatus::Planning->value,
             'start_date' => '2026-07-23',
             'expected_end_date' => '2026-12-31',

@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\ExecutionNature;
+use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\ProjectMethodology;
 use App\Enums\ProjectStatus;
 use App\Models\Client;
 use App\Models\User;
@@ -19,8 +22,10 @@ class ProjectFactory extends Factory
             'description' => fake()->paragraph(),
             'objective' => fake()->sentence(),
             'justification' => fake()->paragraph(),
+            'execution_nature' => ExecutionNature::Internal,
+            'financial_management_mode' => FinancialManagementMode::NotApplicable,
             'management_level' => ManagementLevel::Simplified,
-            'methodology' => 'Kanban',
+            'methodology' => ProjectMethodology::Kanban->value,
             'status' => ProjectStatus::Planning,
             'start_date' => now()->toDateString(),
             'expected_end_date' => now()->addMonths(3)->toDateString(),

@@ -254,10 +254,12 @@ class DocumentGenerationService
         $this->addKeyValueTable($section, [
             ['Projeto', $project->name],
             ['Código', $project->code],
-            ['Cliente ou unidade', $project->client->name],
+            ['Cliente ou unidade', $project->client?->name ?? 'Sem demandante vinculado'],
             ['Responsável', $project->manager->name],
+            ['Natureza da execução', $project->execution_nature->label()],
+            ['Tratamento financeiro', $project->financial_management_mode->label()],
             ['Nível de gestão', $project->management_level->label()],
-            ['Metodologia', $project->methodology ?: 'Não informada'],
+            ['Metodologia', $project->methodologyLabel()],
             ['Situação', $project->status->label()],
             ['Período previsto', $this->dateRange($project->start_date, $project->expected_end_date)],
         ]);

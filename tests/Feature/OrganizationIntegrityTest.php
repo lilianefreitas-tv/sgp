@@ -116,9 +116,14 @@ class OrganizationIntegrityTest extends TestCase
     }
 
     public function test_f4_migration_can_be_rolled_back_and_applied_again(): void
-    {
-        $this->assertSame(0, Artisan::call('migrate:rollback', ['--step' => 1, '--force' => true]));
+{
+    $migration = require database_path(
+        'migrations/2026_08_03_200000_enforce_organization_integrity.php'
+    );
 
+    $migration->down();
+
+    try {
         $id = DB::table('clients')->insertGetId([
             'organization_id' => null,
             'name' => 'Cliente temporário',
@@ -129,9 +134,21 @@ class OrganizationIntegrityTest extends TestCase
         ]);
 
         DB::table('clients')->where('id', $id)->delete();
-
-        $this->assertSame(0, Artisan::call('migrate', ['--force' => true]));
+    } finally {
+        $migration->up();
     }
+
+    $this->expectException(QueryException::class);
+
+    DB::table('clients')->insert([
+        'organization_id' => null,
+        'name' => 'Cliente sem organização após reaplicação',
+        'type' => 'unit',
+        'is_active' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+}
 
     private function createProjectIn(Organization $organization, string $code): Project
     {

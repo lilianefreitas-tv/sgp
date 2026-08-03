@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ExecutionNature;
+use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\ProjectMethodology;
 use App\Enums\ProjectStatus;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +27,8 @@ class Project extends Model
         'description',
         'objective',
         'justification',
+        'execution_nature',
+        'financial_management_mode',
         'document_context',
         'problem_statement',
         'solution_summary',
@@ -58,6 +63,8 @@ class Project extends Model
     protected function casts(): array
     {
         return [
+            'execution_nature' => ExecutionNature::class,
+            'financial_management_mode' => FinancialManagementMode::class,
             'management_level' => ManagementLevel::class,
             'status' => ProjectStatus::class,
             'start_date' => 'date',
@@ -66,6 +73,16 @@ class Project extends Model
             'is_active' => 'boolean',
             'archived_at' => 'datetime',
         ];
+    }
+
+    public function methodologyLabel(): string
+    {
+        if (blank($this->methodology)) {
+            return 'Não informada';
+        }
+
+        return ProjectMethodology::tryFrom((string) $this->methodology)?->label()
+            ?? (string) $this->methodology;
     }
 
     public function client(): BelongsTo
