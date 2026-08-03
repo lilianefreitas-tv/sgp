@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -68,6 +69,26 @@ class User extends Authenticatable
         return $this->hasMany(ProjectMembership::class);
     }
 
+    public function organizationMemberships(): HasMany
+    {
+        return $this->hasMany(OrganizationMembership::class);
+    }
+
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Organization::class,
+            'organization_memberships'
+        )
+            ->withPivot([
+                'role_code',
+                'status',
+                'is_default',
+                'joined_at',
+            ])
+            ->withTimestamps();
+    }
+
     public function assignedRequirements(): HasMany
     {
         return $this->hasMany(Requirement::class, 'responsible_id');
@@ -98,7 +119,7 @@ class User extends Authenticatable
         return $this->projectMemberships()
             ->where('role', $role->value)
             ->where('is_active', true)
-            ->when($project, fn ($query) => $query->where('project_id', $project->id))
+            ->when($project, fn($query) => $query->where('project_id', $project->id))
             ->exists();
     }
 
