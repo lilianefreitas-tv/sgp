@@ -15,10 +15,13 @@ class ProjectDocument extends Model
         'type',
         'title',
         'version',
+        'disk',
         'docx_path',
         'pdf_path',
         'docx_file_name',
+        'docx_sha256',
         'pdf_file_name',
+        'pdf_sha256',
         'metadata',
         'generated_at',
     ];

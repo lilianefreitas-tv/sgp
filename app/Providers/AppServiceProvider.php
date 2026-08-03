@@ -8,6 +8,7 @@ use App\Models\KanbanBoard;
 use App\Models\KanbanColumn;
 use App\Models\KanbanTaskPosition;
 use App\Models\Organization;
+use App\Models\OrganizationAuditEvent;
 use App\Models\Scopes\OrganizationScope;
 use App\Models\Project;
 use App\Models\ProjectActivity;
@@ -65,5 +66,7 @@ class AppServiceProvider extends ServiceProvider
             $model::observe(OrganizationIntegrityObserver::class);
             $model::addGlobalScope(new OrganizationScope($context));
         }
+
+        OrganizationAuditEvent::addGlobalScope(new OrganizationScope($context));
     }
 }

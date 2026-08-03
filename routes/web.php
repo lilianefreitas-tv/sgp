@@ -17,6 +17,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ProjectScheduleController;
 use App\Http\Controllers\OrganizationContextController;
+use App\Http\Controllers\OrganizationAuditController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -59,12 +60,16 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::get('/projects/{project}/documents/information', [DocumentController::class, 'editSetup'])->name('projects.documents.setup.edit');
     Route::put('/projects/{project}/documents/information', [DocumentController::class, 'updateSetup'])->name('projects.documents.setup.update');
     Route::post('/projects/{project}/documents/generate', [DocumentController::class, 'generate'])->name('projects.documents.generate');
-    Route::get('/projects/{project}/documents/{document}/download/{format}', [DocumentController::class, 'download'])->name('projects.documents.download');
+    Route::get('/projects/{project}/documents/{document}/download/{format}', [DocumentController::class, 'download'])
+        ->middleware('audit.file-boundary')
+        ->name('projects.documents.download');
     Route::get('/projects/{project}/comments', [ProjectCommentController::class, 'index'])->name('projects.comments.index');
     Route::post('/projects/{project}/comments', [ProjectCommentController::class, 'store'])->name('projects.comments.store');
     Route::get('/projects/{project}/attachments', [ProjectAttachmentController::class, 'index'])->name('projects.attachments.index');
     Route::post('/projects/{project}/attachments', [ProjectAttachmentController::class, 'store'])->name('projects.attachments.store');
-    Route::get('/projects/{project}/attachments/{attachment}/download', [ProjectAttachmentController::class, 'download'])->name('projects.attachments.download');
+    Route::get('/projects/{project}/attachments/{attachment}/download', [ProjectAttachmentController::class, 'download'])
+        ->middleware('audit.file-boundary')
+        ->name('projects.attachments.download');
     Route::delete('/projects/{project}/attachments/{attachment}', [ProjectAttachmentController::class, 'destroy'])->name('projects.attachments.destroy');
     Route::get('/projects/{project}/history', [ProjectHistoryController::class, 'index'])->name('projects.history.index');
     Route::get('/projects/{project}/calendar', [CalendarController::class, 'project'])->name('projects.calendar.index');
@@ -77,5 +82,9 @@ Route::middleware(['auth', 'active', 'organization', 'administrator'])->group(fu
     Route::patch('/document-templates/{documentTemplate}/deactivate', [DocumentTemplateController::class, 'deactivate'])->name('document-templates.deactivate');
     Route::patch('/document-templates/{documentTemplate}/reactivate', [DocumentTemplateController::class, 'reactivate'])->name('document-templates.reactivate');
 });
+
+Route::get('/audit', OrganizationAuditController::class)
+    ->middleware(['auth', 'active', 'organization'])
+    ->name('audit.index');
 
 require __DIR__.'/auth.php';

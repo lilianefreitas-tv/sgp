@@ -32,6 +32,10 @@ class DocumentGenerationService
 
     private const LIGHT = 'F3F7F8';
 
+    public function __construct(private readonly OrganizationStoragePath $storagePaths)
+    {
+    }
+
     public function generate(
         Project $project,
         DocumentTemplate $template,
@@ -48,7 +52,7 @@ class DocumentGenerationService
 
         $generatedAt = now();
         $payload = $this->payload($project, $template, $user, $version, $generatedAt);
-        $folder = 'generated-documents/'.$project->id.'/'.$template->type->value;
+        $folder = $this->storagePaths->documents($project, $template->type->value);
         $baseName = Str::slug($project->code.'-'.$template->type->slug().'-v'.$version);
         $storageBaseName = $baseName.'-'.Str::lower(Str::random(8));
         $docxFileName = $baseName.'.docx';
@@ -65,6 +69,13 @@ class DocumentGenerationService
             $temporaryPdfPath = $this->temporaryPath('sgp-pdf-');
             $this->writeDocx($payload, $temporaryDocxPath);
             $this->writePdf($payload, $temporaryPdfPath);
+            $docxSha256 = hash_file('sha256', $temporaryDocxPath);
+            $pdfSha256 = hash_file('sha256', $temporaryPdfPath);
+
+            if ($docxSha256 === false || $pdfSha256 === false) {
+                throw new \RuntimeException('Não foi possível identificar os documentos gerados.');
+            }
+
             $this->upload($disk, $docxPath, $temporaryDocxPath);
             $this->upload($disk, $pdfPath, $temporaryPdfPath);
 
@@ -75,10 +86,13 @@ class DocumentGenerationService
                 'type' => $template->type,
                 'title' => $template->type->label(),
                 'version' => $version,
+                'disk' => $disk,
                 'docx_path' => $docxPath,
                 'pdf_path' => $pdfPath,
                 'docx_file_name' => $docxFileName,
+                'docx_sha256' => $docxSha256,
                 'pdf_file_name' => $pdfFileName,
+                'pdf_sha256' => $pdfSha256,
                 'metadata' => [
                     'template_code' => $template->code,
                     'template_name' => $template->name,
@@ -86,6 +100,8 @@ class DocumentGenerationService
                     'project_code' => $project->code,
                     'requirements_count' => $project->requirements->count(),
                     'tasks_count' => $project->tasks->count(),
+                    'docx_sha256' => $docxSha256,
+                    'pdf_sha256' => $pdfSha256,
                 ],
                 'generated_at' => $generatedAt,
             ]);

@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Project;
+use LogicException;
+
+class OrganizationStoragePath
+{
+    public function __construct(private readonly OrganizationContext $context)
+    {
+    }
+
+    public function attachments(Project $project): string
+    {
+        return $this->projectBase($project).'/attachments';
+    }
+
+    public function documents(Project $project, string $type): string
+    {
+        $safeType = preg_replace('/[^a-z0-9_-]+/i', '-', $type) ?: 'document';
+
+        return $this->projectBase($project).'/generated-documents/'.$safeType;
+    }
+
+    public function projectBase(Project $project): string
+    {
+        $organizationId = (int) $project->organization_id;
+
+        if ($organizationId < 1) {
+            throw new LogicException('O projeto não possui organização para armazenamento.');
+        }
+
+        if ($this->context->active() && $this->context->id() !== $organizationId) {
+            throw new LogicException('O projeto não pertence ao contexto organizacional ativo.');
+        }
+
+        return "organizations/{$organizationId}/projects/{$project->id}";
+    }
+}

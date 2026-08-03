@@ -333,11 +333,19 @@
                 Rastreabilidade
             </div>
 
-            @if (Auth::user()->isAdministrator())
+            @if (
+                Auth::user()->isAdministrator()
+                || in_array(
+                    $activeOrganizationMembership?->role_code,
+                    [\App\Enums\OrganizationRole::Owner, \App\Enums\OrganizationRole::Administrator],
+                    true,
+                )
+            )
                 <p class="mb-3 mt-8 px-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
                     Administração
                 </p>
 
+                @if (Auth::user()->isAdministrator())
                 <a
                     href="{{ route('users.index') }}"
                     class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
@@ -360,6 +368,19 @@
                     </svg>
 
                     Modelos de documentos
+                </a>
+                @endif
+
+                <a
+                    href="{{ route('audit.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('audit.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3 5 6v5c0 4.6 2.8 8.4 7 10 4.2-1.6 7-5.4 7-10V6l-7-3Zm-3 9 2 2 4-4" />
+                    </svg>
+
+                    Auditoria
                 </a>
             @endif
         </nav>

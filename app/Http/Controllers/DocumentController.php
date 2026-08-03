@@ -11,6 +11,7 @@ use App\Models\Project;
 use App\Models\ProjectActivity;
 use App\Models\ProjectDocument;
 use App\Services\DocumentGenerationService;
+use App\Services\OrganizationAuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +96,7 @@ class DocumentController extends Controller
         GenerateDocumentRequest $request,
         Project $project,
         DocumentGenerationService $generator,
+        OrganizationAuditService $audit,
     ): RedirectResponse {
         abort_unless($this->canGenerate($request, $project), 403);
 
@@ -108,7 +110,7 @@ class DocumentController extends Controller
                 ->with('warning', 'Complete as informações documentais antes de gerar o Documento de Visão.');
         }
 
-        DB::transaction(function () use ($request, $project, $template, $generator): void {
+        $document = DB::transaction(function () use ($request, $project, $template, $generator): ProjectDocument {
             // Serializa a geração de documentos do mesmo projeto sem aplicar
             // FOR UPDATE à consulta agregada, operação não permitida no PostgreSQL.
             Project::query()
@@ -121,13 +123,22 @@ class DocumentController extends Controller
                 ->where('type', $template->type->value)
                 ->max('version');
 
-            $generator->generate(
+            return $generator->generate(
                 $project,
                 $template,
                 $request->user(),
                 ((int) $lastVersion) + 1,
             );
         });
+
+        $audit->record('document.generate', 'success', 'document', $document->id, [
+            'project_id' => $project->id,
+            'type' => $document->type->value,
+            'version' => $document->version,
+            'disk' => $document->disk,
+            'docx_sha256' => $document->docx_sha256,
+            'pdf_sha256' => $document->pdf_sha256,
+        ]);
 
         return to_route('projects.documents.index', $project)
             ->with('success', $template->type->label().' gerado em DOCX e PDF.');
@@ -138,25 +149,52 @@ class DocumentController extends Controller
         Project $project,
         ProjectDocument $document,
         string $format,
+        OrganizationAuditService $audit,
     ): StreamedResponse {
-        $this->ensureCanView($request, $project);
-        abort_unless($document->project_id === $project->id, 404);
+        if (! $this->canView($request, $project)
+            || $document->project_id !== $project->id) {
+            $audit->record('document.export', 'denied', 'document', $document->id, [
+                'project_id' => $project->id,
+                'reason' => 'project_authorization',
+                'target_organization_id' => (int) $document->organization_id,
+            ]);
+
+            abort(404);
+        }
+
         abort_unless(in_array($format, ['docx', 'pdf'], true), 404);
 
         $path = $format === 'docx' ? $document->docx_path : $document->pdf_path;
         $fileName = $format === 'docx' ? $document->docx_file_name : $document->pdf_file_name;
-        $disk = (string) config('sgp.storage.private_disk', 'local');
-        abort_unless(Storage::disk($disk)->exists($path), 404, 'Arquivo não encontrado no armazenamento.');
+        $disk = $document->disk ?: (string) config('sgp.storage.private_disk', 'local');
+        if (! Storage::disk($disk)->exists($path)) {
+            $audit->record('document.export', 'failed', 'document', $document->id, [
+                'project_id' => $project->id,
+                'format' => $format,
+                'reason' => 'file_missing',
+            ]);
+
+            abort(404, 'Arquivo não encontrado no armazenamento.');
+        }
+
+        $audit->record('document.export', 'success', 'document', $document->id, [
+            'project_id' => $project->id,
+            'format' => $format,
+            'sha256' => $format === 'docx' ? $document->docx_sha256 : $document->pdf_sha256,
+        ]);
 
         return Storage::disk($disk)->download($path, $fileName);
     }
 
     private function ensureCanView(Request $request, Project $project): void
     {
-        abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
-            403,
-        );
+        abort_unless($this->canView($request, $project), 403);
+    }
+
+    private function canView(Request $request, Project $project): bool
+    {
+        return $request->user()->isAdministrator()
+            || $project->hasActiveMember($request->user());
     }
 
     private function canGenerate(Request $request, Project $project): bool

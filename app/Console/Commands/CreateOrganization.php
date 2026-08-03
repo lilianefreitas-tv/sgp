@@ -9,6 +9,7 @@ use App\Enums\OrganizationStatus;
 use App\Enums\OrganizationType;
 use App\Models\Organization;
 use App\Models\User;
+use App\Services\OrganizationAuditService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,7 @@ class CreateOrganization extends Command
 
     protected $description = 'Cria uma organização e vincula seu proprietário inicial';
 
-    public function handle(): int
+    public function handle(OrganizationAuditService $audit): int
     {
         $interactive = $this->input->isInteractive();
         $name = trim((string) ($this->option('name') ?: ($interactive ? $this->ask('Nome da organização') : '')));
@@ -81,7 +82,7 @@ class CreateOrganization extends Command
             return self::FAILURE;
         }
 
-        $organization = DB::transaction(function () use ($name, $slug, $owner): Organization {
+        $organization = DB::transaction(function () use ($name, $slug, $owner, $audit): Organization {
             $organization = Organization::query()
                 ->where('slug', self::BOOTSTRAP_SLUG)
                 ->whereDoesntHave('memberships')
@@ -103,13 +104,36 @@ class CreateOrganization extends Command
                 $organization->update($attributes);
             }
 
-            $owner->organizationMemberships()->create([
+            $membership = $owner->organizationMemberships()->create([
                 'organization_id' => $organization->id,
                 'role_code' => OrganizationRole::Owner,
                 'status' => OrganizationMembershipStatus::Active,
                 'is_default' => ! $owner->organizationMemberships()->where('is_default', true)->exists(),
                 'joined_at' => now(),
             ]);
+
+            $audit->record(
+                'organization.provision',
+                'success',
+                'organization',
+                $organization->id,
+                ['owner_user_id' => $owner->id],
+                $organization->id,
+                $owner,
+            );
+
+            $audit->record(
+                'organization.membership.create',
+                'success',
+                'organization_membership',
+                $membership->id,
+                [
+                    'user_id' => $owner->id,
+                    'role' => OrganizationRole::Owner->value,
+                ],
+                $organization->id,
+                $owner,
+            );
 
             return $organization;
         });

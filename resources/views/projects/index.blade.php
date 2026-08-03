@@ -76,7 +76,7 @@
                                     <p class="mt-1 font-semibold">{{ $project->name }}</p>
                                     @if (!$project->is_active)<p class="mt-1 text-xs text-[#C44B4B]">Registro inativo</p>@endif
                                 </td>
-                                <td class="px-5 py-4">{{ $project->client->name }}</td>
+                                <td class="px-5 py-4">{{ $project->client?->name ?? 'Sem demandante vinculado' }}</td>
                                 <td class="px-5 py-4">{{ $project->manager->name }}</td>
                                 <td class="px-5 py-4">{{ $project->management_level->label() }}</td>
                                 <td class="px-5 py-4"><span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $project->status->badgeClasses() }}">{{ $project->status->label() }}</span></td>

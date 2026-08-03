@@ -31,7 +31,7 @@
                         <div class="min-w-0">
                             <p class="text-xs font-bold uppercase tracking-wider text-[#287EA1]">{{ $project->code }}</p>
                             <h2 class="mt-1 truncate font-bold text-[#24313A]">{{ $project->name }}</h2>
-                            <p class="mt-2 text-sm text-[#667680]">{{ $project->client->name }}</p>
+                            <p class="mt-2 text-sm text-[#667680]">{{ $project->client?->name ?? 'Sem demandante vinculado' }}</p>
                         </div>
                         <span class="rounded-full bg-[#E6F0F3] px-3 py-1 text-xs font-bold text-[#1D5D73]">{{ $project->documents_count }}</span>
                     </div>

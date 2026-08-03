@@ -143,6 +143,29 @@ class AdaptiveProjectConfigurationTest extends TestCase
             ->assertSee('As quatro dimensões são independentes');
     }
 
+    public function test_project_without_client_remains_visible_in_project_and_document_overviews(): void
+    {
+        $administrator = User::factory()->administrator()->create();
+        $project = Project::factory()->create([
+            'client_id' => null,
+            'manager_id' => $administrator->id,
+            'execution_nature' => ExecutionNature::Internal,
+            'financial_management_mode' => FinancialManagementMode::NotApplicable,
+        ]);
+
+        $this->actingAs($administrator)
+            ->get(route('projects.index'))
+            ->assertOk()
+            ->assertSee($project->name)
+            ->assertSee('Sem demandante vinculado');
+
+        $this->actingAs($administrator)
+            ->get(route('documents.index'))
+            ->assertOk()
+            ->assertSee($project->name)
+            ->assertSee('Sem demandante vinculado');
+    }
+
     /** @param array<string, mixed> $overrides */
     private function projectData(User $manager, ?Client $client, array $overrides = []): array
     {
