@@ -89,7 +89,7 @@ class Requirement extends Model
             'requirement_dependencies',
             'requirement_id',
             'depends_on_requirement_id',
-        )->withTimestamps();
+        )->using(RequirementDependency::class)->withTimestamps();
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder

@@ -2,6 +2,23 @@
 
 namespace App\Providers;
 
+use App\Models\Client;
+use App\Models\DocumentTemplate;
+use App\Models\KanbanBoard;
+use App\Models\KanbanColumn;
+use App\Models\KanbanTaskPosition;
+use App\Models\Project;
+use App\Models\ProjectActivity;
+use App\Models\ProjectAttachment;
+use App\Models\ProjectComment;
+use App\Models\ProjectDocument;
+use App\Models\ProjectMembership;
+use App\Models\Requirement;
+use App\Models\RequirementDependency;
+use App\Models\RequirementVersion;
+use App\Models\Task;
+use App\Models\TaskHistory;
+use App\Observers\OrganizationIntegrityObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +36,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        foreach ([
+            Client::class,
+            Project::class,
+            ProjectMembership::class,
+            Requirement::class,
+            RequirementVersion::class,
+            RequirementDependency::class,
+            Task::class,
+            TaskHistory::class,
+            KanbanBoard::class,
+            KanbanColumn::class,
+            KanbanTaskPosition::class,
+            DocumentTemplate::class,
+            ProjectDocument::class,
+            ProjectComment::class,
+            ProjectAttachment::class,
+            ProjectActivity::class,
+        ] as $model) {
+            $model::observe(OrganizationIntegrityObserver::class);
+        }
     }
 }

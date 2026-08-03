@@ -11,12 +11,14 @@ use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CreateOrganization extends Command
 {
+    public const BOOTSTRAP_SLUG = 'sgp-instalacao-inicial';
+
     protected $signature = 'sgp:create-organization
                             {--name= : Nome da organização}
                             {--slug= : Identificador único, gerado pelo nome quando omitido}
@@ -35,6 +37,11 @@ class CreateOrganization extends Command
             $this->option('owner-email') ?: ($interactive ? $this->ask('E-mail do proprietário inicial') : '')
         )));
 
+        $bootstrap = Organization::query()
+            ->where('slug', self::BOOTSTRAP_SLUG)
+            ->whereDoesntHave('memberships')
+            ->first();
+
         $validator = Validator::make(
             [
                 'name' => $name,
@@ -45,7 +52,13 @@ class CreateOrganization extends Command
             ],
             [
                 'name' => ['required', 'string', 'max:180'],
-                'slug' => ['required', 'string', 'max:120', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'unique:organizations,slug'],
+                'slug' => [
+                    'required',
+                    'string',
+                    'max:120',
+                    'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                    Rule::unique('organizations', 'slug')->ignore($bootstrap?->id),
+                ],
                 'type' => ['required', Rule::enum(OrganizationType::class)],
                 'timezone' => ['required', 'timezone'],
                 'owner_email' => ['required', 'email', 'exists:users,email'],
@@ -69,14 +82,26 @@ class CreateOrganization extends Command
         }
 
         $organization = DB::transaction(function () use ($name, $slug, $owner): Organization {
-            $organization = Organization::query()->create([
+            $organization = Organization::query()
+                ->where('slug', self::BOOTSTRAP_SLUG)
+                ->whereDoesntHave('memberships')
+                ->lockForUpdate()
+                ->first();
+
+            $attributes = [
                 'name' => $name,
                 'slug' => $slug,
                 'type' => $this->option('type'),
                 'status' => OrganizationStatus::Active,
                 'timezone' => $this->option('timezone'),
                 'settings' => [],
-            ]);
+            ];
+
+            if ($organization === null) {
+                $organization = Organization::query()->create($attributes);
+            } else {
+                $organization->update($attributes);
+            }
 
             $owner->organizationMemberships()->create([
                 'organization_id' => $organization->id,

@@ -9,6 +9,7 @@ use App\Models\Requirement;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\OrganizationBackfillService;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -18,20 +19,21 @@ class OrganizationDataBackfillTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_all_business_tables_receive_nullable_organization_column(): void
+    public function test_all_business_tables_keep_required_organization_column(): void
     {
         foreach (OrganizationBackfillService::BUSINESS_TABLES as $table) {
             $this->assertTrue(
                 Schema::hasColumn($table, 'organization_id'),
                 "A tabela {$table} não possui organization_id.",
             );
+            $this->assertSame(0, DB::table($table)->whereNull('organization_id')->count(), $table);
         }
     }
 
-    public function test_command_backfills_and_reconciles_all_legacy_business_tables(): void
+    public function test_command_is_idempotent_after_f4_integrity_is_active(): void
     {
-        $organization = Organization::factory()->create(['slug' => 'organizacao-inicial']);
-        $this->createCompleteLegacyGraph();
+        $organization = Organization::query()->firstOrFail();
+        $this->createCompleteGraph($organization);
 
         $this->artisan('sgp:backfill-organization', [
             'organization' => $organization->slug,
@@ -40,36 +42,29 @@ class OrganizationDataBackfillTest extends TestCase
 
         foreach (OrganizationBackfillService::BUSINESS_TABLES as $table) {
             $this->assertSame(0, DB::table($table)->whereNull('organization_id')->count(), $table);
-            $this->assertSame(
-                DB::table($table)->count(),
-                DB::table($table)->where('organization_id', $organization->id)->count(),
-                $table,
-            );
         }
     }
 
-    public function test_dry_run_reconciles_but_does_not_persist_changes(): void
+    public function test_dry_run_does_not_change_existing_organization(): void
     {
-        $organization = Organization::factory()->create(['slug' => 'organizacao-inicial']);
-        $client = Client::factory()->create();
+        $organization = Organization::query()->firstOrFail();
+        $client = Client::factory()->create(['organization_id' => $organization->id]);
 
         $this->artisan('sgp:backfill-organization', [
             'organization' => $organization->slug,
             '--dry-run' => true,
         ])->assertSuccessful();
 
-        $this->assertNull($client->fresh()->organization_id);
+        $this->assertSame($organization->id, (int) $client->fresh()->organization_id);
     }
 
     public function test_existing_valid_organization_is_preserved_and_inherited_by_children(): void
     {
-        $initial = Organization::factory()->create(['slug' => 'organizacao-inicial']);
+        $initial = Organization::query()->firstOrFail();
         $existing = Organization::factory()->create(['slug' => 'organizacao-existente']);
-        $client = Client::factory()->create();
+        $client = Client::factory()->create(['organization_id' => $existing->id]);
         $manager = User::factory()->create();
         $project = Project::factory()->for($client)->for($manager, 'manager')->create();
-
-        DB::table('clients')->where('id', $client->id)->update(['organization_id' => $existing->id]);
 
         $this->artisan('sgp:backfill-organization', [
             'organization' => $initial->slug,
@@ -80,43 +75,38 @@ class OrganizationDataBackfillTest extends TestCase
         $this->assertSame($existing->id, (int) $project->fresh()->organization_id);
     }
 
-    public function test_conflicting_parent_and_child_organizations_fail_and_rollback(): void
+    public function test_conflicting_parent_and_child_organizations_are_rejected_by_database(): void
     {
-        $first = Organization::factory()->create(['slug' => 'organizacao-a']);
+        $first = Organization::query()->firstOrFail();
         $second = Organization::factory()->create(['slug' => 'organizacao-b']);
-        $client = Client::factory()->create();
-        $project = Project::factory()->for($client)->create();
+        $client = Client::factory()->create(['organization_id' => $first->id]);
 
-        DB::table('clients')->where('id', $client->id)->update(['organization_id' => $first->id]);
-        DB::table('projects')->where('id', $project->id)->update(['organization_id' => $second->id]);
+        $this->expectException(QueryException::class);
 
-        $this->artisan('sgp:backfill-organization', [
-            'organization' => $first->slug,
-            '--force' => true,
-        ])->assertFailed();
-
-        $this->assertSame($second->id, (int) $project->fresh()->organization_id);
+        Project::factory()->for($client)->create(['organization_id' => $second->id]);
     }
 
     public function test_unknown_organization_fails_without_changing_data(): void
     {
-        $client = Client::factory()->create();
+        $organization = Organization::query()->firstOrFail();
+        $client = Client::factory()->create(['organization_id' => $organization->id]);
 
         $this->artisan('sgp:backfill-organization', [
             'organization' => 'nao-existe',
             '--force' => true,
         ])->assertFailed();
 
-        $this->assertNull($client->fresh()->organization_id);
+        $this->assertSame($organization->id, (int) $client->fresh()->organization_id);
     }
 
-    private function createCompleteLegacyGraph(): void
+    private function createCompleteGraph(Organization $organization): void
     {
         $user = User::factory()->create();
-        $client = Client::factory()->create();
+        $client = Client::factory()->create(['organization_id' => $organization->id]);
         $project = Project::factory()->for($client)->for($user, 'manager')->create();
 
         DB::table('project_user')->insert([
+            'organization_id' => $organization->id,
             'project_id' => $project->id,
             'user_id' => $user->id,
             'role' => 'observer',
@@ -129,6 +119,7 @@ class OrganizationDataBackfillTest extends TestCase
         $dependency = Requirement::factory()->for($project)->create();
 
         DB::table('requirement_versions')->insert([
+            'organization_id' => $organization->id,
             'requirement_id' => $requirement->id,
             'version_number' => 1,
             'title' => $requirement->title,
@@ -136,6 +127,7 @@ class OrganizationDataBackfillTest extends TestCase
             'created_at' => now(),
         ]);
         DB::table('requirement_dependencies')->insert([
+            'organization_id' => $organization->id,
             'requirement_id' => $requirement->id,
             'depends_on_requirement_id' => $dependency->id,
             'created_at' => now(),
@@ -144,6 +136,7 @@ class OrganizationDataBackfillTest extends TestCase
 
         $task = Task::factory()->for($project)->create(['requirement_id' => $requirement->id]);
         DB::table('task_histories')->insert([
+            'organization_id' => $organization->id,
             'task_id' => $task->id,
             'changed_by' => $user->id,
             'event' => 'created',
@@ -151,6 +144,7 @@ class OrganizationDataBackfillTest extends TestCase
         ]);
 
         $boardId = DB::table('kanban_boards')->insertGetId([
+            'organization_id' => $organization->id,
             'project_id' => $project->id,
             'name' => 'Quadro Kanban',
             'is_active' => true,
@@ -158,6 +152,7 @@ class OrganizationDataBackfillTest extends TestCase
             'updated_at' => now(),
         ]);
         $columnId = DB::table('kanban_columns')->insertGetId([
+            'organization_id' => $organization->id,
             'kanban_board_id' => $boardId,
             'status' => 'backlog',
             'name' => 'Backlog',
@@ -167,6 +162,7 @@ class OrganizationDataBackfillTest extends TestCase
             'updated_at' => now(),
         ]);
         DB::table('kanban_task_positions')->insert([
+            'organization_id' => $organization->id,
             'task_id' => $task->id,
             'kanban_column_id' => $columnId,
             'position' => 1,
@@ -174,49 +170,53 @@ class OrganizationDataBackfillTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        $template = DB::table('document_templates')->first();
+        $template = DB::table('document_templates')->where('organization_id', $organization->id)->first();
         DB::table('project_documents')->insert([
+            'organization_id' => $organization->id,
             'project_id' => $project->id,
             'document_template_id' => $template->id,
             'generated_by' => $user->id,
             'type' => $template->type,
-            'title' => 'Documento legado',
+            'title' => 'Documento vigente',
             'version' => 1,
-            'docx_path' => 'documents/legacy.docx',
-            'pdf_path' => 'documents/legacy.pdf',
-            'docx_file_name' => 'legacy.docx',
-            'pdf_file_name' => 'legacy.pdf',
+            'docx_path' => 'documents/current.docx',
+            'pdf_path' => 'documents/current.pdf',
+            'docx_file_name' => 'current.docx',
+            'pdf_file_name' => 'current.pdf',
             'generated_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         DB::table('project_comments')->insert([
+            'organization_id' => $organization->id,
             'project_id' => $project->id,
             'user_id' => $user->id,
             'context_type' => 'project',
             'context_id' => $project->id,
-            'body' => 'Comentário legado',
+            'body' => 'Comentário vigente',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
         DB::table('project_attachments')->insert([
+            'organization_id' => $organization->id,
             'project_id' => $project->id,
             'uploaded_by' => $user->id,
             'context_type' => 'project',
             'context_id' => $project->id,
             'disk' => 'local',
-            'path' => 'attachments/legacy.txt',
-            'original_name' => 'legacy.txt',
+            'path' => 'attachments/current.txt',
+            'original_name' => 'current.txt',
             'size_bytes' => 10,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
         DB::table('project_activities')->insert([
+            'organization_id' => $organization->id,
             'project_id' => $project->id,
             'user_id' => $user->id,
             'event_type' => 'created',
-            'description' => 'Atividade legada',
+            'description' => 'Atividade vigente',
             'created_at' => now(),
         ]);
     }

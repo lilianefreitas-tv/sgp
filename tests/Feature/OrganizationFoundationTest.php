@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Console\Commands\CreateOrganization;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
@@ -73,7 +74,7 @@ class OrganizationFoundationTest extends TestCase
         ]);
     }
 
-    public function test_platform_administrator_can_create_initial_organization_by_command(): void
+    public function test_platform_administrator_can_adopt_initial_organization_by_command(): void
     {
         $administrator = User::factory()->administrator()->create([
             'email' => 'admin@sgp.test',
@@ -89,6 +90,8 @@ class OrganizationFoundationTest extends TestCase
 
         $organization = Organization::query()->where('slug', 'sgp-demonstracao')->firstOrFail();
 
+        $this->assertDatabaseCount('organizations', 1);
+        $this->assertDatabaseMissing('organizations', ['slug' => CreateOrganization::BOOTSTRAP_SLUG]);
         $this->assertDatabaseHas('organization_memberships', [
             'organization_id' => $organization->id,
             'user_id' => $administrator->id,
@@ -107,6 +110,7 @@ class OrganizationFoundationTest extends TestCase
             '--owner-email' => $user->email,
         ])->assertFailed();
 
-        $this->assertDatabaseCount('organizations', 0);
+        $this->assertDatabaseCount('organizations', 1);
+        $this->assertDatabaseHas('organizations', ['slug' => CreateOrganization::BOOTSTRAP_SLUG]);
     }
 }
