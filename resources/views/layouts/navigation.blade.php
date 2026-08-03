@@ -8,7 +8,14 @@
         style="display: none;"
     ></div>
 
-    <aside
+@php
+    $organizationContext = app(\App\Services\OrganizationContext::class);
+    $activeOrganization = $organizationContext->organization();
+    $activeOrganizationMembership = $organizationContext->membership();
+    $availableOrganizationMemberships = $organizationContext->availableMemberships();
+@endphp
+
+<aside
         class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full
                flex-col bg-[#123B4A] text-white shadow-xl
                transition-transform duration-300 lg:translate-x-0"
@@ -358,6 +365,46 @@
         </nav>
 
         <div class="border-t border-white/10 p-4">
+            @if ($activeOrganization !== null && $activeOrganizationMembership !== null)
+                <div class="mb-3 rounded-xl bg-white/10 p-3">
+                    <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-400">
+                        Organização ativa
+                    </p>
+
+                    @if (($availableOrganizationMemberships ?? collect())->count() > 1)
+                        <form method="POST" action="{{ route('organization-context.update') }}" class="mt-2">
+                            @csrf
+                            @method('PUT')
+
+                            <label for="organization_id" class="sr-only">Trocar organização ativa</label>
+                            <select
+                                id="organization_id"
+                                name="organization_id"
+                                class="w-full rounded-lg border-white/20 bg-[#123B4A] px-3 py-2 text-sm text-white"
+                                onchange="this.form.submit()"
+                            >
+                                @foreach ($availableOrganizationMemberships as $membership)
+                                    <option
+                                        value="{{ $membership->organization_id }}"
+                                        @selected($membership->organization_id === $activeOrganization->id)
+                                    >
+                                        {{ $membership->organization->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                    @else
+                        <p class="mt-1 truncate text-sm font-semibold text-white" title="{{ $activeOrganization->name }}">
+                            {{ $activeOrganization->name }}
+                        </p>
+                    @endif
+
+                    <p class="mt-1 text-xs text-slate-300">
+                        {{ $activeOrganizationMembership->role_code->label() }}
+                    </p>
+                </div>
+            @endif
+
             <a
                 href="{{ route('profile.edit') }}"
                 class="mb-2 flex items-center gap-3 rounded-lg px-3 py-3

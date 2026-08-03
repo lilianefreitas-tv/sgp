@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use App\Enums\GlobalProfile;
+use App\Enums\OrganizationRole;
+use App\Enums\ProjectRole;
+use App\Services\OrganizationContext;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -76,16 +79,8 @@ class User extends Authenticatable
 
     public function organizations(): BelongsToMany
     {
-        return $this->belongsToMany(
-            Organization::class,
-            'organization_memberships'
-        )
-            ->withPivot([
-                'role_code',
-                'status',
-                'is_default',
-                'joined_at',
-            ])
+        return $this->belongsToMany(Organization::class, 'organization_memberships')
+            ->withPivot(['role_code', 'status', 'is_default', 'joined_at'])
             ->withTimestamps();
     }
 
@@ -114,18 +109,38 @@ class User extends Authenticatable
         return $this->hasMany(ProjectAttachment::class, 'uploaded_by');
     }
 
-    public function hasProjectRole(\App\Enums\ProjectRole $role, ?Project $project = null): bool
+    public function hasProjectRole(ProjectRole $role, ?Project $project = null): bool
     {
+        if ($this->currentOrganizationRole() === OrganizationRole::Reader) {
+            return false;
+        }
+
         return $this->projectMemberships()
             ->where('role', $role->value)
             ->where('is_active', true)
-            ->when($project, fn($query) => $query->where('project_id', $project->id))
+            ->when($project, fn ($query) => $query->where('project_id', $project->id))
             ->exists();
     }
 
     public function canCreateProjects(): bool
     {
+        $role = $this->currentOrganizationRole();
+
+        if ($role === OrganizationRole::Reader) {
+            return false;
+        }
+
         return $this->isAdministrator()
-            || $this->hasProjectRole(\App\Enums\ProjectRole::ProjectManager);
+            || in_array($role, [OrganizationRole::Owner, OrganizationRole::Administrator], true)
+            || $this->hasProjectRole(ProjectRole::ProjectManager);
+    }
+
+    public function currentOrganizationRole(): ?OrganizationRole
+    {
+        if (! app()->bound(OrganizationContext::class)) {
+            return null;
+        }
+
+        return app(OrganizationContext::class)->role();
     }
 }

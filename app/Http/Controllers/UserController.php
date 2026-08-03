@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enums\GlobalProfile;
+use App\Enums\OrganizationMembershipStatus;
+use App\Enums\OrganizationRole;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
+use App\Services\OrganizationContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -39,9 +43,24 @@ class UserController extends Controller
         return view('users.create', ['profiles' => GlobalProfile::options()]);
     }
 
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(
+        StoreUserRequest $request,
+        OrganizationContext $context,
+    ): RedirectResponse
     {
-        User::create($request->validated());
+        DB::transaction(function () use ($request, $context): void {
+            $user = User::create($request->validated());
+
+            $user->organizationMemberships()->create([
+                'organization_id' => $context->id(),
+                'role_code' => $user->global_profile === GlobalProfile::Administrator
+                    ? OrganizationRole::Administrator
+                    : OrganizationRole::Member,
+                'status' => OrganizationMembershipStatus::Active,
+                'is_default' => true,
+                'joined_at' => now(),
+            ]);
+        });
 
         return to_route('users.index')->with('success', 'Usuário cadastrado com sucesso.');
     }

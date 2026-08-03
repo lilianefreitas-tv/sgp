@@ -6,6 +6,8 @@ use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationStatus;
 use App\Models\Client;
 use App\Models\DocumentTemplate;
+use App\Models\Project;
+use App\Services\OrganizationContext;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +15,10 @@ use LogicException;
 
 class OrganizationIntegrityObserver
 {
+    public function __construct(private readonly OrganizationContext $context)
+    {
+    }
+
     /** @var array<class-string<Model>, array{0: string, 1: string}> */
     private const PARENT_RELATIONS = [
         \App\Models\Project::class => ['clients', 'client_id'],
@@ -33,11 +39,28 @@ class OrganizationIntegrityObserver
 
     public function creating(Model $model): void
     {
+        if ($this->context->active()) {
+            $providedOrganizationId = $model->getAttribute('organization_id');
+
+            if (filled($providedOrganizationId)
+                && (int) $providedOrganizationId !== $this->context->id()) {
+                throw new LogicException(
+                    'A organização do registro não corresponde ao contexto autorizado.'
+                );
+            }
+
+            $model->setAttribute('organization_id', $this->context->id());
+
+            return;
+        }
+
         if (filled($model->getAttribute('organization_id'))) {
             return;
         }
 
-        if ($model instanceof Client || $model instanceof DocumentTemplate) {
+        if ($model instanceof Client
+            || $model instanceof DocumentTemplate
+            || ($model instanceof Project && blank($model->getAttribute('client_id')))) {
             $model->setAttribute('organization_id', $this->resolveRootOrganizationId());
 
             return;

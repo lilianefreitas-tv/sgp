@@ -16,6 +16,7 @@ use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ProjectScheduleController;
+use App\Http\Controllers\OrganizationContextController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,13 +24,17 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', DashboardController::class)
-    ->middleware(['auth', 'active', 'verified'])
+    ->middleware(['auth', 'active', 'verified', 'organization'])
     ->name('dashboard');
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
 
+Route::middleware(['auth', 'active', 'organization'])->group(function () {
+    Route::put('/organization-context', [OrganizationContextController::class, 'update'])
+        ->name('organization-context.update');
     Route::resource('clients', ClientController::class)->except(['show', 'destroy']);
     Route::resource('projects', ProjectController::class)->except('destroy');
     Route::get('/requirements', [RequirementController::class, 'overview'])->name('requirements.index');
@@ -66,7 +71,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/projects/{project}/schedule', ProjectScheduleController::class)->name('projects.schedule.show');
 });
 
-Route::middleware(['auth', 'active', 'administrator'])->group(function () {
+Route::middleware(['auth', 'active', 'organization', 'administrator'])->group(function () {
     Route::resource('users', UserController::class)->except(['show', 'destroy']);
     Route::resource('document-templates', DocumentTemplateController::class)->except(['show', 'destroy']);
     Route::patch('/document-templates/{documentTemplate}/deactivate', [DocumentTemplateController::class, 'deactivate'])->name('document-templates.deactivate');

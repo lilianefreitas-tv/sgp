@@ -7,6 +7,8 @@ use App\Models\DocumentTemplate;
 use App\Models\KanbanBoard;
 use App\Models\KanbanColumn;
 use App\Models\KanbanTaskPosition;
+use App\Models\Organization;
+use App\Models\Scopes\OrganizationScope;
 use App\Models\Project;
 use App\Models\ProjectActivity;
 use App\Models\ProjectAttachment;
@@ -19,6 +21,9 @@ use App\Models\RequirementVersion;
 use App\Models\Task;
 use App\Models\TaskHistory;
 use App\Observers\OrganizationIntegrityObserver;
+use App\Policies\OrganizationPolicy;
+use App\Services\OrganizationContext;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(OrganizationContext::class);
     }
 
     /**
@@ -36,6 +41,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $context = $this->app->make(OrganizationContext::class);
+        Gate::policy(Organization::class, OrganizationPolicy::class);
+
         foreach ([
             Client::class,
             Project::class,
@@ -55,6 +63,7 @@ class AppServiceProvider extends ServiceProvider
             ProjectActivity::class,
         ] as $model) {
             $model::observe(OrganizationIntegrityObserver::class);
+            $model::addGlobalScope(new OrganizationScope($context));
         }
     }
 }
