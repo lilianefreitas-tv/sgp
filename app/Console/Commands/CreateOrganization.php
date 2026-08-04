@@ -10,6 +10,7 @@ use App\Enums\OrganizationType;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\OrganizationAuditService;
+use App\Services\StandardDocumentTemplateProvisioner;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -25,17 +26,20 @@ class CreateOrganization extends Command
                             {--slug= : Identificador único, gerado pelo nome quando omitido}
                             {--type=company : Tipo da organização}
                             {--timezone=America/Belem : Fuso horário}
-                            {--owner-email= : E-mail do proprietário inicial}';
+                            {--owner-email= : E-mail do Administrador principal}';
 
-    protected $description = 'Cria uma organização e vincula seu proprietário inicial';
+    protected $description = 'Cria uma organização e vincula seu Administrador principal';
 
-    public function handle(OrganizationAuditService $audit): int
+    public function handle(
+        OrganizationAuditService $audit,
+        StandardDocumentTemplateProvisioner $templates,
+    ): int
     {
         $interactive = $this->input->isInteractive();
         $name = trim((string) ($this->option('name') ?: ($interactive ? $this->ask('Nome da organização') : '')));
         $slug = Str::slug(trim((string) ($this->option('slug') ?: $name)));
         $ownerEmail = mb_strtolower(trim((string) (
-            $this->option('owner-email') ?: ($interactive ? $this->ask('E-mail do proprietário inicial') : '')
+            $this->option('owner-email') ?: ($interactive ? $this->ask('E-mail do Administrador principal') : '')
         )));
 
         $bootstrap = Organization::query()
@@ -77,12 +81,12 @@ class CreateOrganization extends Command
         $owner = User::query()->where('email', $ownerEmail)->firstOrFail();
 
         if (! $owner->is_active || $owner->global_profile !== GlobalProfile::Administrator) {
-            $this->components->error('O proprietário inicial deve ser um Administrador da Plataforma ativo.');
+            $this->components->error('No comando técnico, o Administrador principal deve ser uma conta Superadmin ativa.');
 
             return self::FAILURE;
         }
 
-        $organization = DB::transaction(function () use ($name, $slug, $owner, $audit): Organization {
+        $organization = DB::transaction(function () use ($name, $slug, $owner, $audit, $templates): Organization {
             $organization = Organization::query()
                 ->where('slug', self::BOOTSTRAP_SLUG)
                 ->whereDoesntHave('memberships')
@@ -112,12 +116,17 @@ class CreateOrganization extends Command
                 'joined_at' => now(),
             ]);
 
+            $provisionedTemplates = $templates->provision($organization, $owner->id);
+
             $audit->record(
                 'organization.provision',
                 'success',
                 'organization',
                 $organization->id,
-                ['owner_user_id' => $owner->id],
+                [
+                    'owner_user_id' => $owner->id,
+                    'standard_templates_created' => $provisionedTemplates,
+                ],
                 $organization->id,
                 $owner,
             );

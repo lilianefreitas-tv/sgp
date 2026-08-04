@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Schema;
 
 abstract class TestCase extends BaseTestCase
 {
+    public function actingAsWithoutOrganizationProvisioning(
+        UserContract $user,
+        $guard = null,
+    ): static {
+        return parent::actingAs($user, $guard);
+    }
+
     public function actingAs(UserContract $user, $guard = null): static
     {
         if ($user instanceof User

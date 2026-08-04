@@ -17,6 +17,7 @@ use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -142,6 +143,30 @@ class OrganizationFilesAndAuditTest extends TestCase
             ->assertOk()
             ->assertSee('event.visible.a')
             ->assertDontSee('event.hidden.b');
+    }
+
+    public function test_audit_view_displays_event_in_active_organization_timezone(): void
+    {
+        [$organization, $owner] = $this->tenant(
+            ProjectRole::ProjectManager,
+            true,
+            OrganizationRole::Owner,
+        );
+        $organization->update(['timezone' => 'America/Belem']);
+
+        OrganizationAuditEvent::withoutGlobalScopes()->create([
+            'organization_id' => $organization->id,
+            'action' => 'event.timezone.belem',
+            'result' => 'success',
+            'occurred_at' => CarbonImmutable::create(2026, 8, 4, 12, 34, 56, 'UTC'),
+        ]);
+
+        $this->actingAs($owner)
+            ->withSession([EnsureOrganizationContext::SESSION_KEY => $organization->id])
+            ->get(route('audit.index'))
+            ->assertOk()
+            ->assertSee('04/08/2026 09:34:56')
+            ->assertDontSee('04/08/2026 12:34:56');
     }
 
     public function test_ordinary_member_cannot_consult_organization_audit(): void

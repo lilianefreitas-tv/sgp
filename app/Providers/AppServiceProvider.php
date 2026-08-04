@@ -26,6 +26,7 @@ use App\Policies\OrganizationPolicy;
 use App\Services\OrganizationContext;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,6 +45,13 @@ class AppServiceProvider extends ServiceProvider
     {
         $context = $this->app->make(OrganizationContext::class);
         Gate::policy(Organization::class, OrganizationPolicy::class);
+
+        View::share([
+            'activeOrganization' => null,
+            'activeOrganizationMembership' => null,
+            'availableOrganizationMemberships' => collect(),
+            'platformOrganizationAccess' => false,
+        ]);
 
         foreach ([
             Client::class,

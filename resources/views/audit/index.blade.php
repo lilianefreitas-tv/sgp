@@ -54,7 +54,7 @@
                         <tbody class="divide-y divide-[#EDF1F3]">
                             @foreach($events as $event)
                                 <tr>
-                                    <td class="whitespace-nowrap px-5 py-4 text-[#667680]">{{ $event->occurred_at->format('d/m/Y H:i:s') }}</td>
+                                    <td class="whitespace-nowrap px-5 py-4 text-[#667680]">{{ $event->occurred_at->copy()->timezone($activeOrganization->timezone)->format('d/m/Y H:i:s') }}</td>
                                     <td class="px-5 py-4 font-semibold text-[#24313A]">{{ $event->action }}</td>
                                     <td class="px-5 py-4 text-[#667680]">{{ $event->actor?->name ?? 'Sistema' }}</td>
                                     <td class="px-5 py-4 text-[#667680]">{{ $event->resource_type ? $event->resource_type.' #'.$event->resource_id : 'Organização' }}</td>

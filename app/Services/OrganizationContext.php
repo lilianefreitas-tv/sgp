@@ -11,6 +11,10 @@ class OrganizationContext
 {
     private ?OrganizationMembership $membership = null;
 
+    private ?Organization $platformOrganization = null;
+
+    private bool $platformAccess = false;
+
     /** @var Collection<int, OrganizationMembership>|null */
     private ?Collection $availableMemberships = null;
 
@@ -21,30 +25,47 @@ class OrganizationContext
     ): void
     {
         $this->membership = $membership->loadMissing('organization');
+        $this->platformOrganization = null;
+        $this->platformAccess = false;
+        $this->availableMemberships = $availableMemberships;
+    }
+
+    /** @param Collection<int, OrganizationMembership> $availableMemberships */
+    public function activatePlatformAccess(
+        Organization $organization,
+        Collection $availableMemberships,
+    ): void {
+        $this->membership = null;
+        $this->platformOrganization = $organization;
+        $this->platformAccess = true;
         $this->availableMemberships = $availableMemberships;
     }
 
     public function clear(): void
     {
         $this->membership = null;
+        $this->platformOrganization = null;
+        $this->platformAccess = false;
         $this->availableMemberships = null;
     }
 
     public function active(): bool
     {
-        return $this->membership !== null;
+        return $this->membership !== null || $this->platformOrganization !== null;
     }
 
     public function id(): ?int
     {
-        return $this->membership === null
-            ? null
-            : (int) $this->membership->organization_id;
+        if ($this->membership !== null) {
+            return (int) $this->membership->organization_id;
+        }
+
+        return $this->platformOrganization?->id;
     }
 
     public function organization(): ?Organization
     {
-        return $this->membership?->organization;
+        return $this->membership?->organization ?? $this->platformOrganization;
     }
 
     public function membership(): ?OrganizationMembership
@@ -61,5 +82,10 @@ class OrganizationContext
     public function role(): ?OrganizationRole
     {
         return $this->membership?->role_code;
+    }
+
+    public function isPlatformAccess(): bool
+    {
+        return $this->platformAccess;
     }
 }

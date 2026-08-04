@@ -214,14 +214,14 @@ class TaskController extends Controller
     private function ensureCanView(Request $request, Project $project): void
     {
         abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
+            $request->user()->canAccessProject($project),
             403,
         );
     }
 
     private function canManage(Request $request, Project $project): bool
     {
-        return $request->user()->isAdministrator()
+        return $request->user()->administersCurrentOrganization()
             || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project)
             || $request->user()->hasProjectRole(ProjectRole::RequirementsAnalyst, $project)
             || $request->user()->hasProjectRole(ProjectRole::Developer, $project);

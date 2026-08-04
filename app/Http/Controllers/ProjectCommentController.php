@@ -28,6 +28,7 @@ class ProjectCommentController extends Controller
             'project' => $project,
             'comments' => $comments,
             'contextOptions' => $contexts->options($project),
+            'canContribute' => $request->user()->canContributeToProject($project),
         ]);
     }
 
@@ -36,7 +37,7 @@ class ProjectCommentController extends Controller
         Project $project,
         ProjectContextService $contexts,
     ): RedirectResponse {
-        $this->ensureCanView($request, $project);
+        abort_unless($request->user()->canContributeToProject($project), 403);
         $context = $contexts->resolve($project, $request->string('context')->toString());
 
         $project->comments()->create([
@@ -53,7 +54,7 @@ class ProjectCommentController extends Controller
     private function ensureCanView(Request $request, Project $project): void
     {
         abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
+            $request->user()->canAccessProject($project),
             403,
         );
     }

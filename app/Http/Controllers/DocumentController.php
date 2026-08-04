@@ -193,13 +193,12 @@ class DocumentController extends Controller
 
     private function canView(Request $request, Project $project): bool
     {
-        return $request->user()->isAdministrator()
-            || $project->hasActiveMember($request->user());
+        return $request->user()->canAccessProject($project);
     }
 
     private function canGenerate(Request $request, Project $project): bool
     {
-        return $request->user()->isAdministrator()
+        return $request->user()->administersCurrentOrganization()
             || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project)
             || $request->user()->hasProjectRole(ProjectRole::RequirementsAnalyst, $project);
     }

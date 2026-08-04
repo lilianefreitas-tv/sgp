@@ -21,6 +21,7 @@ class Organization extends Model
         'type',
         'status',
         'timezone',
+        'next_project_number',
         'settings',
     ];
 
@@ -29,6 +30,7 @@ class Organization extends Model
         return [
             'type' => OrganizationType::class,
             'status' => OrganizationStatus::class,
+            'next_project_number' => 'integer',
             'settings' => 'array',
         ];
     }
@@ -36,6 +38,11 @@ class Organization extends Model
     public function memberships(): HasMany
     {
         return $this->hasMany(OrganizationMembership::class);
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
     }
 
     public function users(): BelongsToMany

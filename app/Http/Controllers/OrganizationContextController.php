@@ -32,6 +32,7 @@ class OrganizationContextController extends Controller
         ]);
 
         $request->session()->put(EnsureOrganizationContext::SESSION_KEY, $organization->id);
+        $request->session()->forget(EnsureOrganizationContext::PLATFORM_ACCESS_SESSION_KEY);
         $request->session()->forget('url.intended');
         $request->session()->regenerateToken();
 

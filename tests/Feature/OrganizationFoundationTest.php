@@ -7,6 +7,7 @@ use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Enums\OrganizationType;
+use App\Models\DocumentTemplate;
 use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\User;
@@ -99,6 +100,13 @@ class OrganizationFoundationTest extends TestCase
             'status' => OrganizationMembershipStatus::Active->value,
             'is_default' => true,
         ]);
+        $this->assertSame(
+            4,
+            DocumentTemplate::withoutGlobalScopes()
+                ->where('organization_id', $organization->id)
+                ->where('is_active', true)
+                ->count(),
+        );
     }
 
     public function test_regular_user_cannot_be_initial_owner_created_by_command(): void
@@ -112,5 +120,12 @@ class OrganizationFoundationTest extends TestCase
 
         $this->assertDatabaseCount('organizations', 1);
         $this->assertDatabaseHas('organizations', ['slug' => CreateOrganization::BOOTSTRAP_SLUG]);
+    }
+
+    public function test_f8_verification_command_succeeds_on_a_consistent_installation(): void
+    {
+        $this->artisan('sgp:verify-f8-correction')
+            ->expectsOutputToContain('RESULTADO: SUCESSO')
+            ->assertSuccessful();
     }
 }

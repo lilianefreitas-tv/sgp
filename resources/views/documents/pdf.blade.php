@@ -46,7 +46,7 @@
     </header>
     <footer>
         <div>{{ $template->footer_text ?: 'Documento gerado automaticamente pelo SGP' }}</div>
-        <div>Gerado por: {{ $generatedBy->name }} | {{ $generatedAt->format('d/m/Y H:i') }} | Página <span class="page-number"></span></div>
+        <div>Gerado por: {{ $generatedBy->name }} | {{ $generatedAt->format('d/m/Y H:i') }} | Fuso: {{ $generatedTimezone }} | Página <span class="page-number"></span></div>
     </footer>
 
     <section class="cover">

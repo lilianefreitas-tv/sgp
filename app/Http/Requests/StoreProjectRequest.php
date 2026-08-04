@@ -5,10 +5,12 @@ namespace App\Http\Requests;
 use App\Enums\ExecutionNature;
 use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\OrganizationMembershipStatus;
 use App\Enums\ProjectMethodology;
 use App\Enums\ProjectStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Services\OrganizationContext;
 
 class StoreProjectRequest extends FormRequest
 {
@@ -26,7 +28,9 @@ class StoreProjectRequest extends FormRequest
             ],
             'manager_id' => [
                 'required',
-                Rule::exists('users', 'id')->where(fn ($query) => $query->where('is_active', true)),
+                Rule::exists('organization_memberships', 'user_id')->where(fn ($query) => $query
+                    ->where('organization_id', app(OrganizationContext::class)->id())
+                    ->where('status', OrganizationMembershipStatus::Active->value)),
             ],
             'name' => ['required', 'string', 'max:200'],
             'description' => ['nullable', 'string'],

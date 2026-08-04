@@ -119,7 +119,7 @@
                                 <td class="px-6 py-4"><span class="rounded-full bg-[#E6F0F3] px-3 py-1 text-xs font-bold text-[#1D5D73]">{{ $document->versionLabel() }}</span></td>
                                 <td class="px-6 py-4">{{ $document->template->name }}</td>
                                 <td class="px-6 py-4">{{ $document->generator->name }}</td>
-                                <td class="px-6 py-4">{{ $document->generated_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-6 py-4">{{ $document->generated_at->timezone($activeOrganization->timezone)->format('d/m/Y H:i') }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex justify-end gap-2">
                                         <a href="{{ route('projects.documents.download', [$project, $document, 'docx']) }}" class="rounded-lg border border-[#287EA1] px-3 py-2 text-xs font-bold text-[#287EA1] hover:bg-[#EDF6F8]">DOCX</a>

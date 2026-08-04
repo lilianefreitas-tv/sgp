@@ -39,6 +39,7 @@ class ProjectAttachmentController extends Controller
             'contextOptions' => $contexts->options($project),
             'maxUploadMb' => config('sgp.attachments.max_kb') / 1024,
             'allowedExtensions' => config('sgp.attachments.allowed_extensions'),
+            'canContribute' => $request->user()->canContributeToProject($project),
         ]);
     }
 
@@ -49,7 +50,7 @@ class ProjectAttachmentController extends Controller
         OrganizationStoragePath $storagePaths,
         OrganizationAuditService $audit,
     ): RedirectResponse {
-        $this->ensureCanView($request, $project);
+        abort_unless($request->user()->canContributeToProject($project), 403);
         $context = $contexts->resolve($project, $request->string('context')->toString());
         $file = $request->file('file');
         $disk = (string) config('sgp.storage.private_disk', 'local');
@@ -164,8 +165,7 @@ class ProjectAttachmentController extends Controller
 
     private function canView(Request $request, Project $project): bool
     {
-        return $request->user()->isAdministrator()
-            || $project->hasActiveMember($request->user());
+        return $request->user()->canAccessProject($project);
     }
 
     private function canRemove(
@@ -173,7 +173,7 @@ class ProjectAttachmentController extends Controller
         Project $project,
         ProjectAttachment $attachment,
     ): bool {
-        return $request->user()->isAdministrator()
+        return $request->user()->administersCurrentOrganization()
             || $attachment->uploaded_by === $request->user()->id
             || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project);
     }

@@ -110,7 +110,7 @@ class ProjectController extends Controller
 
         return view('projects.show', compact('project', 'members', 'canManage') + [
             'users' => $canManage
-                ? User::query()->where('is_active', true)->orderBy('name')->get()
+                ? $this->organizationUsers()
                 : collect(),
             'roles' => ProjectRole::options(),
         ]);
@@ -220,7 +220,9 @@ class ProjectController extends Controller
                 ->get(),
             'users' => User::query()
                 ->where('is_active', true)
-                ->when($project, fn ($query) => $query->orWhere('id', $project->manager_id))
+                ->whereHas('organizationMemberships', fn ($query) => $query
+                    ->where('organization_id', app(\App\Services\OrganizationContext::class)->id())
+                    ->where('status', \App\Enums\OrganizationMembershipStatus::Active->value))
                 ->orderBy('name')
                 ->get(),
             'levels' => ManagementLevel::options(),
@@ -266,16 +268,23 @@ class ProjectController extends Controller
 
     private function ensureCanView(Request $request, Project $project): void
     {
-        abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
-            403,
-        );
+        abort_unless($request->user()->canAccessProject($project), 403);
     }
 
     private function canManage(Request $request, Project $project): bool
     {
-        return $request->user()->isAdministrator()
-            || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project);
+        return $request->user()->canManageProject($project);
+    }
+
+    private function organizationUsers()
+    {
+        return User::query()
+            ->where('is_active', true)
+            ->whereHas('organizationMemberships', fn ($query) => $query
+                ->where('organization_id', app(\App\Services\OrganizationContext::class)->id())
+                ->where('status', \App\Enums\OrganizationMembershipStatus::Active->value))
+            ->orderBy('name')
+            ->get();
     }
 
     private function activateManagerMembership(Project $project): void

@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->global_profile === GlobalProfile::Administrator;
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->isAdministrator();
+    }
+
     public function managedProjects(): HasMany
     {
         return $this->hasMany(Project::class, 'manager_id');
@@ -133,6 +138,33 @@ class User extends Authenticatable
         return $this->isAdministrator()
             || in_array($role, [OrganizationRole::Owner, OrganizationRole::Administrator], true)
             || $this->hasProjectRole(ProjectRole::ProjectManager);
+    }
+
+    public function administersCurrentOrganization(): bool
+    {
+        return $this->isSuperAdmin()
+            || in_array($this->currentOrganizationRole(), [
+                OrganizationRole::Owner,
+                OrganizationRole::Administrator,
+            ], true);
+    }
+
+    public function canAccessProject(Project $project): bool
+    {
+        return $this->administersCurrentOrganization()
+            || $project->hasActiveMember($this);
+    }
+
+    public function canManageProject(Project $project): bool
+    {
+        return $this->administersCurrentOrganization()
+            || $this->hasProjectRole(ProjectRole::ProjectManager, $project);
+    }
+
+    public function canContributeToProject(Project $project): bool
+    {
+        return $this->currentOrganizationRole() !== OrganizationRole::Reader
+            && $this->canAccessProject($project);
     }
 
     public function currentOrganizationRole(): ?OrganizationRole

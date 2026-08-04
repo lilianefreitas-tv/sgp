@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\DocumentTemplate;
 use App\Models\Project;
 use App\Services\OrganizationContext;
+use App\Services\ProjectCodeGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,9 +16,10 @@ use LogicException;
 
 class OrganizationIntegrityObserver
 {
-    public function __construct(private readonly OrganizationContext $context)
-    {
-    }
+    public function __construct(
+        private readonly OrganizationContext $context,
+        private readonly ProjectCodeGenerator $projectCodes,
+    ) {}
 
     /** @var array<class-string<Model>, array{0: string, 1: string}> */
     private const PARENT_RELATIONS = [
@@ -39,6 +41,8 @@ class OrganizationIntegrityObserver
 
     public function creating(Model $model): void
     {
+        $organizationId = null;
+
         if ($this->context->active()) {
             $providedOrganizationId = $model->getAttribute('organization_id');
 
@@ -49,45 +53,41 @@ class OrganizationIntegrityObserver
                 );
             }
 
-            $model->setAttribute('organization_id', $this->context->id());
-
-            return;
-        }
-
-        if (filled($model->getAttribute('organization_id'))) {
-            return;
-        }
-
-        if ($model instanceof Client
+            $organizationId = $this->context->id();
+        } elseif (filled($model->getAttribute('organization_id'))) {
+            $organizationId = (int) $model->getAttribute('organization_id');
+        } elseif ($model instanceof Client
             || $model instanceof DocumentTemplate
             || ($model instanceof Project && blank($model->getAttribute('client_id')))) {
-            $model->setAttribute('organization_id', $this->resolveRootOrganizationId());
+            $organizationId = $this->resolveRootOrganizationId();
+        } else {
+            $relation = self::PARENT_RELATIONS[$model::class] ?? null;
 
-            return;
-        }
+            if ($relation === null) {
+                throw new LogicException('Não foi definida uma origem organizacional para '.class_basename($model).'.');
+            }
 
-        $relation = self::PARENT_RELATIONS[$model::class] ?? null;
+            [$parentTable, $foreignKey] = $relation;
+            $parentId = $model->getAttribute($foreignKey);
 
-        if ($relation === null) {
-            throw new LogicException('Não foi definida uma origem organizacional para '.class_basename($model).'.');
-        }
+            if (blank($parentId)) {
+                throw new LogicException("O campo {$foreignKey} é obrigatório para derivar a organização.");
+            }
 
-        [$parentTable, $foreignKey] = $relation;
-        $parentId = $model->getAttribute($foreignKey);
+            $organizationId = DB::table($parentTable)
+                ->where('id', $parentId)
+                ->value('organization_id');
 
-        if (blank($parentId)) {
-            throw new LogicException("O campo {$foreignKey} é obrigatório para derivar a organização.");
-        }
-
-        $organizationId = DB::table($parentTable)
-            ->where('id', $parentId)
-            ->value('organization_id');
-
-        if (blank($organizationId)) {
-            throw new LogicException("Não foi possível derivar a organização de {$parentTable}#{$parentId}.");
+            if (blank($organizationId)) {
+                throw new LogicException("Não foi possível derivar a organização de {$parentTable}#{$parentId}.");
+            }
         }
 
         $model->setAttribute('organization_id', (int) $organizationId);
+
+        if ($model instanceof Project && blank($model->getAttribute('code'))) {
+            $model->setAttribute('code', $this->projectCodes->next((int) $organizationId));
+        }
     }
 
     private function resolveRootOrganizationId(): int

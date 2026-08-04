@@ -10,8 +10,8 @@ enum GlobalProfile: string
     public function label(): string
     {
         return match ($this) {
-            self::Administrator => 'Administrador',
-            self::User => 'Usuário',
+            self::Administrator => 'Superadmin',
+            self::User => 'Conta comum',
         };
     }
 

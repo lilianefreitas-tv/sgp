@@ -67,6 +67,34 @@ class OrganizationIntegrityTest extends TestCase
         $this->createProjectIn($secondOrganization, 'PRJ-IGUAL');
     }
 
+    public function test_automatic_project_sequence_is_independent_for_each_organization(): void
+    {
+        $firstOrganization = Organization::query()->firstOrFail();
+        $secondOrganization = Organization::factory()->create();
+        $firstClient = Client::factory()->create(['organization_id' => $firstOrganization->id]);
+        $secondClient = Client::factory()->create(['organization_id' => $secondOrganization->id]);
+
+        $firstA = Project::factory()->create([
+            'organization_id' => $firstOrganization->id,
+            'client_id' => $firstClient->id,
+            'code' => null,
+        ]);
+        $firstB = Project::factory()->create([
+            'organization_id' => $secondOrganization->id,
+            'client_id' => $secondClient->id,
+            'code' => null,
+        ]);
+        $secondA = Project::factory()->create([
+            'organization_id' => $firstOrganization->id,
+            'client_id' => $firstClient->id,
+            'code' => null,
+        ]);
+
+        $this->assertSame('PRJ-0001', $firstA->code);
+        $this->assertSame('PRJ-0001', $firstB->code);
+        $this->assertSame('PRJ-0002', $secondA->code);
+    }
+
     public function test_project_cannot_reference_client_from_another_organization(): void
     {
         $firstOrganization = Organization::query()->firstOrFail();

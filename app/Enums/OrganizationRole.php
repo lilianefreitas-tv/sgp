@@ -12,10 +12,10 @@ enum OrganizationRole: string
     public function label(): string
     {
         return match ($this) {
-            self::Owner => 'Proprietário',
-            self::Administrator => 'Administrador',
-            self::Member => 'Membro',
-            self::Reader => 'Leitor',
+            self::Owner => 'Administrador principal',
+            self::Administrator => 'Administrador da organização',
+            self::Member => 'Usuário da organização',
+            self::Reader => 'Acesso de consulta',
         };
     }
 

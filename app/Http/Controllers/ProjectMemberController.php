@@ -77,8 +77,7 @@ class ProjectMemberController extends Controller
     public function destroy(Request $request, Project $project, User $user): RedirectResponse
     {
         abort_unless(
-            $request->user()->isAdministrator()
-                || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project),
+            $request->user()->canManageProject($project),
             403,
         );
 

@@ -43,6 +43,7 @@ class DocumentGenerationService
         int $version,
     ): ProjectDocument {
         $project->load([
+            'organization',
             'client',
             'manager',
             'memberships' => fn ($query) => $query->where('is_active', true)->with('user'),
@@ -51,7 +52,16 @@ class DocumentGenerationService
         ]);
 
         $generatedAt = now();
-        $payload = $this->payload($project, $template, $user, $version, $generatedAt);
+        $displayTimezone = $project->organization?->timezone
+            ?: (string) config('sgp.documents.default_timezone', 'America/Belem');
+        $payload = $this->payload(
+            $project,
+            $template,
+            $user,
+            $version,
+            $generatedAt->copy()->timezone($displayTimezone),
+            $displayTimezone,
+        );
         $folder = $this->storagePaths->documents($project, $template->type->value);
         $baseName = Str::slug($project->code.'-'.$template->type->slug().'-v'.$version);
         $storageBaseName = $baseName.'-'.Str::lower(Str::random(8));
@@ -102,6 +112,8 @@ class DocumentGenerationService
                     'tasks_count' => $project->tasks->count(),
                     'docx_sha256' => $docxSha256,
                     'pdf_sha256' => $pdfSha256,
+                    'generated_timezone' => $displayTimezone,
+                    'generated_local_at' => $payload['generatedAt']->toIso8601String(),
                 ],
                 'generated_at' => $generatedAt,
             ]);
@@ -152,6 +164,7 @@ class DocumentGenerationService
         User $user,
         int $version,
         Carbon $generatedAt,
+        string $generatedTimezone,
     ): array {
         return [
             'project' => $project,
@@ -161,6 +174,7 @@ class DocumentGenerationService
             'title' => $template->type->label(),
             'version' => $version,
             'generatedAt' => $generatedAt,
+            'generatedTimezone' => $generatedTimezone,
             'members' => $project->memberships
                 ->groupBy('user_id')
                 ->map(fn (Collection $memberships) => [
@@ -241,6 +255,7 @@ class DocumentGenerationService
         $footer->addPreserveText(
             'Gerado por: '.$payload['generatedBy']->name
                 .' | '.$payload['generatedAt']->format('d/m/Y H:i')
+                .' | Fuso: '.$payload['generatedTimezone']
                 .' | Página {PAGE} de {NUMPAGES}',
             ['size' => 8, 'color' => self::MUTED],
             ['alignment' => Jc::CENTER],

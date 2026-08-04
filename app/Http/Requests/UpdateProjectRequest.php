@@ -5,10 +5,12 @@ namespace App\Http\Requests;
 use App\Enums\ExecutionNature;
 use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\OrganizationMembershipStatus;
 use App\Enums\ProjectMethodology;
 use App\Enums\ProjectRole;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
+use App\Services\OrganizationContext;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,8 +21,7 @@ class UpdateProjectRequest extends StoreProjectRequest
         /** @var Project $project */
         $project = $this->route('project');
 
-        return $this->user()?->isAdministrator() === true
-            || $this->user()?->hasProjectRole(ProjectRole::ProjectManager, $project) === true;
+        return $this->user()?->canManageProject($project) === true;
     }
 
     public function rules(): array
@@ -37,9 +38,9 @@ class UpdateProjectRequest extends StoreProjectRequest
             ],
             'manager_id' => [
                 'required',
-                Rule::exists('users', 'id')->where(
-                    fn ($query) => $query->where('is_active', true)->orWhere('id', $project->manager_id)
-                ),
+                Rule::exists('organization_memberships', 'user_id')->where(fn ($query) => $query
+                    ->where('organization_id', app(OrganizationContext::class)->id())
+                    ->where('status', OrganizationMembershipStatus::Active->value)),
             ],
             'name' => ['required', 'string', 'max:200'],
             'description' => ['nullable', 'string'],

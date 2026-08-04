@@ -14,6 +14,7 @@
         @include('requirements._project-nav')
 
         <section class="grid gap-5 xl:grid-cols-3">
+            @if ($canContribute)
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
                 <h2 class="font-bold text-[#24313A]">Novo comentário</h2>
                 <p class="mt-1 text-sm text-[#667680]">Registre uma observação no projeto, em um requisito ou em uma tarefa.</p>
@@ -48,6 +49,7 @@
                     <button type="submit" class="sgp-button-primary w-full justify-center">Registrar comentário</button>
                 </form>
             </article>
+            @endif
 
             <article class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm xl:col-span-2">
                 <div class="border-b border-[#DCE3E7] px-6 py-5">

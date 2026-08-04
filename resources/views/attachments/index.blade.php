@@ -21,6 +21,7 @@
         @include('requirements._project-nav')
 
         <section class="grid gap-5 xl:grid-cols-3">
+            @if ($canContribute)
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
                 <h2 class="font-bold text-[#24313A]">Adicionar arquivo</h2>
                 <p class="mt-1 text-sm text-[#667680]">O anexo será armazenado em área privada e vinculado ao registro escolhido.</p>
@@ -58,6 +59,7 @@
                     <button type="submit" class="sgp-button-primary w-full justify-center">Anexar arquivo</button>
                 </form>
             </article>
+            @endif
 
             <article class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm xl:col-span-2">
                 <div class="border-b border-[#DCE3E7] px-6 py-5">
@@ -89,7 +91,7 @@
                                     </div>
                                     <div class="flex shrink-0 flex-wrap gap-2">
                                         <a href="{{ route('projects.attachments.download', [$project, $attachment]) }}" class="inline-flex rounded-lg border border-[#287EA1] px-3 py-2 text-xs font-semibold text-[#287EA1] hover:bg-[#EEF7FA]">Baixar</a>
-                                        @if(auth()->user()->isAdministrator() || auth()->id() === $attachment->uploaded_by || auth()->user()->hasProjectRole(\App\Enums\ProjectRole::ProjectManager, $project))
+                                        @if(auth()->user()->administersCurrentOrganization() || auth()->id() === $attachment->uploaded_by || auth()->user()->hasProjectRole(\App\Enums\ProjectRole::ProjectManager, $project))
                                             <form method="POST" action="{{ route('projects.attachments.destroy', [$project, $attachment]) }}" onsubmit="return confirm('Remover este anexo da consulta? O evento permanecerá no histórico.')">
                                                 @csrf
                                                 @method('DELETE')
