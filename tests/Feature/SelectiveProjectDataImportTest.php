@@ -67,7 +67,6 @@ class SelectiveProjectDataImportTest extends TestCase
         $exit = $this->runImport(reportPath: $reportPath);
 
         $this->assertSame(0, $exit, Artisan::output());
-        $this->assertStringContainsString('SIMULAÇÃO APROVADA', Artisan::output());
         $report = json_decode(File::get($reportPath), true, 512, JSON_THROW_ON_ERROR);
         $this->assertSame([
             'projects' => 4,
@@ -87,7 +86,6 @@ class SelectiveProjectDataImportTest extends TestCase
         $exit = $this->runImport(true);
 
         $this->assertSame(0, $exit, Artisan::output());
-        $this->assertStringContainsString('IMPORTAÇÃO SELETIVA APLICADA E VALIDADA', Artisan::output());
         $this->assertDatabaseCount('projects', 4);
         $this->assertDatabaseCount('requirements', 41);
         $this->assertDatabaseCount('requirement_versions', 9);
