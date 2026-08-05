@@ -38,6 +38,9 @@ inalteradas. A candidata ainda não está homologada nem autorizada para deploy.
    com remapeamento de organização e usuário, CSV adulterado e destino ocupado.
 7. `.github/workflows/ci.yml` instala PHP e Node.js, compila os ativos e executa
    a suíte Laravel automaticamente em cada pull request.
+8. `.github/workflows/isolated-rehearsal.yml` executa migrations, testes críticos
+   e regressão completa em PostgreSQL 18 descartável. O executor protegido recusa
+   bancos fora do padrão `sgp_rehearsal` e produz evidências técnicas sem segredos.
 
 ## Invariantes
 
@@ -65,3 +68,8 @@ A candidata somente poderá seguir para ensaio em banco restaurado depois de:
 - suíte completa aprovada;
 - revisão da sequência de deploy e de reconciliação dos 12 arquivos pertencentes
   aos seis documentos legados.
+
+O ensaio isolado adicional está preparado, mas permanece não executado até que
+seu workflow seja publicado na branch do pull request. Um resultado verde nesse
+job constitui evidência técnica e não substitui a execução manual dos casos F8
+nem a decisão formal de homologação.

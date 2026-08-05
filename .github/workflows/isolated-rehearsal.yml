@@ -1,0 +1,82 @@
+name: Ensaio isolado PostgreSQL
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rehearsal-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-rehearsal:
+    name: PostgreSQL 18 descartavel
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: sgp_rehearsal
+          POSTGRES_USER: sgp_rehearsal
+          POSTGRES_PASSWORD: rehearsal-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sgp_rehearsal -d sgp_rehearsal"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      APP_ENV: testing
+      APP_DEBUG: "false"
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: "5432"
+      DB_DATABASE: sgp_rehearsal
+      DB_USERNAME: sgp_rehearsal
+      DB_PASSWORD: rehearsal-only
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      FILESYSTEM_DISK: local
+      SGP_PRIVATE_DISK: local
+      SGP_ALLOW_ISOLATED_RESET: "YES"
+      REHEARSAL_EVIDENCE_DIR: storage/app/rehearsal
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: dom, gd, mbstring, pdo_pgsql, pgsql, xml, xmlwriter, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare isolated application environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
+      - name: Run guarded isolated rehearsal
+        run: bash scripts/ci/run-isolated-rehearsal.sh
+
+      - name: Upload rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: isolated-rehearsal-${{ github.sha }}
+          path: storage/app/rehearsal/
+          if-no-files-found: warn
+          retention-days: 14

@@ -22,6 +22,8 @@ banco legado de produção, sem alteração da baseline funcional `BL-SGP-002`.
 - testes da transição real, da interrupção por divergência, da instalação limpa e
   da importação seletiva em um banco novo;
 - CI no GitHub Actions para compilar os ativos e executar a suíte Laravel em cada PR.
+- ensaio adicional em PostgreSQL 18 descartável, com travas contra uso acidental
+  de banco externo e geração de evidências técnicas com manifesto SHA-256.
 
 ### Segurança operacional
 
