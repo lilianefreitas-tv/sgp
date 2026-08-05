@@ -63,10 +63,20 @@ class SelectiveProjectDataImportTest extends TestCase
 
     public function test_dry_run_validates_everything_without_writing_rows(): void
     {
-        $exit = $this->runImport();
+        $reportPath = $this->sourceDirectory.'/dry-run-report.json';
+        $exit = $this->runImport(reportPath: $reportPath);
 
         $this->assertSame(0, $exit, Artisan::output());
         $this->assertStringContainsString('SIMULAÇÃO APROVADA', Artisan::output());
+        $report = json_decode(File::get($reportPath), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame([
+            'projects' => 4,
+            'requirements' => 41,
+            'requirement_versions' => 9,
+            'requirement_dependencies' => 0,
+            'tasks' => 25,
+            'task_histories' => 25,
+        ], $report['counts']);
         $this->assertDatabaseCount('projects', 0);
         $this->assertDatabaseCount('requirements', 0);
         $this->assertDatabaseCount('tasks', 0);
@@ -150,7 +160,7 @@ class SelectiveProjectDataImportTest extends TestCase
         $this->assertDatabaseCount('projects', 1);
     }
 
-    private function runImport(bool $apply = false): int
+    private function runImport(bool $apply = false, ?string $reportPath = null): int
     {
         $arguments = [
             'directory' => $this->sourceDirectory,
@@ -160,6 +170,10 @@ class SelectiveProjectDataImportTest extends TestCase
 
         if ($apply) {
             $arguments['--apply'] = true;
+        }
+
+        if ($reportPath !== null) {
+            $arguments['--report'] = $reportPath;
         }
 
         return Artisan::call('sgp:import-selective-project-data', $arguments);

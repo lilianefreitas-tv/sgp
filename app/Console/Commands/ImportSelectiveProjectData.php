@@ -772,7 +772,9 @@ class ImportSelectiveProjectData extends Command
                 '3' => ['organization_id' => $organizations['mppa'], 'code' => 'PRJ-0003'],
                 '4' => ['organization_id' => $organizations['sgp'], 'code' => 'PRJ-0001'],
             ],
-            'counts' => collect($prepared)->map->count()->all(),
+            'counts' => collect($prepared)
+                ->map(fn (array $rows): int => count($rows))
+                ->all(),
             'remapping' => [
                 'projects.client_id' => null,
                 'projects.manager_id' => $ownerId,
