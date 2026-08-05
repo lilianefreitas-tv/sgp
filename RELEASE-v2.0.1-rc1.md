@@ -31,6 +31,13 @@ inalteradas. A candidata ainda não está homologada nem autorizada para deploy.
    após todas as migrations e interrompe a validação diante de qualquer diferença.
 4. `ProductionOrganizationTransitionTest` cobre o inventário real, a rejeição de
    divergências com rollback e a compatibilidade com instalação limpa.
+5. `sgp:import-selective-project-data` oferece a rota alternativa aprovada para
+   um banco novo: valida os seis CSVs e o manifesto SHA-256, simula por padrão e
+   somente grava, em uma transação, quando chamado com `--apply`.
+6. `SelectiveProjectDataImportTest` cobre a simulação sem gravação, a importação
+   com remapeamento de organização e usuário, CSV adulterado e destino ocupado.
+7. `.github/workflows/ci.yml` instala PHP e Node.js, compila os ativos e executa
+   a suíte Laravel automaticamente em cada pull request.
 
 ## Invariantes
 

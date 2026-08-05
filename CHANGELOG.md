@@ -17,7 +17,11 @@ banco legado de produção, sem alteração da baseline funcional `BL-SGP-002`.
 - duplicação dos modelos documentais e reconciliação das referências dos
   documentos do projeto SGP;
 - verificador pós-migração `sgp:verify-production-transition`;
-- testes da transição real, da interrupção por divergência e da instalação limpa.
+- importador seletivo `sgp:import-selective-project-data`, com simulação padrão,
+  validação de manifesto SHA-256 e gravação transacional somente com `--apply`;
+- testes da transição real, da interrupção por divergência, da instalação limpa e
+  da importação seletiva em um banco novo;
+- CI no GitHub Actions para compilar os ativos e executar a suíte Laravel em cada PR.
 
 ### Segurança operacional
 
