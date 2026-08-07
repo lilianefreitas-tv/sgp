@@ -56,7 +56,7 @@
     @else
         <div class="rounded-xl border border-[#D7E6EA] bg-[#F2F8FA] p-4 text-sm text-[#36525E]">
             <p class="font-semibold">Ativação segura</p>
-            <p class="mt-1 text-xs leading-5">Após salvar, o SGP exibirá um link temporário para a pessoa definir a própria senha.</p>
+            <p class="mt-1 text-xs leading-5">Após salvar, o SGP enviará por e-mail um link temporário para a pessoa definir a própria senha.</p>
         </div>
     @endisset
 </div>

@@ -12,16 +12,16 @@ class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_password_reset_link_screen_is_not_available(): void
+    public function test_public_password_reset_link_screen_is_available(): void
     {
-        $this->get('/forgot-password')->assertNotFound();
+        $this->get('/forgot-password')->assertOk();
     }
 
-    public function test_public_password_reset_link_cannot_be_requested(): void
+    public function test_public_password_reset_link_can_be_requested_neutrally(): void
     {
         $this->post('/forgot-password', [
             'email' => 'usuario@example.com',
-        ])->assertNotFound();
+        ])->assertStatus(302)->assertSessionHas('status', 'Se existir uma conta ativa com esse e-mail, enviaremos as instruções de redefinição.');
     }
 
     public function test_invited_user_can_open_activation_link_and_define_password(): void

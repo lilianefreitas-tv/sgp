@@ -6,6 +6,7 @@ use App\Enums\GlobalProfile;
 use App\Enums\OrganizationMembershipStatus;
 use App\Models\User;
 use App\Services\AccountProvisioningService;
+use App\Services\PasswordRecoveryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,7 @@ class PlatformUserController extends Controller
     public function store(
         Request $request,
         AccountProvisioningService $accounts,
+        PasswordRecoveryService $recovery,
     ): RedirectResponse {
         $validated = $request->validate([
             'new_user_name' => ['required', 'string', 'max:255'],
@@ -59,21 +61,22 @@ class PlatformUserController extends Controller
             'global_profile' => ['required', Rule::enum(GlobalProfile::class)],
         ]);
 
-        $result = DB::transaction(function () use ($validated, $accounts): array {
-            $account = $accounts->createInvitedAccount(
+        $result = DB::transaction(function () use ($validated, $accounts): User {
+            $user = $accounts->createInvitedAccount(
                 $validated['new_user_name'],
                 $validated['new_user_email'],
             );
-            $account['user']->update([
+            $user->update([
                 'global_profile' => GlobalProfile::from($validated['global_profile']),
             ]);
 
-            return $account;
+            return $user;
         });
 
+        $recovery->request($result, 'password.first_access', $request, $request->user());
+
         return to_route('platform.users.index')
-            ->with('success', "Conta de {$result['user']->name} criada com sucesso.")
-            ->with('activation_url', $result['activation_url']);
+            ->with('success', "Conta de {$result->name} criada e link de primeiro acesso enviado por e-mail.");
     }
 
     public function edit(User $user): View
@@ -126,5 +129,27 @@ class PlatformUserController extends Controller
 
         return to_route('platform.users.index')
             ->with('success', 'Conta atualizada com sucesso. Os vínculos organizacionais foram preservados.');
+    }
+
+    public function sendPasswordResetLink(
+        Request $request,
+        User $user,
+        PasswordRecoveryService $recovery,
+    ): RedirectResponse {
+        abort_unless($user->is_active, 422, 'A conta precisa estar ativa para receber o link.');
+
+        $status = $recovery->request(
+            $user,
+            'password.platform_admin.request',
+            $request,
+            $request->user(),
+        );
+
+        return back()->with(
+            $status === \Illuminate\Support\Facades\Password::RESET_THROTTLED ? 'warning' : 'success',
+            $status === \Illuminate\Support\Facades\Password::RESET_THROTTLED
+                ? 'Aguarde antes de solicitar outro link para esta conta.'
+                : 'Novo link de redefinição enviado ao e-mail cadastrado.',
+        );
     }
 }

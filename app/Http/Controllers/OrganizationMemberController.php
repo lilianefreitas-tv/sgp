@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\AccountProvisioningService;
 use App\Services\OrganizationAuditService;
 use App\Services\OrganizationContext;
+use App\Services\PasswordRecoveryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +51,7 @@ class OrganizationMemberController extends Controller
         OrganizationContext $context,
         AccountProvisioningService $accounts,
         OrganizationAuditService $audit,
+        PasswordRecoveryService $recovery,
     ): RedirectResponse {
         $this->authorizeManagement($context);
         $request->merge([
@@ -67,11 +69,9 @@ class OrganizationMemberController extends Controller
         $this->authorizeRoleAssignment($context, $role);
 
         $result = DB::transaction(function () use ($validated, $context, $accounts, $role, $audit, $request): array {
-            $account = $validated['account_mode'] === 'existing'
-                ? ['user' => $accounts->accountByEmail($validated['existing_user_email']), 'activation_url' => null]
+            $user = $validated['account_mode'] === 'existing'
+                ? $accounts->accountByEmail($validated['existing_user_email'])
                 : $accounts->createInvitedAccount($validated['new_user_name'], $validated['new_user_email']);
-            /** @var User $user */
-            $user = $account['user'];
             $membership = OrganizationMembership::query()->firstOrNew([
                 'organization_id' => $context->id(),
                 'user_id' => $user->id,
@@ -92,12 +92,55 @@ class OrganizationMemberController extends Controller
                 'account_created' => $validated['account_mode'] === 'new',
             ], $context->id(), $request->user(), $request);
 
-            return ['membership' => $membership, 'activation_url' => $account['activation_url']];
+            return ['membership' => $membership, 'account_created' => $validated['account_mode'] === 'new'];
         });
 
+        if ($result['account_created']) {
+            $recovery->request(
+                $result['membership']->user,
+                'password.first_access',
+                $request,
+                $request->user(),
+                $context->id(),
+            );
+        }
+
         return to_route('organization-members.index')
-            ->with('success', "Acesso de {$result['membership']->user->name} salvo com sucesso.")
-            ->with('activation_url', $result['activation_url']);
+            ->with('success', $result['account_created']
+                ? "Acesso de {$result['membership']->user->name} salvo e link de primeiro acesso enviado por e-mail."
+                : "Acesso de {$result['membership']->user->name} salvo com sucesso.");
+    }
+
+    public function sendPasswordResetLink(
+        Request $request,
+        int $membership,
+        OrganizationContext $context,
+        PasswordRecoveryService $recovery,
+    ): RedirectResponse {
+        $this->authorizeManagement($context);
+        $target = $this->membership($membership, $context);
+        $target->loadMissing('user');
+
+        abort_unless(
+            $target->status === OrganizationMembershipStatus::Active && $target->user->is_active,
+            422,
+            'A conta e o vínculo precisam estar ativos para receber o link.',
+        );
+
+        $status = $recovery->request(
+            $target->user,
+            'password.organization_admin.request',
+            $request,
+            $request->user(),
+            $context->id(),
+        );
+
+        return back()->with(
+            $status === \Illuminate\Support\Facades\Password::RESET_THROTTLED ? 'warning' : 'success',
+            $status === \Illuminate\Support\Facades\Password::RESET_THROTTLED
+                ? 'Aguarde antes de solicitar outro link para esta conta.'
+                : 'Novo link de redefinição enviado ao e-mail cadastrado.',
+        );
     }
 
     public function update(

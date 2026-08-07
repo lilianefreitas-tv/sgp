@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.1-rc2] - 2026-08-07
+
+### Adicionado
+
+- recuperação pública de senha com resposta neutra e limitação de solicitações;
+- reenvio administrativo seguro para Superadmin, Proprietário e Administrador da organização;
+- auditoria específica dos eventos de recuperação de acesso;
+- testes de permissões, isolamento, conta inativa e ausência de exposição de tokens.
+
+### Alterado
+
+- primeiro acesso passa a ser enviado por e-mail, sem exibir o link na interface;
+- identificação da versão passa a usar `SGP_RELEASE_LABEL`;
+- redefinição de senha passa a aceitar somente contas ativas.
+
 ## [2.0.1-rc1] - 2026-08-04
 
 Correção operacional candidata para a primeira implantação da Fundação SaaS no

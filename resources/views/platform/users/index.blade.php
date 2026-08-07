@@ -11,12 +11,8 @@
             <div class="rounded-xl border border-[#BFE2D9] bg-[#EDF8F5] px-4 py-3 text-sm font-medium text-[#256C5C]">{{ session('success') }}</div>
         @endif
 
-        @if (session('activation_url'))
-            <section class="rounded-xl border border-[#BFD7DF] bg-[#F2F8FA] p-5">
-                <h2 class="font-bold text-[#123B4A]">Link de primeiro acesso</h2>
-                <p class="mt-1 text-sm text-[#53636C]">Copie e envie este link à pessoa por um canal seguro. A conta ainda não pertence a nenhuma organização.</p>
-                <input class="sgp-input mt-3 font-mono text-xs" readonly value="{{ session('activation_url') }}" onclick="this.select()">
-            </section>
+        @if (session('warning'))
+            <div class="rounded-xl border border-[#E8D5A7] bg-[#FFF9E9] px-4 py-3 text-sm font-medium text-[#7A5B18]">{{ session('warning') }}</div>
         @endif
 
         <section class="rounded-2xl border border-[#D7E6EA] bg-[#F2F8FA] p-5 text-sm text-[#36525E] shadow-sm">
@@ -101,7 +97,15 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('platform.users.edit', $user) }}" class="sgp-link">Editar</a>
+                                    <div class="flex flex-wrap justify-end gap-3">
+                                        @if ($user->is_active)
+                                            <form method="POST" action="{{ route('platform.users.password-reset-link', $user) }}" onsubmit="return confirm('Enviar um novo link de redefinição para o e-mail cadastrado?');">
+                                                @csrf
+                                                <button class="sgp-link">Reenviar link</button>
+                                            </form>
+                                        @endif
+                                        <a href="{{ route('platform.users.edit', $user) }}" class="sgp-link">Editar</a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

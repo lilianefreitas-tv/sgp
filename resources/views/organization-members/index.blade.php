@@ -10,17 +10,13 @@
         @if (session('success'))
             <div class="rounded-xl border border-[#BFE2D9] bg-[#EDF8F5] px-4 py-3 text-sm font-medium text-[#256C5C]">{{ session('success') }}</div>
         @endif
+        @if (session('warning'))
+            <div class="rounded-xl border border-[#E8D5A7] bg-[#FFF9E9] px-4 py-3 text-sm font-medium text-[#7A5B18]">{{ session('warning') }}</div>
+        @endif
         @if ($errors->any())
             <div class="rounded-xl border border-[#F0CACA] bg-[#FFF4F4] px-4 py-3 text-sm text-[#914747]">
                 <ul class="list-disc space-y-1 pl-5">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
             </div>
-        @endif
-        @if (session('activation_url'))
-            <section class="rounded-xl border border-[#BFD7DF] bg-[#F2F8FA] p-5">
-                <h2 class="font-bold text-[#123B4A]">Link de primeiro acesso</h2>
-                <p class="mt-1 text-sm text-[#53636C]">Copie e envie este link à pessoa por um canal seguro. Ele será usado uma única vez para definir a senha.</p>
-                <input class="sgp-input mt-3 font-mono text-xs" readonly value="{{ session('activation_url') }}" onclick="this.select()">
-            </section>
         @endif
 
         <section class="rounded-2xl border border-[#D7E6EA] bg-[#F2F8FA] p-5 shadow-sm">
@@ -76,7 +72,7 @@
                     </select>
                 </div>
                 <div class="lg:col-span-2 flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-xs text-[#667680]" x-show="accountMode === 'new'">Após salvar, o SGP exibirá um link temporário para a pessoa definir a própria senha.</p>
+                    <p class="text-xs text-[#667680]" x-show="accountMode === 'new'">Após salvar, o SGP enviará por e-mail um link temporário para a pessoa definir a própria senha.</p>
                     <button class="sgp-button-primary lg:w-auto">Adicionar à equipe</button>
                 </div>
             </form>
@@ -157,6 +153,12 @@
                                 <td class="px-5 py-4 text-right">
                                     @if (! $protectedOwner)
                                         <div class="sgp-membership-row-actions">
+                                            @if ($membership->status === \App\Enums\OrganizationMembershipStatus::Active && $membership->user->is_active)
+                                                <form method="POST" action="{{ route('organization-members.password-reset-link', $membership->id) }}" onsubmit="return confirm('Enviar um novo link de redefinição para o e-mail cadastrado?');">
+                                                    @csrf
+                                                    <button class="sgp-link whitespace-nowrap">Reenviar link</button>
+                                                </form>
+                                            @endif
                                             <button form="membership-update-{{ $membership->id }}" class="sgp-link whitespace-nowrap">Salvar alterações</button>
                                             <form method="POST" action="{{ route('organization-members.destroy', $membership->id) }}" onsubmit="return confirm('Remover este acesso? A conta e o histórico continuarão existindo, mas a pessoa perderá o acesso a esta organização.');">
                                                 @csrf

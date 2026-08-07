@@ -12,7 +12,9 @@ use App\Models\Organization;
 use App\Models\OrganizationAuditEvent;
 use App\Models\OrganizationMembership;
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class OrganizationAdministrationTest extends TestCase
@@ -71,6 +73,7 @@ class OrganizationAdministrationTest extends TestCase
 
     public function test_superadmin_can_create_organization_and_new_main_administrator_account(): void
     {
+        Notification::fake();
         $superadmin = User::factory()->administrator()->create();
 
         $response = $this->actingAsWithoutOrganizationProvisioning($superadmin)
@@ -86,12 +89,12 @@ class OrganizationAdministrationTest extends TestCase
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
-        $response->assertSessionHas('activation_url', fn (string $url): bool => str_contains($url, '/reset-password/'));
+        $response->assertSessionMissing('activation_url');
         $organization = Organization::query()->where('slug', 'organizacao-nova')->firstOrFail();
         $administrator = User::query()->where('email', 'admin@empresa.test')->firstOrFail();
 
         $response->assertRedirect(route('platform.organizations.edit', $organization));
-        $response->assertSessionHas('activation_url');
+        Notification::assertSentTo($administrator, ResetPassword::class);
         $this->assertSame(GlobalProfile::User, $administrator->global_profile);
         $this->assertDatabaseHas('organization_memberships', [
             'organization_id' => $organization->id,
@@ -156,6 +159,7 @@ class OrganizationAdministrationTest extends TestCase
 
     public function test_organization_administrator_can_create_common_account_for_own_team(): void
     {
+        Notification::fake();
         [$organization, $administrator] = $this->tenantWithRole(OrganizationRole::Administrator);
 
         $response = $this->actingAs($administrator)->post(route('organization-members.store'), [
@@ -167,9 +171,9 @@ class OrganizationAdministrationTest extends TestCase
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('organization-members.index'));
-        $response->assertSessionHas('activation_url', fn (string $url): bool => str_contains($url, '/reset-password/'));
+        $response->assertSessionMissing('activation_url');
         $user = User::query()->where('email', 'analista@empresa.test')->firstOrFail();
-        $response->assertSessionHas('activation_url');
+        Notification::assertSentTo($user, ResetPassword::class);
         $this->assertSame(GlobalProfile::User, $user->global_profile);
         $this->assertDatabaseHas('organization_memberships', [
             'organization_id' => $organization->id,

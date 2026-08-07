@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Enums\GlobalProfile;
 use App\Models\User;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -23,8 +22,7 @@ class AccountProvisioningService
         return $user;
     }
 
-    /** @return array{user: User, activation_url: string} */
-    public function createInvitedAccount(string $name, string $email): array
+    public function createInvitedAccount(string $name, string $email): User
     {
         $normalizedEmail = mb_strtolower(trim($email));
 
@@ -42,15 +40,7 @@ class AccountProvisioningService
             'is_active' => true,
         ]);
 
-        $token = Password::broker()->createToken($user);
-
-        return [
-            'user' => $user,
-            'activation_url' => route('password.reset', [
-                'token' => $token,
-                'email' => $user->email,
-            ]),
-        ];
+        return $user;
     }
 
     public function accountByEmail(string $email): User

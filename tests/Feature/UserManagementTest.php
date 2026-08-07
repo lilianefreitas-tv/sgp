@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Enums\GlobalProfile;
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
@@ -44,6 +46,7 @@ class UserManagementTest extends TestCase
 
     public function test_superadmin_can_create_global_common_account_without_membership(): void
     {
+        Notification::fake();
         $superadmin = User::factory()->administrator()->create();
 
         $response = $this->actingAsWithoutOrganizationProvisioning($superadmin)
@@ -54,12 +57,13 @@ class UserManagementTest extends TestCase
             ]);
 
         $response->assertRedirect(route('platform.users.index'))
-            ->assertSessionHas('activation_url');
+            ->assertSessionMissing('activation_url');
 
         $created = User::query()->where('email', 'maria@example.com')->firstOrFail();
         $this->assertSame(GlobalProfile::User, $created->global_profile);
         $this->assertTrue($created->is_active);
         $this->assertFalse($created->organizationMemberships()->exists());
+        Notification::assertSentTo($created, ResetPassword::class);
     }
 
     public function test_superadmin_can_create_another_superadmin_account(): void

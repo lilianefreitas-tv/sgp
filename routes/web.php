@@ -85,11 +85,18 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
 Route::middleware(['auth', 'active', 'administrator'])->prefix('platform')->name('platform.')->group(function () {
     Route::resource('organizations', PlatformOrganizationController::class)->except(['show', 'destroy']);
     Route::resource('users', PlatformUserController::class)->except(['show', 'destroy']);
+    Route::post('/users/{user}/password-reset-link', [PlatformUserController::class, 'sendPasswordResetLink'])
+        ->middleware('throttle:6,1')
+        ->name('users.password-reset-link');
     Route::post('/organizations/{organization}/access', [PlatformOrganizationController::class, 'access'])
         ->name('organizations.access');
     Route::delete('/organization-access', [PlatformOrganizationController::class, 'leave'])
         ->name('organization-access.leave');
 });
+
+Route::post('/organization-members/{membership}/password-reset-link', [OrganizationMemberController::class, 'sendPasswordResetLink'])
+    ->middleware(['auth', 'active', 'organization', 'throttle:6,1'])
+    ->name('organization-members.password-reset-link');
 
 Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::resource('document-templates', DocumentTemplateController::class)->except(['show', 'destroy']);

@@ -91,7 +91,7 @@
                                text-slate-300 lg:flex"
                     >
                         <span>SGP</span>
-                        <span>Release MVP 1.0.0</span>
+                        <span>{{ config('sgp.release_label') }}</span>
                     </div>
                 </div>
             </section>
@@ -188,7 +188,7 @@
                                    text-[#667680]"
                         >
                             SGP • Sistema de Gestão de Projetos de Software<br>
-                            Release MVP 1.0.0
+                            {{ config('sgp.release_label') }}
                         </p>
                     </div>
                 </div>

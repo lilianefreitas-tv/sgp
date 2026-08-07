@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Http\Middleware\EnsureOrganizationContext;
 use App\Services\AccountProvisioningService;
 use App\Services\OrganizationAuditService;
+use App\Services\PasswordRecoveryService;
 use App\Services\StandardDocumentTemplateProvisioner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,6 +59,7 @@ class PlatformOrganizationController extends Controller
         AccountProvisioningService $accounts,
         StandardDocumentTemplateProvisioner $templates,
         OrganizationAuditService $audit,
+        PasswordRecoveryService $recovery,
     ): RedirectResponse {
         $request->merge(['slug' => Str::slug((string) ($request->input('slug') ?: $request->input('name')))]);
         $validated = $request->validate($this->rules() + [
@@ -68,11 +70,9 @@ class PlatformOrganizationController extends Controller
         ]);
 
         $result = DB::transaction(function () use ($validated, $accounts, $templates, $audit, $request): array {
-            $account = $validated['account_mode'] === 'existing'
-                ? ['user' => $accounts->existingActiveAccount((int) $validated['administrator_user_id']), 'activation_url' => null]
+            $owner = $validated['account_mode'] === 'existing'
+                ? $accounts->existingActiveAccount((int) $validated['administrator_user_id'])
                 : $accounts->createInvitedAccount($validated['new_user_name'], $validated['new_user_email']);
-            /** @var User $owner */
-            $owner = $account['user'];
             $organization = Organization::query()->create([
                 'name' => $validated['name'],
                 'slug' => $validated['slug'],
@@ -102,12 +102,27 @@ class PlatformOrganizationController extends Controller
                 'account_created' => $validated['account_mode'] === 'new',
             ], $organization->id, $request->user(), $request);
 
-            return ['organization' => $organization, 'activation_url' => $account['activation_url']];
+            return [
+                'organization' => $organization,
+                'owner' => $owner,
+                'account_created' => $validated['account_mode'] === 'new',
+            ];
         });
 
+        if ($result['account_created']) {
+            $recovery->request(
+                $result['owner'],
+                'password.first_access',
+                $request,
+                $request->user(),
+                $result['organization']->id,
+            );
+        }
+
         return to_route('platform.organizations.edit', $result['organization'])
-            ->with('success', 'Organização criada e provisionada com sucesso.')
-            ->with('activation_url', $result['activation_url']);
+            ->with('success', $result['account_created']
+                ? 'Organização criada e link de primeiro acesso enviado ao proprietário.'
+                : 'Organização criada e provisionada com sucesso.');
     }
 
     public function edit(Organization $organization): View

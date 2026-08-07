@@ -120,7 +120,7 @@
                            sm:px-8"
                 >
                     SGP • Sistema de Gestão de Projetos de Software •
-                    Release MVP 1.0.0
+                    {{ config('sgp.release_label') }}
                 </footer>
             </div>
         </div>
