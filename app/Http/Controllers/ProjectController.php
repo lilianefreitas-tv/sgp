@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ExecutionNature;
+use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\ProjectMethodology;
 use App\Enums\ProjectRole;
 use App\Enums\ProjectStatus;
 use App\Http\Requests\StoreProjectRequest;
@@ -72,6 +75,7 @@ class ProjectController extends Controller
                 'Projeto cadastrado',
                 'project',
                 $project->id,
+                ['configuration' => $this->configurationSnapshot($project)],
             );
 
             return $project;
@@ -106,7 +110,7 @@ class ProjectController extends Controller
 
         return view('projects.show', compact('project', 'members', 'canManage') + [
             'users' => $canManage
-                ? User::query()->where('is_active', true)->orderBy('name')->get()
+                ? $this->organizationUsers()
                 : collect(),
             'roles' => ProjectRole::options(),
         ]);
@@ -122,7 +126,9 @@ class ProjectController extends Controller
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
         DB::transaction(function () use ($request, $project): void {
+            $configurationBefore = $this->configurationSnapshot($project);
             $project->update($this->normalizeDates($request->validated()));
+            $configurationAfter = $this->configurationSnapshot($project->fresh());
 
             $this->activateManagerMembership($project);
 
@@ -131,14 +137,37 @@ class ProjectController extends Controller
                 ['updated_at'],
             ));
             if ($changedFields !== []) {
+                $configurationChanges = collect($configurationAfter)
+                    ->filter(fn (string $value, string $field): bool => $configurationBefore[$field] !== $value)
+                    ->map(fn (string $value, string $field): array => [
+                        'from' => $configurationBefore[$field],
+                        'to' => $value,
+                    ])
+                    ->all();
+
                 ProjectActivity::record(
                     $project,
                     $request->user(),
-                    'project_updated',
-                    'Informações do projeto atualizadas',
+                    $configurationChanges === [] ? 'project_updated' : 'project_configuration_updated',
+                    $configurationChanges === []
+                        ? 'Informações do projeto atualizadas'
+                        : 'Configuração adaptativa atualizada',
                     'project',
                     $project->id,
-                    ['fields' => $changedFields],
+                    [
+                        'fields' => $changedFields,
+                        'configuration_changes' => $configurationChanges,
+                        'details' => $configurationChanges === []
+                            ? null
+                            : collect($configurationChanges)
+                                ->map(fn (array $change, string $field): string => sprintf(
+                                    '%s: %s para %s',
+                                    $this->configurationFieldLabel($field),
+                                    $change['from'],
+                                    $change['to'],
+                                ))
+                                ->implode('; '),
+                    ],
                 );
             }
         });
@@ -191,12 +220,39 @@ class ProjectController extends Controller
                 ->get(),
             'users' => User::query()
                 ->where('is_active', true)
-                ->when($project, fn ($query) => $query->orWhere('id', $project->manager_id))
+                ->whereHas('organizationMemberships', fn ($query) => $query
+                    ->where('organization_id', app(\App\Services\OrganizationContext::class)->id())
+                    ->where('status', \App\Enums\OrganizationMembershipStatus::Active->value))
                 ->orderBy('name')
                 ->get(),
             'levels' => ManagementLevel::options(),
+            'executionNatures' => ExecutionNature::options(),
+            'financialModes' => FinancialManagementMode::options(),
+            'methodologies' => ProjectMethodology::options(),
             'statuses' => ProjectStatus::options(),
         ];
+    }
+
+    /** @return array<string, string> */
+    private function configurationSnapshot(Project $project): array
+    {
+        return [
+            'execution_nature' => $project->execution_nature->label(),
+            'financial_management_mode' => $project->financial_management_mode->label(),
+            'management_level' => $project->management_level->label(),
+            'methodology' => $project->methodologyLabel(),
+        ];
+    }
+
+    private function configurationFieldLabel(string $field): string
+    {
+        return match ($field) {
+            'execution_nature' => 'Natureza da execução',
+            'financial_management_mode' => 'Tratamento financeiro',
+            'management_level' => 'Nível de gestão',
+            'methodology' => 'Metodologia',
+            default => $field,
+        };
     }
 
     /** @param array<string, mixed> $data */
@@ -212,16 +268,23 @@ class ProjectController extends Controller
 
     private function ensureCanView(Request $request, Project $project): void
     {
-        abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
-            403,
-        );
+        abort_unless($request->user()->canAccessProject($project), 403);
     }
 
     private function canManage(Request $request, Project $project): bool
     {
-        return $request->user()->isAdministrator()
-            || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project);
+        return $request->user()->canManageProject($project);
+    }
+
+    private function organizationUsers()
+    {
+        return User::query()
+            ->where('is_active', true)
+            ->whereHas('organizationMemberships', fn ($query) => $query
+                ->where('organization_id', app(\App\Services\OrganizationContext::class)->id())
+                ->where('status', \App\Enums\OrganizationMembershipStatus::Active->value))
+            ->orderBy('name')
+            ->get();
     }
 
     private function activateManagerMembership(Project $project): void

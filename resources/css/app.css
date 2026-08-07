@@ -276,3 +276,226 @@
     }
 }
 }
+
+@layer components {
+    .sgp-button-secondary {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background-color: #e6f0f3;
+        color: #123b4a;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: background-color 160ms ease, transform 160ms ease;
+    }
+
+    .sgp-button-secondary:hover {
+        background-color: #d8e8ed;
+    }
+
+    .sgp-button-secondary:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(40, 126, 161, 0.18);
+    }
+
+    .sgp-clear-action {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        color: #53636c;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .sgp-clear-action:hover {
+        color: #123b4a;
+        text-decoration: underline;
+    }
+
+    .sgp-organization-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1.25rem;
+        align-items: end;
+    }
+
+    .sgp-organization-filters {
+        display: grid;
+        grid-template-columns: minmax(260px, 1fr) minmax(170px, 220px) auto auto;
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    .sgp-filter-action,
+    .sgp-admin-primary-action {
+        min-height: 46px;
+    }
+
+    .sgp-admin-primary-action {
+        width: auto;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .sgp-admin-primary-action span {
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1;
+    }
+
+    .sgp-membership-explanation {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(420px, 1fr);
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .sgp-membership-steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .sgp-membership-steps li {
+        min-height: 104px;
+        border: 1px solid #d7e6ea;
+        border-radius: 0.75rem;
+        padding: 0.875rem;
+        background-color: #ffffff;
+    }
+
+    .sgp-membership-steps li > span {
+        display: inline-flex;
+        width: 1.75rem;
+        height: 1.75rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background-color: #123b4a;
+        color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .sgp-membership-steps p {
+        margin-top: 0.5rem;
+        color: #53636c;
+        font-size: 0.8125rem;
+        line-height: 1.35;
+    }
+
+    .sgp-membership-add-form {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) minmax(210px, 260px) auto;
+        gap: 0.75rem;
+        align-items: end;
+        margin-top: 1rem;
+    }
+
+    .sgp-membership-add-action {
+        width: auto;
+        min-height: 46px;
+        white-space: nowrap;
+    }
+
+    .sgp-member-list-header {
+        display: grid;
+        grid-template-columns: minmax(240px, 1fr) minmax(420px, 0.9fr);
+        gap: 1.5rem;
+        align-items: end;
+        border-bottom: 1px solid #e8edf0;
+        padding: 1.25rem;
+    }
+
+    .sgp-member-search-form {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto auto;
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    .sgp-member-search-action {
+        min-height: 46px;
+    }
+
+    .sgp-membership-row-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.875rem;
+    }
+
+    .sgp-role-guide {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.875rem;
+    }
+
+    .sgp-role-guide p {
+        border-left: 3px solid #5ec6b2;
+        padding-left: 0.75rem;
+    }
+
+    .sgp-role-guide strong,
+    .sgp-role-guide span {
+        display: block;
+    }
+
+    .sgp-role-guide span {
+        margin-top: 0.2rem;
+        color: #667680;
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+
+    @media (max-width: 1180px) {
+        .sgp-organization-toolbar,
+        .sgp-membership-explanation,
+        .sgp-member-list-header {
+            grid-template-columns: 1fr;
+        }
+
+        .sgp-admin-primary-action {
+            justify-self: start;
+        }
+
+        .sgp-membership-add-form {
+            grid-template-columns: minmax(240px, 1fr) minmax(200px, 0.55fr) auto;
+        }
+
+        .sgp-role-guide {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .sgp-organization-filters,
+        .sgp-membership-steps,
+        .sgp-membership-add-form,
+        .sgp-member-search-form,
+        .sgp-role-guide {
+            grid-template-columns: 1fr;
+        }
+
+        .sgp-admin-primary-action,
+        .sgp-membership-add-action,
+        .sgp-filter-action,
+        .sgp-member-search-action {
+            width: 100%;
+        }
+
+        .sgp-membership-steps li {
+            min-height: 0;
+        }
+
+        .sgp-membership-row-actions {
+            align-items: flex-end;
+            flex-direction: column;
+        }
+    }
+}

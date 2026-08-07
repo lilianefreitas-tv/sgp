@@ -1,5 +1,54 @@
 # Changelog
 
+## [2.0.1-rc2] - 2026-08-07
+
+### Adicionado
+
+- recuperação pública de senha com resposta neutra e limitação de solicitações;
+- reenvio administrativo seguro para Superadmin, Proprietário e Administrador da organização;
+- auditoria específica dos eventos de recuperação de acesso;
+- testes de permissões, isolamento, conta inativa e ausência de exposição de tokens.
+
+### Alterado
+
+- primeiro acesso passa a ser enviado por e-mail, sem exibir o link na interface;
+- identificação da versão passa a usar `SGP_RELEASE_LABEL`;
+- redefinição de senha passa a aceitar somente contas ativas.
+
+## [2.0.1-rc1] - 2026-08-04
+
+Correção operacional candidata para a primeira implantação da Fundação SaaS no
+banco legado de produção, sem alteração da baseline funcional `BL-SGP-002`.
+
+### Adicionado
+
+- migrations seletivas e transacionais para distribuir o legado antes das
+  restrições e normalizar os códigos dos modelos depois da unicidade organizacional;
+- validação estrita do inventário aprovado de produção;
+- criação controlada das organizações `mppa` e `sgp` e dos vínculos da
+  Administradora principal;
+- distribuição dos quatro projetos e dos registros dependentes nas 16 tabelas de
+  domínio;
+- duplicação dos modelos documentais e reconciliação das referências dos
+  documentos do projeto SGP;
+- verificador pós-migração `sgp:verify-production-transition`;
+- importador seletivo `sgp:import-selective-project-data`, com simulação padrão,
+  validação de manifesto SHA-256 e gravação transacional somente com `--apply`;
+- testes da transição real, da interrupção por divergência, da instalação limpa e
+  da importação seletiva em um banco novo;
+- CI no GitHub Actions para compilar os ativos e executar a suíte Laravel em cada PR.
+- ensaio adicional em PostgreSQL 18 descartável, com travas contra uso acidental
+  de banco externo e geração de evidências técnicas com manifesto SHA-256.
+
+### Segurança operacional
+
+- a migration bloqueia gravações concorrentes nas tabelas envolvidas no
+  PostgreSQL enquanto a transação está aberta;
+- qualquer diferença de contagem, identidade ou relacionamento interrompe a
+  implantação;
+- a reversão depois da migração depende de restauração ponto a ponto do banco;
+- a tag histórica `v2.0.0` e o commit homologado `1ab7302` permanecem inalterados.
+
 ## [1.0.1] - 2026-07-28
 
 Correção operacional do MVP para implantação em plataformas com filesystem

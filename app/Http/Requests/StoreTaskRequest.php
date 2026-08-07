@@ -17,7 +17,7 @@ class StoreTaskRequest extends FormRequest
         $project = $this->route('project');
 
         return $project !== null && (
-            $this->user()?->isAdministrator()
+            $this->user()?->administersCurrentOrganization()
             || $this->user()?->hasProjectRole(ProjectRole::ProjectManager, $project)
             || $this->user()?->hasProjectRole(ProjectRole::RequirementsAnalyst, $project)
             || $this->user()?->hasProjectRole(ProjectRole::Developer, $project)

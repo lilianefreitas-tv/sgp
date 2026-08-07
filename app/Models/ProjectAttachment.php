@@ -22,6 +22,7 @@ class ProjectAttachment extends Model
         'mime_type',
         'extension',
         'size_bytes',
+        'sha256',
         'description',
     ];
 

@@ -110,7 +110,7 @@
                    text-xs text-[#667680]"
         >
             <p>SGP • Sistema de Gestão de Projetos de Software</p>
-            <p class="mt-1">Release MVP 1.0.0</p>
+            <p class="mt-1">{{ config('sgp.release_label') }}</p>
         </div>
     </div>
 </x-guest-layout>

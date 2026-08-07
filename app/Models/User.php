@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use App\Enums\GlobalProfile;
+use App\Enums\OrganizationRole;
+use App\Enums\ProjectRole;
+use App\Services\OrganizationContext;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -58,6 +62,11 @@ class User extends Authenticatable
         return $this->global_profile === GlobalProfile::Administrator;
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->isAdministrator();
+    }
+
     public function managedProjects(): HasMany
     {
         return $this->hasMany(Project::class, 'manager_id');
@@ -66,6 +75,18 @@ class User extends Authenticatable
     public function projectMemberships(): HasMany
     {
         return $this->hasMany(ProjectMembership::class);
+    }
+
+    public function organizationMemberships(): HasMany
+    {
+        return $this->hasMany(OrganizationMembership::class);
+    }
+
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class, 'organization_memberships')
+            ->withPivot(['role_code', 'status', 'is_default', 'joined_at'])
+            ->withTimestamps();
     }
 
     public function assignedRequirements(): HasMany
@@ -93,8 +114,12 @@ class User extends Authenticatable
         return $this->hasMany(ProjectAttachment::class, 'uploaded_by');
     }
 
-    public function hasProjectRole(\App\Enums\ProjectRole $role, ?Project $project = null): bool
+    public function hasProjectRole(ProjectRole $role, ?Project $project = null): bool
     {
+        if ($this->currentOrganizationRole() === OrganizationRole::Reader) {
+            return false;
+        }
+
         return $this->projectMemberships()
             ->where('role', $role->value)
             ->where('is_active', true)
@@ -104,7 +129,50 @@ class User extends Authenticatable
 
     public function canCreateProjects(): bool
     {
+        $role = $this->currentOrganizationRole();
+
+        if ($role === OrganizationRole::Reader) {
+            return false;
+        }
+
         return $this->isAdministrator()
-            || $this->hasProjectRole(\App\Enums\ProjectRole::ProjectManager);
+            || in_array($role, [OrganizationRole::Owner, OrganizationRole::Administrator], true)
+            || $this->hasProjectRole(ProjectRole::ProjectManager);
+    }
+
+    public function administersCurrentOrganization(): bool
+    {
+        return $this->isSuperAdmin()
+            || in_array($this->currentOrganizationRole(), [
+                OrganizationRole::Owner,
+                OrganizationRole::Administrator,
+            ], true);
+    }
+
+    public function canAccessProject(Project $project): bool
+    {
+        return $this->administersCurrentOrganization()
+            || $project->hasActiveMember($this);
+    }
+
+    public function canManageProject(Project $project): bool
+    {
+        return $this->administersCurrentOrganization()
+            || $this->hasProjectRole(ProjectRole::ProjectManager, $project);
+    }
+
+    public function canContributeToProject(Project $project): bool
+    {
+        return $this->currentOrganizationRole() !== OrganizationRole::Reader
+            && $this->canAccessProject($project);
+    }
+
+    public function currentOrganizationRole(): ?OrganizationRole
+    {
+        if (! app()->bound(OrganizationContext::class)) {
+            return null;
+        }
+
+        return app(OrganizationContext::class)->role();
     }
 }

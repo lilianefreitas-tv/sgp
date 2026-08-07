@@ -15,7 +15,7 @@ class ProjectHistoryController extends Controller
         ProjectHistoryService $history,
     ): View {
         abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
+            $request->user()->canAccessProject($project),
             403,
         );
 

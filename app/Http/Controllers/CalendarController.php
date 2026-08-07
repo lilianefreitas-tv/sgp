@@ -188,7 +188,7 @@ class CalendarController extends Controller
     private function authorizeProject(Request $request, Project $project): void
     {
         abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
+            $request->user()->canAccessProject($project),
             403,
         );
     }

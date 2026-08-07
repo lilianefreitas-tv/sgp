@@ -6,6 +6,8 @@ use App\Enums\ProjectRole;
 use App\Http\Requests\StoreProjectAttachmentRequest;
 use App\Models\Project;
 use App\Models\ProjectAttachment;
+use App\Services\OrganizationAuditService;
+use App\Services\OrganizationStoragePath;
 use App\Services\ProjectContextService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,6 +39,7 @@ class ProjectAttachmentController extends Controller
             'contextOptions' => $contexts->options($project),
             'maxUploadMb' => config('sgp.attachments.max_kb') / 1024,
             'allowedExtensions' => config('sgp.attachments.allowed_extensions'),
+            'canContribute' => $request->user()->canContributeToProject($project),
         ]);
     }
 
@@ -44,18 +47,24 @@ class ProjectAttachmentController extends Controller
         StoreProjectAttachmentRequest $request,
         Project $project,
         ProjectContextService $contexts,
+        OrganizationStoragePath $storagePaths,
+        OrganizationAuditService $audit,
     ): RedirectResponse {
-        $this->ensureCanView($request, $project);
+        abort_unless($request->user()->canContributeToProject($project), 403);
         $context = $contexts->resolve($project, $request->string('context')->toString());
         $file = $request->file('file');
         $disk = (string) config('sgp.storage.private_disk', 'local');
-        $path = $file->store('project-attachments/'.$project->id, $disk);
+        $temporaryPath = $file->getRealPath();
+        abort_if($temporaryPath === false, 500, 'Não foi possível identificar o arquivo recebido.');
+        $sha256 = hash_file('sha256', $temporaryPath);
+        abort_if($sha256 === false, 500, 'Não foi possível identificar o arquivo recebido.');
+        $path = $file->store($storagePaths->attachments($project), $disk);
 
         abort_if($path === false, 500, 'Não foi possível armazenar o arquivo.');
 
         try {
-            DB::transaction(function () use ($request, $project, $context, $file, $disk, $path): void {
-                $project->attachments()->create([
+            $attachment = DB::transaction(function () use ($request, $project, $context, $file, $disk, $path, $sha256): ProjectAttachment {
+                return $project->attachments()->create([
                     'uploaded_by' => $request->user()->id,
                     'context_type' => $context['type'],
                     'context_id' => $context['id'],
@@ -65,6 +74,7 @@ class ProjectAttachmentController extends Controller
                     'mime_type' => $file->getMimeType(),
                     'extension' => strtolower($file->getClientOriginalExtension()),
                     'size_bytes' => $file->getSize(),
+                    'sha256' => $sha256,
                     'description' => $request->string('description')->trim()->toString() ?: null,
                 ]);
             });
@@ -72,6 +82,13 @@ class ProjectAttachmentController extends Controller
             Storage::disk($disk)->delete($path);
             throw $exception;
         }
+
+        $audit->record('attachment.upload', 'success', 'attachment', $attachment->id, [
+            'project_id' => $project->id,
+            'disk' => $disk,
+            'path' => $path,
+            'sha256' => $sha256,
+        ]);
 
         return to_route('projects.attachments.index', $project)
             ->with('success', 'Arquivo anexado com sucesso.');
@@ -81,10 +98,32 @@ class ProjectAttachmentController extends Controller
         Request $request,
         Project $project,
         ProjectAttachment $attachment,
+        OrganizationAuditService $audit,
     ): StreamedResponse {
-        $this->ensureCanView($request, $project);
-        $this->ensureBelongsToProject($project, $attachment);
-        abort_unless(Storage::disk($attachment->disk)->exists($attachment->path), 404);
+        if (! $this->canView($request, $project)
+            || $attachment->project_id !== $project->id) {
+            $audit->record('attachment.download', 'denied', 'attachment', $attachment->id, [
+                'project_id' => $project->id,
+                'reason' => 'project_authorization',
+                'target_organization_id' => (int) $attachment->organization_id,
+            ]);
+
+            abort(404);
+        }
+
+        if (! Storage::disk($attachment->disk)->exists($attachment->path)) {
+            $audit->record('attachment.download', 'failed', 'attachment', $attachment->id, [
+                'project_id' => $project->id,
+                'reason' => 'file_missing',
+            ]);
+
+            abort(404);
+        }
+
+        $audit->record('attachment.download', 'success', 'attachment', $attachment->id, [
+            'project_id' => $project->id,
+            'sha256' => $attachment->sha256,
+        ]);
 
         return Storage::disk($attachment->disk)->download(
             $attachment->path,
@@ -96,6 +135,7 @@ class ProjectAttachmentController extends Controller
         Request $request,
         Project $project,
         ProjectAttachment $attachment,
+        OrganizationAuditService $audit,
     ): RedirectResponse {
         $this->ensureCanView($request, $project);
         $this->ensureBelongsToProject($project, $attachment);
@@ -103,6 +143,11 @@ class ProjectAttachmentController extends Controller
 
         $attachment->forceFill(['deleted_by' => $request->user()->id])->save();
         $attachment->delete();
+
+        $audit->record('attachment.remove', 'success', 'attachment', $attachment->id, [
+            'project_id' => $project->id,
+            'path_preserved' => true,
+        ]);
 
         return to_route('projects.attachments.index', $project)
             ->with('success', 'Anexo removido da consulta. O registro foi preservado no histórico.');
@@ -115,10 +160,12 @@ class ProjectAttachmentController extends Controller
 
     private function ensureCanView(Request $request, Project $project): void
     {
-        abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
-            403,
-        );
+        abort_unless($this->canView($request, $project), 403);
+    }
+
+    private function canView(Request $request, Project $project): bool
+    {
+        return $request->user()->canAccessProject($project);
     }
 
     private function canRemove(
@@ -126,7 +173,7 @@ class ProjectAttachmentController extends Controller
         Project $project,
         ProjectAttachment $attachment,
     ): bool {
-        return $request->user()->isAdministrator()
+        return $request->user()->administersCurrentOrganization()
             || $attachment->uploaded_by === $request->user()->id
             || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project);
     }

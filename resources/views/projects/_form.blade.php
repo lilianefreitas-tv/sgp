@@ -13,16 +13,16 @@
             </div>
 
             <div>
-                <label for="client_id" class="sgp-field-label">Cliente ou unidade demandante <span class="text-[#C44B4B]">*</span></label>
-                <select id="client_id" name="client_id" class="sgp-input" required>
-                    <option value="">Selecione</option>
+                <label for="client_id" class="sgp-field-label">Cliente ou unidade demandante</label>
+                <select id="client_id" name="client_id" class="sgp-input">
+                    <option value="">Sem demandante vinculado</option>
                     @foreach ($clients as $clientOption)
                         <option value="{{ $clientOption->id }}" @selected((string) old('client_id', $project->client_id ?? '') === (string) $clientOption->id)>
                             {{ $clientOption->name }}{{ $clientOption->is_active ? '' : ' (inativo)' }}
                         </option>
                     @endforeach
                 </select>
-                <p class="mt-2 text-xs text-[#667680]">Não encontrou? Cadastre antes em Clientes e unidades.</p>
+                <p class="mt-2 text-xs text-[#667680]">Opcional. Projetos internos podem ser cadastrados sem demandante.</p>
                 <x-input-error :messages="$errors->get('client_id')" class="mt-2" />
             </div>
 
@@ -66,10 +66,41 @@
     </section>
 
     <section class="border-t border-[#E8EDF0] pt-7">
-        <h2 class="text-base font-bold text-[#24313A]">Condução e situação</h2>
-        <p class="mt-1 text-sm text-[#667680]">O nível de gestão pode ser alterado sem perda das informações já cadastradas.</p>
+        <h2 class="text-base font-bold text-[#24313A]">Configuração adaptativa</h2>
+        <p class="mt-1 text-sm text-[#667680]">As quatro dimensões são independentes e não ativam nem removem módulos automaticamente.</p>
 
-        <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="execution_nature" class="sgp-field-label">Natureza da execução <span class="text-[#C44B4B]">*</span></label>
+                <select id="execution_nature" name="execution_nature" class="sgp-input" required>
+                    @foreach ($executionNatures as $value => $label)
+                        <option value="{{ $value }}" @selected(old('execution_nature', isset($project) ? $project->execution_nature->value : 'internal') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <div class="mt-2 space-y-1 text-xs text-[#667680]">
+                    @foreach ($executionNatures as $value => $label)
+                        <p><strong>{{ $label }}:</strong> {{ \App\Enums\ExecutionNature::from($value)->description() }}</p>
+                    @endforeach
+                </div>
+                <x-input-error :messages="$errors->get('execution_nature')" class="mt-2" />
+            </div>
+            <div>
+                <label for="financial_management_mode" class="sgp-field-label">Tratamento financeiro <span class="text-[#C44B4B]">*</span></label>
+                <select id="financial_management_mode" name="financial_management_mode" class="sgp-input" required>
+                    @foreach ($financialModes as $value => $label)
+                        <option value="{{ $value }}" @selected(old('financial_management_mode', isset($project) ? $project->financial_management_mode->value : 'not_applicable') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <details class="mt-2 text-xs text-[#667680]">
+                    <summary class="cursor-pointer font-semibold text-[#287EA1]">Entenda as modalidades</summary>
+                    <div class="mt-2 space-y-1">
+                        @foreach ($financialModes as $value => $label)
+                            <p><strong>{{ $label }}:</strong> {{ \App\Enums\FinancialManagementMode::from($value)->description() }}</p>
+                        @endforeach
+                    </div>
+                </details>
+                <x-input-error :messages="$errors->get('financial_management_mode')" class="mt-2" />
+            </div>
             <div>
                 <label for="management_level" class="sgp-field-label">Nível de gestão <span class="text-[#C44B4B]">*</span></label>
                 <select id="management_level" name="management_level" class="sgp-input" required>
@@ -77,11 +108,26 @@
                         <option value="{{ $value }}" @selected(old('management_level', isset($project) ? $project->management_level->value : 'simplified') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
+                <div class="mt-2 space-y-1 text-xs text-[#667680]">
+                    @foreach ($levels as $value => $label)
+                        <p><strong>{{ $label }}:</strong> {{ \App\Enums\ManagementLevel::from($value)->description() }}</p>
+                    @endforeach
+                </div>
+                <p class="mt-2 rounded-lg bg-[#EDF6F8] px-3 py-2 text-xs text-[#1D5D73]">Alterar o nível preserva requisitos, tarefas, documentos e histórico.</p>
                 <x-input-error :messages="$errors->get('management_level')" class="mt-2" />
             </div>
             <div>
-                <label for="methodology" class="sgp-field-label">Metodologia</label>
-                <input id="methodology" name="methodology" class="sgp-input" value="{{ old('methodology', $project->methodology ?? '') }}" maxlength="80" placeholder="Ex.: Kanban, Scrum ou híbrida">
+                <label for="methodology" class="sgp-field-label">Metodologia <span class="text-[#C44B4B]">*</span></label>
+                <select id="methodology" name="methodology" class="sgp-input" required>
+                    @foreach ($methodologies as $value => $label)
+                        <option value="{{ $value }}" @selected(old('methodology', $project->methodology ?? 'kanban') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <div class="mt-2 space-y-1 text-xs text-[#667680]">
+                    @foreach ($methodologies as $value => $label)
+                        <p><strong>{{ $label }}:</strong> {{ \App\Enums\ProjectMethodology::from($value)->description() }}</p>
+                    @endforeach
+                </div>
                 <x-input-error :messages="$errors->get('methodology')" class="mt-2" />
             </div>
             <div>

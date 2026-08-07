@@ -16,7 +16,7 @@ class UpdateKanbanColumnsRequest extends FormRequest
         $project = $this->route('project');
 
         return $project !== null && (
-            $this->user()?->isAdministrator()
+            $this->user()?->administersCurrentOrganization()
             || $this->user()?->hasProjectRole(ProjectRole::ProjectManager, $project)
         );
     }

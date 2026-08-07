@@ -7,13 +7,6 @@
     </x-slot>
 
     <section class="mx-auto max-w-5xl rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
-        @if ($clients->isEmpty())
-            <div class="mb-6 rounded-xl border border-[#F1D49B] bg-[#FFF8E8] px-4 py-3 text-sm text-[#805719]">
-                Cadastre ao menos um cliente ou unidade demandante ativa antes de criar o projeto.
-                <a href="{{ route('clients.create') }}" class="font-semibold underline">Cadastrar agora</a>
-            </div>
-        @endif
-
         <form method="POST" action="{{ route('projects.store') }}">
             @csrf
             @include('projects._form')

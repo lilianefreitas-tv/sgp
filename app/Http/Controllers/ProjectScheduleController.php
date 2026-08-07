@@ -14,7 +14,7 @@ class ProjectScheduleController extends Controller
     public function __invoke(Request $request, Project $project): View
     {
         abort_unless(
-            $request->user()->isAdministrator() || $project->hasActiveMember($request->user()),
+            $request->user()->canAccessProject($project),
             403,
         );
 

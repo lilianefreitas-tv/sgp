@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ExecutionNature;
+use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\ProjectMethodology;
 use App\Enums\ProjectStatus;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +27,8 @@ class Project extends Model
         'description',
         'objective',
         'justification',
+        'execution_nature',
+        'financial_management_mode',
         'document_context',
         'problem_statement',
         'solution_summary',
@@ -44,20 +49,11 @@ class Project extends Model
         'archived_at',
     ];
 
-    protected static function booted(): void
-    {
-        static::created(function (Project $project): void {
-            if (blank($project->code)) {
-                $project->forceFill([
-                    'code' => 'PRJ-'.str_pad((string) $project->id, 4, '0', STR_PAD_LEFT),
-                ])->saveQuietly();
-            }
-        });
-    }
-
     protected function casts(): array
     {
         return [
+            'execution_nature' => ExecutionNature::class,
+            'financial_management_mode' => FinancialManagementMode::class,
             'management_level' => ManagementLevel::class,
             'status' => ProjectStatus::class,
             'start_date' => 'date',
@@ -68,9 +64,24 @@ class Project extends Model
         ];
     }
 
+    public function methodologyLabel(): string
+    {
+        if (blank($this->methodology)) {
+            return 'Não informada';
+        }
+
+        return ProjectMethodology::tryFrom((string) $this->methodology)?->label()
+            ?? (string) $this->methodology;
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
     }
 
     public function manager(): BelongsTo
@@ -120,7 +131,7 @@ class Project extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->isAdministrator()) {
+        if ($user->administersCurrentOrganization()) {
             return $query;
         }
 

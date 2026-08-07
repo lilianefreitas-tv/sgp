@@ -8,7 +8,18 @@
         style="display: none;"
     ></div>
 
-    <aside
+@php
+    $organizationContext = app(\App\Services\OrganizationContext::class);
+    $activeOrganization = $organizationContext->organization();
+    $activeOrganizationMembership = $organizationContext->membership();
+    $availableOrganizationMemberships = $organizationContext->availableMemberships();
+    $platformOrganizationAccess = $organizationContext->isPlatformAccess();
+    $homeRoute = $activeOrganization !== null
+        ? 'dashboard'
+        : (Auth::user()->isAdministrator() ? 'platform.organizations.index' : 'dashboard');
+@endphp
+
+<aside
         class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full
                flex-col bg-[#123B4A] text-white shadow-xl
                transition-transform duration-300 lg:translate-x-0"
@@ -19,7 +30,7 @@
                    border-b border-white/10 px-6"
         >
             <a
-                href="{{ route('dashboard') }}"
+                href="{{ route($homeRoute) }}"
                 class="flex items-center gap-3"
             >
                 <x-application-logo
@@ -62,6 +73,41 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto px-4 py-6">
+            @if ($activeOrganization === null && Auth::user()->isAdministrator())
+                <p class="mb-3 px-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
+                    Administração da plataforma
+                </p>
+
+                <a
+                    href="{{ route('platform.organizations.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('platform.organizations.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 21V7l8-4 8 4v14M8 10h2m4 0h2M8 14h2m4 0h2M8 18h8" />
+                    </svg>
+
+                    Organizações
+                </a>
+
+                <a
+                    href="{{ route('platform.users.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('platform.users.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+
+                    Usuários da plataforma
+                </a>
+
+                <p class="mt-4 px-3 text-xs leading-5 text-slate-300">
+                    Gerencie as contas globais ou selecione uma organização para iniciar um acesso temporário e auditado.
+                </p>
+            @endif
+
+            @if ($activeOrganization !== null)
             <p
                 class="mb-3 px-3 text-xs font-semibold uppercase
                        tracking-widest text-slate-400"
@@ -326,23 +372,52 @@
                 Rastreabilidade
             </div>
 
-            @if (Auth::user()->isAdministrator())
+            @if (
+                Auth::user()->isAdministrator()
+                || in_array(
+                    $activeOrganizationMembership?->role_code,
+                    [\App\Enums\OrganizationRole::Owner, \App\Enums\OrganizationRole::Administrator],
+                    true,
+                )
+            )
                 <p class="mb-3 mt-8 px-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
                     Administração
                 </p>
 
+                @if (Auth::user()->isAdministrator())
                 <a
-                    href="{{ route('users.index') }}"
+                    href="{{ route('platform.organizations.index') }}"
                     class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
-                           {{ request()->routeIs('users.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                           {{ request()->routeIs('platform.organizations.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 21V7l8-4 8 4v14M8 10h2m4 0h2M8 14h2m4 0h2M8 18h8" />
+                    </svg>
+
+                    Organizações
+                </a>
+
+                <a
+                    href="{{ route('platform.users.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('platform.users.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
                 >
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
 
-                    Usuários
+                    Usuários da plataforma
                 </a>
+                @endif
 
+                @if (
+                    (Auth::user()->isAdministrator() && $platformOrganizationAccess)
+                    || in_array(
+                    $activeOrganizationMembership?->role_code,
+                    [\App\Enums\OrganizationRole::Owner, \App\Enums\OrganizationRole::Administrator],
+                    true,
+                    )
+                )
                 <a
                     href="{{ route('document-templates.index') }}"
                     class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
@@ -354,10 +429,95 @@
 
                     Modelos de documentos
                 </a>
+
+                <a
+                    href="{{ route('organization-members.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('organization-members.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm10-2v6m-3-3h6" />
+                    </svg>
+
+                    Equipe da organização
+                </a>
+                @endif
+
+                <a
+                    href="{{ route('audit.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('audit.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3 5 6v5c0 4.6 2.8 8.4 7 10 4.2-1.6 7-5.4 7-10V6l-7-3Zm-3 9 2 2 4-4" />
+                    </svg>
+
+                    Auditoria
+                </a>
+            @endif
             @endif
         </nav>
 
         <div class="border-t border-white/10 p-4">
+            @if ($activeOrganization !== null)
+                <div class="mb-3 rounded-xl bg-white/10 p-3">
+                    <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-400">
+                        Organização ativa
+                    </p>
+
+                    @if ($platformOrganizationAccess)
+                        <p class="mt-1 truncate text-sm font-semibold text-white" title="{{ $activeOrganization->name }}">
+                            {{ $activeOrganization->name }}
+                        </p>
+
+                        <p class="mt-1 text-xs text-slate-300">
+                            Acesso temporário da Superadmin
+                        </p>
+
+                        <form method="POST" action="{{ route('platform.organization-access.leave') }}" class="mt-3">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit" class="w-full rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/10">
+                                Voltar à plataforma
+                            </button>
+                        </form>
+                    @elseif (($availableOrganizationMemberships ?? collect())->count() > 1)
+                        <form method="POST" action="{{ route('organization-context.update') }}" class="mt-2">
+                            @csrf
+                            @method('PUT')
+
+                            <label for="organization_id" class="sr-only">Trocar organização ativa</label>
+                            <select
+                                id="organization_id"
+                                name="organization_id"
+                                class="w-full rounded-lg border-white/20 bg-[#123B4A] px-3 py-2 text-sm text-white"
+                                onchange="this.form.submit()"
+                            >
+                                @foreach ($availableOrganizationMemberships as $membership)
+                                    <option
+                                        value="{{ $membership->organization_id }}"
+                                        @selected($membership->organization_id === $activeOrganization->id)
+                                    >
+                                        {{ $membership->organization->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                    @else
+                        <p class="mt-1 truncate text-sm font-semibold text-white" title="{{ $activeOrganization->name }}">
+                            {{ $activeOrganization->name }}
+                        </p>
+                    @endif
+
+                    @if ($activeOrganizationMembership !== null)
+                        <p class="mt-1 text-xs text-slate-300">
+                            {{ $activeOrganizationMembership->role_code->label() }}
+                        </p>
+                    @endif
+                </div>
+            @endif
+
             <a
                 href="{{ route('profile.edit') }}"
                 class="mb-2 flex items-center gap-3 rounded-lg px-3 py-3

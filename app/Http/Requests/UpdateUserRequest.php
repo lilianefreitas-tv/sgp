@@ -47,7 +47,7 @@ class UpdateUserRequest extends FormRequest
                 if ($managedUser->isAdministrator()
                     && ($removesAdministrator || $deactivatesUser)
                     && User::query()->where('global_profile', GlobalProfile::Administrator->value)->where('is_active', true)->count() === 1) {
-                    $validator->errors()->add('global_profile', 'O sistema deve manter pelo menos um administrador ativo.');
+                    $validator->errors()->add('global_profile', 'O sistema deve manter pelo menos uma conta Superadmin ativa.');
                 }
             },
         ];

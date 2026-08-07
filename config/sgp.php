@@ -1,12 +1,18 @@
 <?php
 
 return [
+    'release_label' => env('SGP_RELEASE_LABEL', 'Versão 2.0.1 RC2 • Homologação'),
+
     'storage' => [
         'private_disk' => env('SGP_PRIVATE_DISK', env('FILESYSTEM_DISK', 'local')),
     ],
 
     'bootstrap' => [
         'administrator_password' => env('SGP_BOOTSTRAP_ADMIN_PASSWORD'),
+    ],
+
+    'documents' => [
+        'default_timezone' => env('SGP_DOCUMENT_TIMEZONE', 'America/Belem'),
     ],
 
     'attachments' => [

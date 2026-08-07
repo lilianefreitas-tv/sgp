@@ -46,7 +46,7 @@
     </header>
     <footer>
         <div>{{ $template->footer_text ?: 'Documento gerado automaticamente pelo SGP' }}</div>
-        <div>Gerado por: {{ $generatedBy->name }} | {{ $generatedAt->format('d/m/Y H:i') }} | Página <span class="page-number"></span></div>
+        <div>Gerado por: {{ $generatedBy->name }} | {{ $generatedAt->format('d/m/Y H:i') }} | Fuso: {{ $generatedTimezone }} | Página <span class="page-number"></span></div>
     </footer>
 
     <section class="cover">
@@ -62,10 +62,12 @@
         <table class="data">
             <tr><td class="label">Projeto</td><td>{{ $project->name }}</td></tr>
             <tr><td class="label">Código</td><td>{{ $project->code }}</td></tr>
-            <tr><td class="label">Cliente ou unidade</td><td>{{ $project->client->name }}</td></tr>
+            <tr><td class="label">Cliente ou unidade</td><td>{{ $project->client?->name ?? 'Sem demandante vinculado' }}</td></tr>
             <tr><td class="label">Responsável</td><td>{{ $project->manager->name }}</td></tr>
             <tr><td class="label">Nível de gestão</td><td>{{ $project->management_level->label() }}</td></tr>
-            <tr><td class="label">Metodologia</td><td>{{ $project->methodology ?: 'Não informada' }}</td></tr>
+            <tr><td class="label">Natureza da execução</td><td>{{ $project->execution_nature->label() }}</td></tr>
+            <tr><td class="label">Tratamento financeiro</td><td>{{ $project->financial_management_mode->label() }}</td></tr>
+            <tr><td class="label">Metodologia</td><td>{{ $project->methodologyLabel() }}</td></tr>
             <tr><td class="label">Situação</td><td>{{ $project->status->label() }}</td></tr>
             <tr><td class="label">Período previsto</td><td>{{ $project->start_date?->format('d/m/Y') ?? 'não informado' }} a {{ $project->expected_end_date?->format('d/m/Y') ?? 'não informado' }}</td></tr>
         </table>

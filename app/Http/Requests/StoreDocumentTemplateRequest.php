@@ -10,7 +10,7 @@ class StoreDocumentTemplateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->isAdministrator() === true;
+        return $this->user()?->administersCurrentOrganization() === true;
     }
 
     public function rules(): array

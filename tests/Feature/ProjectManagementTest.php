@@ -3,10 +3,17 @@
 namespace Tests\Feature;
 
 use App\Enums\ClientType;
+use App\Enums\ExecutionNature;
+use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
+use App\Enums\OrganizationMembershipStatus;
+use App\Enums\OrganizationRole;
+use App\Enums\OrganizationStatus;
+use App\Enums\ProjectMethodology;
 use App\Enums\ProjectRole;
 use App\Enums\ProjectStatus;
 use App\Models\Client;
+use App\Models\Organization;
 use App\Models\Project;
 use App\Models\ProjectMembership;
 use App\Models\User;
@@ -21,6 +28,7 @@ class ProjectManagementTest extends TestCase
     {
         $administrator = User::factory()->administrator()->create();
         $manager = User::factory()->create();
+        $this->addToDefaultOrganization($manager);
 
         $this->actingAs($administrator)
             ->post(route('clients.store'), [
@@ -98,6 +106,8 @@ class ProjectManagementTest extends TestCase
     {
         $manager = User::factory()->create();
         $participant = User::factory()->create();
+        $this->addToDefaultOrganization($manager);
+        $this->addToDefaultOrganization($participant);
         $project = Project::factory()->create(['manager_id' => $manager->id]);
         $this->makeManager($project, $manager);
 
@@ -164,6 +174,7 @@ class ProjectManagementTest extends TestCase
     {
         $administrator = User::factory()->administrator()->create();
         $manager = User::factory()->create();
+        $this->addToDefaultOrganization($manager);
         $client = Client::factory()->create();
         $data = $this->projectData($client, $manager);
         $data['status'] = ProjectStatus::Completed->value;
@@ -186,8 +197,10 @@ class ProjectManagementTest extends TestCase
             'description' => 'Descrição do projeto.',
             'objective' => 'Organizar o ciclo de vida dos projetos.',
             'justification' => 'Centralizar informações e artefatos.',
+            'execution_nature' => ExecutionNature::Internal->value,
+            'financial_management_mode' => FinancialManagementMode::NotApplicable->value,
             'management_level' => ManagementLevel::Intermediate->value,
-            'methodology' => 'Kanban',
+            'methodology' => ProjectMethodology::Kanban->value,
             'status' => ProjectStatus::Planning->value,
             'start_date' => '2026-07-23',
             'expected_end_date' => '2026-12-31',
@@ -204,6 +217,22 @@ class ProjectManagementTest extends TestCase
             'role' => ProjectRole::ProjectManager,
             'is_active' => true,
             'started_at' => today(),
+        ]);
+    }
+
+    private function addToDefaultOrganization(User $user): void
+    {
+        $organization = Organization::query()
+            ->where('status', OrganizationStatus::Active->value)
+            ->orderBy('id')
+            ->firstOrFail();
+
+        $user->organizationMemberships()->create([
+            'organization_id' => $organization->id,
+            'role_code' => OrganizationRole::Member,
+            'status' => OrganizationMembershipStatus::Active,
+            'is_default' => true,
+            'joined_at' => now(),
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\DocumentType;
 use App\Enums\ProjectRole;
 use App\Models\DocumentTemplate;
+use App\Models\Organization;
 use App\Models\Project;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
@@ -13,6 +14,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class DocumentManagementTest extends TestCase
@@ -184,6 +186,7 @@ class DocumentManagementTest extends TestCase
             'title' => DocumentType::ConsolidatedBacklog->label(),
             'version' => 1,
             'generatedAt' => $generatedAt,
+            'generatedTimezone' => 'America/Belem',
             'members' => collect(),
             'requirements' => $project->requirements,
             'tasks' => $project->tasks,
@@ -191,11 +194,70 @@ class DocumentManagementTest extends TestCase
 
         $this->assertStringContainsString('Gerado por: Liliane Auditora', $html);
         $this->assertStringContainsString('23/07/2026 11:35', $html);
+        $this->assertStringContainsString('Fuso: America/Belem', $html);
         $this->assertStringContainsString('2. Backlog por requisito', $html);
         $this->assertStringContainsString('Gerenciar documentos', $html);
         $this->assertStringContainsString('Gerar backlog', $html);
         $this->assertStringContainsString('3. Tarefas sem requisito vinculado', $html);
         $this->assertStringContainsString('Revisar rodapé', $html);
+    }
+
+    public function test_document_generation_uses_organization_timezone_in_docx_and_pdf_payload(): void
+    {
+        Storage::fake('local');
+        Carbon::setTestNow(Carbon::parse('2026-08-03 12:00:00', 'UTC'));
+
+        try {
+            $organization = Organization::query()->firstOrFail();
+            $organization->update(['timezone' => 'America/Belem']);
+            $administrator = User::factory()->administrator()->create();
+            $project = Project::factory()->create($this->visionData() + [
+                'organization_id' => $organization->id,
+            ]);
+            $template = DocumentTemplate::query()
+                ->where('type', DocumentType::Vision->value)
+                ->firstOrFail();
+
+            $this->actingAs($administrator)
+                ->post(route('projects.documents.generate', $project), [
+                    'document_template_id' => $template->id,
+                ])
+                ->assertSessionHasNoErrors();
+
+            $document = ProjectDocument::query()->firstOrFail();
+            $this->assertSame('America/Belem', $document->metadata['generated_timezone']);
+            $this->assertStringStartsWith('2026-08-03T09:00:00', $document->metadata['generated_local_at']);
+
+            $docx = Storage::disk('local')->path($document->docx_path);
+            $archive = new \ZipArchive;
+            $this->assertTrue($archive->open($docx));
+            $documentXml = (string) $archive->getFromName('word/document.xml');
+            $footerXml = (string) $archive->getFromName('word/footer1.xml');
+            $archive->close();
+
+            $this->assertStringContainsString('03/08/2026', $documentXml);
+            $this->assertStringContainsString('03/08/2026 09:00', $footerXml);
+            $this->assertStringContainsString('America/Belem', $footerXml);
+
+            $html = view('documents.pdf', [
+                'project' => $project->load(['client', 'manager']),
+                'template' => $template,
+                'generatedBy' => $administrator,
+                'type' => DocumentType::Vision,
+                'title' => DocumentType::Vision->label(),
+                'version' => 1,
+                'generatedAt' => now()->timezone('America/Belem'),
+                'generatedTimezone' => 'America/Belem',
+                'members' => collect(),
+                'requirements' => collect(),
+                'tasks' => collect(),
+            ])->render();
+
+            $this->assertStringContainsString('03/08/2026 09:00', $html);
+            $this->assertStringContainsString('Fuso: America/Belem', $html);
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_observer_can_download_existing_document_but_cannot_generate_one(): void

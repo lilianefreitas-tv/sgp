@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\OrganizationMembershipStatus;
+use App\Enums\OrganizationStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EnsureOrganizationContext;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,6 +30,23 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        $user = $request->user();
+        $hasAvailableOrganization = $user->organizationMemberships()
+            ->where('status', OrganizationMembershipStatus::Active->value)
+            ->whereHas('organization', fn ($query) => $query
+                ->where('status', OrganizationStatus::Active->value))
+            ->exists();
+
+        if ($user->isAdministrator() && ! $hasAvailableOrganization) {
+            $request->session()->forget([
+                'url.intended',
+                EnsureOrganizationContext::SESSION_KEY,
+                EnsureOrganizationContext::PLATFORM_ACCESS_SESSION_KEY,
+            ]);
+
+            return to_route('platform.organizations.index');
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

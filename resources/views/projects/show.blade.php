@@ -35,10 +35,25 @@
         </div>
 
         <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Cliente ou unidade</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->client->name }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->client->type->label() }}</p></article>
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Cliente ou unidade</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->client?->name ?? 'Sem demandante vinculado' }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->client?->type?->label() ?? 'Projeto interno ou vínculo não aplicável' }}</p></article>
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Responsável principal</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->manager->name }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->manager->email }}</p></article>
-            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Nível de gestão</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->management_level->label() }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->methodology ?: 'Metodologia não informada' }}</p></article>
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Nível de gestão</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->management_level->label() }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->methodologyLabel() }}</p></article>
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Prazo</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->expected_end_date?->format('d/m/Y') ?? 'Não definido' }}</p><p class="mt-1 text-xs text-[#667680]">Início: {{ $project->start_date?->format('d/m/Y') ?? 'não informado' }}</p></article>
+        </section>
+
+        <section class="rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-6 shadow-sm">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-[#123B4A]">Configuração adaptativa</h2>
+                    <p class="mt-1 text-sm text-[#667680]">As dimensões são independentes e orientam a gestão sem ocultar dados ou presumir módulos futuros.</p>
+                </div>
+            </div>
+            <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <article class="rounded-xl border border-white bg-white p-4"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Natureza</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->execution_nature->label() }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->execution_nature->description() }}</p></article>
+                <article class="rounded-xl border border-white bg-white p-4"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Tratamento financeiro</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->financial_management_mode->label() }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->financial_management_mode->description() }}</p></article>
+                <article class="rounded-xl border border-white bg-white p-4"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Nível de gestão</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->management_level->label() }}</p><p class="mt-1 text-xs text-[#667680]">{{ $project->management_level->description() }}</p></article>
+                <article class="rounded-xl border border-white bg-white p-4"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Metodologia</p><p class="mt-2 font-semibold text-[#24313A]">{{ $project->methodologyLabel() }}</p><p class="mt-1 text-xs text-[#667680]">Organização do fluxo de trabalho do projeto.</p></article>
+            </div>
         </section>
 
         <a href="{{ route('projects.requirements.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
