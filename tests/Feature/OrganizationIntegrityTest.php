@@ -9,8 +9,8 @@ use App\Models\Project;
 use App\Models\Requirement;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class OrganizationIntegrityTest extends TestCase
@@ -144,39 +144,51 @@ class OrganizationIntegrityTest extends TestCase
     }
 
     public function test_f4_migration_can_be_rolled_back_and_applied_again(): void
-{
-    $migration = require database_path(
-        'migrations/2026_08_03_200000_enforce_organization_integrity.php'
-    );
+    {
+        $f4 = require database_path('migrations/2026_08_03_200000_enforce_organization_integrity.php');
+        $p01 = require database_path('migrations/2026_08_12_000000_create_initiative_foundation.php');
 
-    $migration->down();
+        $this->assertTrue(Schema::hasTable('project_configuration_versions'));
+        $p01->down();
 
-    try {
-        $id = DB::table('clients')->insertGetId([
+        try {
+            $f4->down();
+            $this->assertFalse(Schema::hasTable('initiative_configuration_versions'));
+
+            $id = DB::table('clients')->insertGetId([
+                'organization_id' => null,
+                'name' => 'Cliente temporário',
+                'type' => 'unit',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('clients')->where('id', $id)->delete();
+        } finally {
+            $f4->up();
+            $p01->up();
+        }
+
+        $this->assertTrue(Schema::hasTable('initiatives'));
+        $this->assertTrue(Schema::hasTable('initiative_configuration_versions'));
+        $this->assertTrue(Schema::hasTable('project_configuration_versions'));
+        $this->assertTrue(collect(Schema::getIndexes('projects'))->contains('name', 'projects_id_org_unique'));
+        $this->assertTrue(collect(Schema::getForeignKeys('project_configuration_versions'))
+            ->contains(fn (array $foreignKey) => $foreignKey['columns'] === ['project_id', 'organization_id']
+                && $foreignKey['foreign_table'] === 'projects'
+                && $foreignKey['foreign_columns'] === ['id', 'organization_id']));
+
+        $this->expectException(QueryException::class);
+        DB::table('clients')->insert([
             'organization_id' => null,
-            'name' => 'Cliente temporário',
+            'name' => 'Cliente sem organização após reaplicação',
             'type' => 'unit',
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        DB::table('clients')->where('id', $id)->delete();
-    } finally {
-        $migration->up();
     }
-
-    $this->expectException(QueryException::class);
-
-    DB::table('clients')->insert([
-        'organization_id' => null,
-        'name' => 'Cliente sem organização após reaplicação',
-        'type' => 'unit',
-        'is_active' => true,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-}
 
     private function createProjectIn(Organization $organization, string $code): Project
     {

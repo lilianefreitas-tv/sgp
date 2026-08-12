@@ -105,7 +105,7 @@
                 <label for="management_level" class="sgp-field-label">Nível de gestão <span class="text-[#C44B4B]">*</span></label>
                 <select id="management_level" name="management_level" class="sgp-input" required>
                     @foreach ($levels as $value => $label)
-                        <option value="{{ $value }}" @selected(old('management_level', isset($project) ? $project->management_level->value : 'simplified') === $value)>{{ $label }}</option>
+                        <option value="{{ $value }}" @selected(old('management_level', isset($project) ? $project->management_level->value : 'essential') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
                 <div class="mt-2 space-y-1 text-xs text-[#667680]">
@@ -120,7 +120,7 @@
                 <label for="methodology" class="sgp-field-label">Metodologia <span class="text-[#C44B4B]">*</span></label>
                 <select id="methodology" name="methodology" class="sgp-input" required>
                     @foreach ($methodologies as $value => $label)
-                        <option value="{{ $value }}" @selected(old('methodology', $project->methodology ?? 'kanban') === $value)>{{ $label }}</option>
+                        <option value="{{ $value }}" @selected(old('methodology', $project->methodology?->value ?? 'kanban') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
                 <div class="mt-2 space-y-1 text-xs text-[#667680]">
