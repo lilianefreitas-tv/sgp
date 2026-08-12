@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::table('project_configuration_versions', function (Blueprint $table): void {
+            $table->unique(['id', 'organization_id'], 'project_versions_id_org_unique');
+        });
         Schema::create('platform_applicability_rule_sets', function (Blueprint $table): void {
             $table->id(); $table->string('code', 80); $table->string('version', 30); $table->string('status', 20);
             $table->timestamp('effective_from'); $table->timestamp('activated_at')->nullable(); $table->timestamp('retired_at')->nullable();
@@ -43,5 +46,11 @@ return new class extends Migration
             ['closed-update-unavailable', 500, 'action', 'project.configuration.update', [['field' => 'subject_state', 'operator' => 'in', 'value' => ['completed', 'cancelled']]], 'unavailable', 'STATE_UNAVAILABLE', 'A ação é indisponível no estado atual.'],
         ] as [$key, $priority, $type, $target, $conditions, $outcome, $reason, $explanation]) DB::table('platform_applicability_rules')->insert(['rule_set_id' => $setId, 'key' => $key, 'priority' => $priority, 'target_type' => $type, 'target_key' => $target, 'conditions' => json_encode($conditions), 'outcome' => $outcome, 'reason_code' => $reason, 'safe_explanation' => $explanation, 'created_at' => $now, 'updated_at' => $now]);
     }
-    public function down(): void { Schema::dropIfExists('applicability_decisions'); Schema::dropIfExists('platform_applicability_rules'); Schema::dropIfExists('platform_applicability_rule_sets'); }
+    public function down(): void
+    {
+        Schema::dropIfExists('applicability_decisions');
+        Schema::dropIfExists('platform_applicability_rules');
+        Schema::dropIfExists('platform_applicability_rule_sets');
+        Schema::table('project_configuration_versions', fn (Blueprint $table) => $table->dropUnique('project_versions_id_org_unique'));
+    }
 };
