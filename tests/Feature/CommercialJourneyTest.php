@@ -49,6 +49,44 @@ class CommercialJourneyTest extends TestCase
     {
         [$organization,$actor]=$this->actor();$initiative=$this->initiative($actor,InitiativeOrigin::Commercial);$actor->update(['is_active'=>false]);$this->expectException(LogicException::class);app(CommercialJourneyService::class)->createOpportunity($initiative,['title'=>'x','priority'=>'normal'],$actor->fresh());
     }
+    public function test_tenant_cannot_view_or_mutate_commercial_records_from_another_tenant(): void
+    {
+        [, $actorA] = $this->actor(); $service = app(CommercialJourneyService::class); $initiative = $this->initiative($actorA, InitiativeOrigin::Commercial); $opportunity = $service->createOpportunity($initiative, ['title'=>'A','priority'=>'normal'], $actorA);
+        [$organizationB, $actorB] = $this->actor();
+        $this->actingAs($actorB)->get(route('commercial.show', $initiative))->assertNotFound();
+        try { $service->transition($opportunity, 'qualified', $actorB, 'Tentativa'); $this->fail(); } catch (LogicException) { $this->assertSame('open', $opportunity->fresh()->state); }
+        $this->assertNotSame($organizationB->id, $opportunity->organization_id);
+    }
+
+    public function test_direct_routes_for_non_commercial_initiatives_are_blocked(): void
+    {
+        [$organization, $actor] = $this->actor();
+        $membership = OrganizationMembership::query()->where('organization_id', $organization->id)->where('user_id', $actor->id)->firstOrFail();
+        $initiatives = [];
+        foreach ([InitiativeOrigin::Internal, InitiativeOrigin::Direct, InitiativeOrigin::ExistingContract] as $origin) {
+            $initiatives[] = $this->initiative($actor, $origin);
+        }
+        foreach ($initiatives as $initiative) {
+            app(OrganizationContext::class)->activate($membership, collect([$membership]));
+            $this->actingAs($actor)->get(route('commercial.show', $initiative))->assertNotFound();
+        }
+    }
+
+    public function test_proposal_versions_are_append_only_and_preserve_previous_version(): void
+    {
+        [, $actor] = $this->actor(); $service = app(CommercialJourneyService::class); $opportunity = $service->createOpportunity($this->initiative($actor, InitiativeOrigin::Commercial), ['title'=>'A','priority'=>'normal'], $actor); $proposal = $service->proposal($opportunity, ['scope_summary'=>'V1'], $actor); $first = $proposal->versions()->firstOrFail();
+        try { $first->update(['scope_summary'=>'Sobrescrita']); $this->fail(); } catch (LogicException) { $this->assertSame('V1', $first->fresh()->scope_summary); }
+        $second = $proposal->versions()->create(['organization_id'=>$proposal->organization_id,'sequence'=>2,'scope_summary'=>'V2','changed_by'=>$actor->id]);
+        $this->assertSame(2, $proposal->versions()->count()); $this->assertSame('V1', $first->fresh()->scope_summary); $this->assertSame('V2', $second->scope_summary);
+    }
+
+    public function test_acceptance_entry_keeps_the_exact_proposal_version_after_later_version(): void
+    {
+        [, $actor] = $this->actor(); $service = app(CommercialJourneyService::class); $opportunity = $service->createOpportunity($this->initiative($actor, InitiativeOrigin::Commercial), ['title'=>'A','priority'=>'normal'], $actor); $proposal = $service->proposal($opportunity, ['scope_summary'=>'V1'], $actor); $accepted = $proposal->versions()->firstOrFail();
+        $entry = $service->negotiation($opportunity, ['interaction_type'=>'acceptance','occurred_at'=>now(),'proposal_id'=>$proposal->id,'proposal_version_id'=>$accepted->id,'decision'=>'Aceita'], $actor);
+        $proposal->versions()->create(['organization_id'=>$proposal->organization_id,'sequence'=>2,'scope_summary'=>'V2','changed_by'=>$actor->id]);
+        $this->assertSame($accepted->id, $entry->fresh()->proposal_version_id); $this->assertSame($proposal->id, $entry->proposal_id);
+    }
     private function actor(): array { $o=Organization::factory()->create();$u=User::factory()->create();$m=OrganizationMembership::factory()->create(['organization_id'=>$o->id,'user_id'=>$u->id,'role_code'=>OrganizationRole::Administrator,'status'=>OrganizationMembershipStatus::Active]);app(OrganizationContext::class)->activate($m,collect([$m]));return[$o,$u]; }
     private function initiative(User $actor, InitiativeOrigin $origin): Initiative { return app(InitiativeConfigurationService::class)->create(['title'=>'Iniciativa','origin'=>$origin,'execution_nature'=>ExecutionNature::Internal,'financial_management_mode'=>FinancialManagementMode::NotApplicable,'management_level'=>ManagementLevel::Essential,'methodology'=>ProjectMethodology::Kanban],$actor,'Inicial'); }
 }
