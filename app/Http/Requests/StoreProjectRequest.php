@@ -38,7 +38,7 @@ class StoreProjectRequest extends FormRequest
             'justification' => ['nullable', 'string'],
             'execution_nature' => ['required', Rule::enum(ExecutionNature::class)],
             'financial_management_mode' => ['required', Rule::enum(FinancialManagementMode::class)],
-            'management_level' => ['required', Rule::enum(ManagementLevel::class)],
+            'management_level' => ['required', Rule::in(ManagementLevel::currentValues())],
             'methodology' => ['required', Rule::enum(ProjectMethodology::class)],
             'status' => ['required', Rule::enum(ProjectStatus::class)],
             'start_date' => ['nullable', 'date'],

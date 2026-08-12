@@ -55,6 +55,7 @@ class Project extends Model
             'execution_nature' => ExecutionNature::class,
             'financial_management_mode' => FinancialManagementMode::class,
             'management_level' => ManagementLevel::class,
+            'methodology' => ProjectMethodology::class,
             'status' => ProjectStatus::class,
             'start_date' => 'date',
             'expected_end_date' => 'date',
@@ -70,8 +71,9 @@ class Project extends Model
             return 'Não informada';
         }
 
-        return ProjectMethodology::tryFrom((string) $this->methodology)?->label()
-            ?? (string) $this->methodology;
+        return $this->methodology instanceof ProjectMethodology
+            ? $this->methodology->label()
+            : (ProjectMethodology::tryFrom((string) $this->methodology)?->label() ?? (string) $this->methodology);
     }
 
     public function client(): BelongsTo
@@ -127,6 +129,16 @@ class Project extends Model
     public function activities(): HasMany
     {
         return $this->hasMany(ProjectActivity::class);
+    }
+
+    public function initiative(): BelongsTo
+    {
+        return $this->belongsTo(Initiative::class);
+    }
+
+    public function configurationVersions(): HasMany
+    {
+        return $this->hasMany(ProjectConfigurationVersion::class);
     }
 
     public function scopeVisibleTo(Builder $query, User $user): Builder

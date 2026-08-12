@@ -581,6 +581,7 @@ class ImportSelectiveProjectData extends Command
             $row['client_id'] = null;
             $row['manager_id'] = $ownerId;
             $row['organization_id'] = $organization;
+            $row['management_level'] = $row['management_level'] === 'simplified' ? 'essential' : $row['management_level'];
             $prepared['projects'][] = $this->normalizeRow($row);
         }
 

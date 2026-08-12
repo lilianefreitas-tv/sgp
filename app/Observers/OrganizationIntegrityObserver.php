@@ -6,7 +6,23 @@ use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationStatus;
 use App\Models\Client;
 use App\Models\DocumentTemplate;
+use App\Models\Initiative;
+use App\Models\InitiativeConfigurationVersion;
+use App\Models\KanbanBoard;
+use App\Models\KanbanColumn;
+use App\Models\KanbanTaskPosition;
 use App\Models\Project;
+use App\Models\ProjectActivity;
+use App\Models\ProjectAttachment;
+use App\Models\ProjectComment;
+use App\Models\ProjectConfigurationVersion;
+use App\Models\ProjectDocument;
+use App\Models\ProjectMembership;
+use App\Models\Requirement;
+use App\Models\RequirementDependency;
+use App\Models\RequirementVersion;
+use App\Models\Task;
+use App\Models\TaskHistory;
 use App\Services\OrganizationContext;
 use App\Services\ProjectCodeGenerator;
 use Illuminate\Database\Eloquent\Model;
@@ -23,20 +39,22 @@ class OrganizationIntegrityObserver
 
     /** @var array<class-string<Model>, array{0: string, 1: string}> */
     private const PARENT_RELATIONS = [
-        \App\Models\Project::class => ['clients', 'client_id'],
-        \App\Models\ProjectMembership::class => ['projects', 'project_id'],
-        \App\Models\Requirement::class => ['projects', 'project_id'],
-        \App\Models\RequirementVersion::class => ['requirements', 'requirement_id'],
-        \App\Models\RequirementDependency::class => ['requirements', 'requirement_id'],
-        \App\Models\Task::class => ['projects', 'project_id'],
-        \App\Models\TaskHistory::class => ['tasks', 'task_id'],
-        \App\Models\KanbanBoard::class => ['projects', 'project_id'],
-        \App\Models\KanbanColumn::class => ['kanban_boards', 'kanban_board_id'],
-        \App\Models\KanbanTaskPosition::class => ['tasks', 'task_id'],
-        \App\Models\ProjectDocument::class => ['projects', 'project_id'],
-        \App\Models\ProjectComment::class => ['projects', 'project_id'],
-        \App\Models\ProjectAttachment::class => ['projects', 'project_id'],
-        \App\Models\ProjectActivity::class => ['projects', 'project_id'],
+        Project::class => ['clients', 'client_id'],
+        ProjectMembership::class => ['projects', 'project_id'],
+        Requirement::class => ['projects', 'project_id'],
+        RequirementVersion::class => ['requirements', 'requirement_id'],
+        RequirementDependency::class => ['requirements', 'requirement_id'],
+        Task::class => ['projects', 'project_id'],
+        TaskHistory::class => ['tasks', 'task_id'],
+        KanbanBoard::class => ['projects', 'project_id'],
+        KanbanColumn::class => ['kanban_boards', 'kanban_board_id'],
+        KanbanTaskPosition::class => ['tasks', 'task_id'],
+        ProjectDocument::class => ['projects', 'project_id'],
+        ProjectComment::class => ['projects', 'project_id'],
+        ProjectAttachment::class => ['projects', 'project_id'],
+        ProjectActivity::class => ['projects', 'project_id'],
+        InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
+        ProjectConfigurationVersion::class => ['projects', 'project_id'],
     ];
 
     public function creating(Model $model): void
@@ -57,6 +75,7 @@ class OrganizationIntegrityObserver
         } elseif (filled($model->getAttribute('organization_id'))) {
             $organizationId = (int) $model->getAttribute('organization_id');
         } elseif ($model instanceof Client
+            || $model instanceof Initiative
             || $model instanceof DocumentTemplate
             || ($model instanceof Project && blank($model->getAttribute('client_id')))) {
             $organizationId = $this->resolveRootOrganizationId();
