@@ -124,17 +124,24 @@ class ArtifactRevisionTest extends TestCase
         $this->assertThrows(fn () => $this->service()->create($this->attributes($initiative) + ['source_project_configuration_version_id' => $project->configurationVersions()->value('id')], $actor), LogicException::class);
     }
 
-    public function test_sqlite_parent_triggers_protect_insert_and_update(): void
+    public function test_database_rejects_adding_a_second_parent_on_update(): void
     {
         [$organization, $actor] = $this->actor();
         $initiative = $this->initiative($actor);
         $project = $this->project($actor, $organization);
         $artifact = $this->service()->create($this->attributes($initiative), $actor);
 
-        $this->assertThrows(fn () => DB::table('artifacts')->where('id', $artifact->id)->update(['project_id' => $project->id]), QueryException::class);
-        $this->assertThrows(fn () => DB::table('artifacts')->where('id', $artifact->id)->update(['initiative_id' => null]), QueryException::class);
-        $this->assertSame($initiative->id, $artifact->fresh()->initiative_id);
-        $this->assertNull($artifact->fresh()->project_id);
+        $this->expectException(QueryException::class);
+        DB::table('artifacts')->where('id', $artifact->id)->update(['project_id' => $project->id]);
+    }
+
+    public function test_database_rejects_removing_the_only_parent_on_update(): void
+    {
+        [, $actor] = $this->actor();
+        $artifact = $this->service()->create($this->attributes($this->initiative($actor)), $actor);
+
+        $this->expectException(QueryException::class);
+        DB::table('artifacts')->where('id', $artifact->id)->update(['initiative_id' => null]);
     }
 
     public function test_checksum_canonicalization_preserves_lists_and_distinguishes_all_envelope_fields(): void
@@ -172,32 +179,39 @@ class ArtifactRevisionTest extends TestCase
         $this->assertSame(1, $artifact->revisions()->count());
     }
 
-    public function test_database_rejects_absent_or_cross_tenant_parent_and_revision_relations(): void
+    public function test_database_rejects_artifact_without_parent(): void
     {
-        [$organizationA, $actorA] = $this->actor();
-        $initiative = $this->initiative($actorA);
-        $project = $this->project($actorA, $organizationA);
         [$organizationB, $actorB] = $this->actor();
 
-        $this->assertThrows(fn () => DB::table('artifacts')->insert(['organization_id' => $organizationB->id, 'code' => 'ART-X', 'type' => ArtifactType::InitiativeRecord->value, 'title' => 'Inválido', 'current_revision_sequence' => 0, 'created_by' => $actorB->id, 'created_at' => now(), 'updated_at' => now()]), QueryException::class);
-        app(OrganizationContext::class)->activate(
-            OrganizationMembership::query()->where('organization_id', $organizationA->id)->where('user_id', $actorA->id)->firstOrFail(),
-            OrganizationMembership::query()->where('organization_id', $organizationA->id)->get(),
-        );
-        $this->assertThrows(fn () => DB::table('artifacts')->insert(['organization_id' => $organizationA->id, 'initiative_id' => $initiative->id, 'project_id' => $project->id, 'code' => 'ART-BOTH', 'type' => ArtifactType::StructuredRecord->value, 'title' => 'Inválido', 'current_revision_sequence' => 0, 'created_by' => $actorA->id, 'created_at' => now(), 'updated_at' => now()]), QueryException::class);
-        app(OrganizationContext::class)->activate(
-            OrganizationMembership::query()->where('organization_id', $organizationB->id)->where('user_id', $actorB->id)->firstOrFail(),
-            OrganizationMembership::query()->where('organization_id', $organizationB->id)->get(),
-        );
+        $this->expectException(QueryException::class);
+        DB::table('artifacts')->insert(['organization_id' => $organizationB->id, 'code' => 'ART-X', 'type' => ArtifactType::InitiativeRecord->value, 'title' => 'Inválido', 'current_revision_sequence' => 0, 'created_by' => $actorB->id, 'created_at' => now(), 'updated_at' => now()]);
+    }
+
+    public function test_database_rejects_artifact_with_two_parents(): void
+    {
+        [$organization, $actor] = $this->actor();
+        $initiative = $this->initiative($actor);
+        $project = $this->project($actor, $organization);
+
+        $this->expectException(QueryException::class);
+        DB::table('artifacts')->insert(['organization_id' => $organization->id, 'initiative_id' => $initiative->id, 'project_id' => $project->id, 'code' => 'ART-BOTH', 'type' => ArtifactType::StructuredRecord->value, 'title' => 'Inválido', 'current_revision_sequence' => 0, 'created_by' => $actor->id, 'created_at' => now(), 'updated_at' => now()]);
+    }
+
+    public function test_database_rejects_cross_tenant_revision_source(): void
+    {
+        [, $actorA] = $this->actor();
+        $initiative = $this->initiative($actorA);
+        [$organizationB, $actorB] = $this->actor();
         $foreignArtifact = $this->service()->create($this->attributes($this->initiative($actorB)), $actorB);
         $foreignSource = $initiative->configurationVersions()->withoutGlobalScopes()->value('id');
 
-        $this->assertThrows(fn () => DB::table('artifact_revisions')->insert([
+        $this->expectException(QueryException::class);
+        DB::table('artifact_revisions')->insert([
             'organization_id' => $organizationB->id, 'artifact_id' => $foreignArtifact->id, 'sequence' => 2,
             'schema_version' => 1, 'content' => json_encode(['invalid' => true]), 'checksum' => str_repeat('0', 64),
             'source_initiative_configuration_version_id' => $foreignSource, 'changed_by' => $actorB->id,
             'change_reason' => 'Inválido', 'recorded_at' => now(), 'created_at' => now(), 'updated_at' => now(),
-        ]), QueryException::class);
+        ]);
     }
 
     public function test_service_and_database_reject_cross_tenant_parent_and_source_injection(): void
