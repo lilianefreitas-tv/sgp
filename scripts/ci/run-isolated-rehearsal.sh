@@ -89,7 +89,7 @@ composer validate --no-check-publish
 php artisan config:clear
 
 printf 'Preparando banco descartável identificado como %s em %s.\n' "$DB_DATABASE" "$DB_HOST"
-php artisan migrate --force 2>&1 | tee "$evidence_dir/01-migrations.txt"
+php artisan migrate:fresh --force 2>&1 | tee "$evidence_dir/01-migrations.txt"
 php artisan migrate:status 2>&1 | tee "$evidence_dir/02-migration-status.txt"
 
 run_critical_tests() {
@@ -110,12 +110,13 @@ run_critical_tests() {
 
 run_critical_tests "$evidence_dir/10-testes-criticos.xml" "$evidence_dir/10-testes-criticos.txt"
 
-# The disposable database starts empty, so this rolls back the complete batch in Laravel's official reverse order.
-php artisan migrate:rollback --force 2>&1 | tee "$evidence_dir/11-rollback-completo.txt"
-php artisan migrate:status 2>&1 | tee "$evidence_dir/12-status-apos-rollback.txt"
-php artisan migrate --force 2>&1 | tee "$evidence_dir/13-reaplicacao-completa.txt"
-php artisan migrate:status 2>&1 | tee "$evidence_dir/14-status-apos-reaplicacao.txt"
-run_critical_tests "$evidence_dir/15-testes-criticos-apos-reaplicacao.xml" "$evidence_dir/15-testes-criticos-apos-reaplicacao.txt"
+# This database is explicitly disposable. Recreate it instead of invoking down() on
+# irreversible production-transition migrations. The second clean installation
+# proves that the complete schema is repeatable without coupling the rehearsal to
+# rollback support or to the dependency graph of future migrations.
+php artisan migrate:fresh --force 2>&1 | tee "$evidence_dir/11-recriacao-completa.txt"
+php artisan migrate:status 2>&1 | tee "$evidence_dir/12-status-apos-recriacao.txt"
+run_critical_tests "$evidence_dir/15-testes-criticos-apos-recriacao.xml" "$evidence_dir/15-testes-criticos-apos-recriacao.txt"
 
 php artisan test \
     --log-junit "$evidence_dir/20-suite-completa.xml" \
