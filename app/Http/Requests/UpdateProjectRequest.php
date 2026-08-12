@@ -13,6 +13,7 @@ use App\Models\Project;
 use App\Services\OrganizationContext;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateProjectRequest extends StoreProjectRequest
 {
@@ -46,6 +47,7 @@ class UpdateProjectRequest extends StoreProjectRequest
             'description' => ['nullable', 'string'],
             'objective' => ['required', 'string'],
             'justification' => ['nullable', 'string'],
+            'configuration_justification' => ['nullable', 'string', 'max:2000'],
             'execution_nature' => ['required', Rule::enum(ExecutionNature::class)],
             'financial_management_mode' => ['required', Rule::enum(FinancialManagementMode::class)],
             'management_level' => ['required', Rule::in(ManagementLevel::currentValues())],
@@ -56,5 +58,19 @@ class UpdateProjectRequest extends StoreProjectRequest
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'is_active' => ['required', 'boolean'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            /** @var Project $project */
+            $project = $this->route('project');
+            foreach (['execution_nature', 'financial_management_mode', 'management_level', 'methodology'] as $field) {
+                if ($this->input($field) !== $project->{$field}->value && blank($this->input('configuration_justification'))) {
+                    $validator->errors()->add('configuration_justification', 'A justificativa é obrigatória para alteração dimensional.');
+                    return;
+                }
+            }
+        });
     }
 }

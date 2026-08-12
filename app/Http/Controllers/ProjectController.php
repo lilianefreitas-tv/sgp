@@ -15,6 +15,7 @@ use App\Models\Project;
 use App\Models\ProjectActivity;
 use App\Models\ProjectMembership;
 use App\Models\User;
+use App\Services\ProjectConfigurationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -127,7 +128,12 @@ class ProjectController extends Controller
     {
         DB::transaction(function () use ($request, $project): void {
             $configurationBefore = $this->configurationSnapshot($project);
-            $project->update($this->normalizeDates($request->validated()));
+            $data = $this->normalizeDates($request->validated());
+            unset($data['configuration_justification']);
+            $dimensions = collect(['execution_nature', 'financial_management_mode', 'management_level', 'methodology'])
+                ->filter(fn (string $field) => $data[$field] !== $project->{$field}->value)->mapWithKeys(fn (string $field) => [$field => $data[$field]])->all();
+            $project->update(array_diff_key($data, array_flip(array_keys($dimensions))));
+            if ($dimensions !== []) app(ProjectConfigurationService::class)->change($project, $dimensions, $request->user(), $request->input('configuration_justification'));
             $configurationAfter = $this->configurationSnapshot($project->fresh());
 
             $this->activateManagerMembership($project);

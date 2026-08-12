@@ -130,6 +130,14 @@
                 </div>
                 <x-input-error :messages="$errors->get('methodology')" class="mt-2" />
             </div>
+            @if (isset($project))
+                <div class="sm:col-span-2">
+                    <label for="configuration_justification" class="sgp-field-label">Justificativa da alteração dimensional</label>
+                    <textarea id="configuration_justification" name="configuration_justification" rows="2" class="sgp-input">{{ old('configuration_justification') }}</textarea>
+                    <p class="mt-2 text-xs text-[#667680]">Obrigatória somente quando uma dimensão adaptativa for alterada.</p>
+                    <x-input-error :messages="$errors->get('configuration_justification')" class="mt-2" />
+                </div>
+            @endif
             <div>
                 <label for="status" class="sgp-field-label">Status <span class="text-[#C44B4B]">*</span></label>
                 <select id="status" name="status" class="sgp-input" required>

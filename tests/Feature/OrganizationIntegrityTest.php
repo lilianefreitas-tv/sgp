@@ -147,8 +147,10 @@ class OrganizationIntegrityTest extends TestCase
     {
         $f4 = require database_path('migrations/2026_08_03_200000_enforce_organization_integrity.php');
         $p01 = require database_path('migrations/2026_08_12_000000_create_initiative_foundation.php');
+        $p012 = require database_path('migrations/2026_08_12_100000_create_applicability_foundation.php');
 
         $this->assertTrue(Schema::hasTable('project_configuration_versions'));
+        $p012->down();
         $p01->down();
 
         try {
@@ -168,11 +170,13 @@ class OrganizationIntegrityTest extends TestCase
         } finally {
             $f4->up();
             $p01->up();
+            $p012->up();
         }
 
         $this->assertTrue(Schema::hasTable('initiatives'));
         $this->assertTrue(Schema::hasTable('initiative_configuration_versions'));
         $this->assertTrue(Schema::hasTable('project_configuration_versions'));
+        $this->assertTrue(Schema::hasTable('applicability_decisions'));
         $this->assertTrue(collect(Schema::getIndexes('projects'))->contains('name', 'projects_id_org_unique'));
         $this->assertTrue(collect(Schema::getForeignKeys('project_configuration_versions'))
             ->contains(fn (array $foreignKey) => $foreignKey['columns'] === ['project_id', 'organization_id']

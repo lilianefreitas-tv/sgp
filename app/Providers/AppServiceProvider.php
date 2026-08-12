@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Client;
+use App\Models\ApplicabilityDecision;
 use App\Models\DocumentTemplate;
 use App\Models\Initiative;
 use App\Models\InitiativeConfigurationVersion;
@@ -58,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
 
         foreach ([
             Client::class,
+            ApplicabilityDecision::class,
             Initiative::class,
             InitiativeConfigurationVersion::class,
             Project::class,

@@ -216,6 +216,7 @@ class AdaptiveProjectConfigurationTest extends TestCase
             'description' => 'Projeto usado para validar a configuração adaptativa.',
             'objective' => 'Validar as dimensões independentes.',
             'justification' => 'Cobrir os requisitos RF081 a RF086.',
+            'configuration_justification' => 'Alteração dimensional justificada para fins de rastreabilidade.',
             'execution_nature' => ExecutionNature::Internal->value,
             'financial_management_mode' => FinancialManagementMode::NotApplicable->value,
             'management_level' => ManagementLevel::Intermediate->value,
