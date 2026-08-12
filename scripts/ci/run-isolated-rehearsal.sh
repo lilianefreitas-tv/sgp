@@ -105,6 +105,7 @@ run_critical_tests() {
         tests/Feature/OrganizationContextIsolationTest.php \
         tests/Feature/OrganizationFilesAndAuditTest.php \
         tests/Feature/AdaptiveProjectConfigurationTest.php \
+        tests/Feature/InitiativeConversionTest.php \
         2>&1 | tee "$output_file"
 }
 

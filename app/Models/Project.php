@@ -23,6 +23,8 @@ class Project extends Model
     protected $fillable = [
         'client_id',
         'manager_id',
+        'initiative_id',
+        'source_initiative_configuration_version_id',
         'name',
         'description',
         'objective',
