@@ -20,6 +20,7 @@ use App\Http\Controllers\OrganizationAuditController;
 use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\PlatformOrganizationController;
 use App\Http\Controllers\PlatformUserController;
+use App\Http\Controllers\CommercialJourneyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,13 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::put('/organization-context', [OrganizationContextController::class, 'update'])
         ->name('organization-context.update');
     Route::resource('clients', ClientController::class)->except(['show', 'destroy']);
+    Route::get('commercial', [CommercialJourneyController::class,'index'])->name('commercial.index');
+    Route::get('initiatives/{initiative}/commercial', [CommercialJourneyController::class,'show'])->name('commercial.show');
+    Route::post('initiatives/{initiative}/commercial/opportunities', [CommercialJourneyController::class,'storeOpportunity'])->name('commercial.opportunities.store');
+    Route::post('opportunities/{opportunity}/assessments', [CommercialJourneyController::class,'assessment'])->name('commercial.assessments.store');
+    Route::post('opportunities/{opportunity}/proposals', [CommercialJourneyController::class,'proposal'])->name('commercial.proposals.store');
+    Route::post('opportunities/{opportunity}/negotiations', [CommercialJourneyController::class,'negotiation'])->name('commercial.negotiations.store');
+    Route::patch('opportunities/{opportunity}/state', [CommercialJourneyController::class,'transition'])->name('commercial.opportunities.transition');
     Route::resource('projects', ProjectController::class)->except('destroy');
     Route::get('/organization-members', [OrganizationMemberController::class, 'index'])->name('organization-members.index');
     Route::post('/organization-members', [OrganizationMemberController::class, 'store'])->name('organization-members.store');

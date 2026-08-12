@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationStatus;
 use App\Models\Client;
+use App\Models\Opportunity; use App\Models\InitialAssessment; use App\Models\Proposal; use App\Models\ProposalVersion; use App\Models\NegotiationEntry;
 use App\Models\ApplicabilityDecision;
 use App\Models\DocumentTemplate;
 use App\Models\Initiative;
@@ -57,6 +58,7 @@ class OrganizationIntegrityObserver
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
         ApplicabilityDecision::class => ['projects', 'project_id'],
+        Opportunity::class => ['initiatives','initiative_id'], InitialAssessment::class => ['opportunities','opportunity_id'], Proposal::class => ['opportunities','opportunity_id'], ProposalVersion::class => ['proposals','proposal_id'], NegotiationEntry::class => ['opportunities','opportunity_id'],
     ];
 
     public function creating(Model $model): void

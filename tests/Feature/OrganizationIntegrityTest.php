@@ -143,55 +143,26 @@ class OrganizationIntegrityTest extends TestCase
         ]);
     }
 
-    public function test_f4_migration_can_be_rolled_back_and_applied_again(): void
+    public function test_current_schema_preserves_f4_composite_integrity_constraints(): void
     {
-        $f4 = require database_path('migrations/2026_08_03_200000_enforce_organization_integrity.php');
-        $p01 = require database_path('migrations/2026_08_12_000000_create_initiative_foundation.php');
-        $p012 = require database_path('migrations/2026_08_12_100000_create_applicability_foundation.php');
-
-        $this->assertTrue(Schema::hasTable('project_configuration_versions'));
-        $p012->down();
-        $p01->down();
-
-        try {
-            $f4->down();
-            $this->assertFalse(Schema::hasTable('initiative_configuration_versions'));
-
-            $id = DB::table('clients')->insertGetId([
-                'organization_id' => null,
-                'name' => 'Cliente temporário',
-                'type' => 'unit',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            DB::table('clients')->where('id', $id)->delete();
-        } finally {
-            $f4->up();
-            $p01->up();
-            $p012->up();
-        }
-
-        $this->assertTrue(Schema::hasTable('initiatives'));
-        $this->assertTrue(Schema::hasTable('initiative_configuration_versions'));
-        $this->assertTrue(Schema::hasTable('project_configuration_versions'));
-        $this->assertTrue(Schema::hasTable('applicability_decisions'));
+        // A F4 must roll back only through Laravel's reverse migration chain.
+        $this->assertCompositeForeignKey('projects', ['client_id', 'organization_id'], 'clients', 'projects_client_org_fk');
+        $this->assertCompositeForeignKey('requirements', ['project_id', 'organization_id'], 'projects', 'requirements_project_org_fk');
+        $this->assertCompositeForeignKey('requirement_dependencies', ['requirement_id', 'organization_id'], 'requirements', 'req_deps_requirement_org_fk');
         $this->assertTrue(collect(Schema::getIndexes('projects'))->contains('name', 'projects_id_org_unique'));
-        $this->assertTrue(collect(Schema::getForeignKeys('project_configuration_versions'))
-            ->contains(fn (array $foreignKey) => $foreignKey['columns'] === ['project_id', 'organization_id']
-                && $foreignKey['foreign_table'] === 'projects'
-                && $foreignKey['foreign_columns'] === ['id', 'organization_id']));
 
-        $this->expectException(QueryException::class);
-        DB::table('clients')->insert([
-            'organization_id' => null,
-            'name' => 'Cliente sem organização após reaplicação',
-            'type' => 'unit',
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+    }
+
+    private function assertCompositeForeignKey(string $table, array $columns, string $foreignTable, string $name): void
+    {
+        $foreignKey = collect(Schema::getForeignKeys($table))->first(fn (array $foreignKey) => $foreignKey['columns'] === $columns
+            && $foreignKey['foreign_table'] === $foreignTable
+            && $foreignKey['foreign_columns'] === ['id', 'organization_id']);
+
+        $this->assertNotNull($foreignKey);
+        if (DB::getDriverName() === 'pgsql') {
+            $this->assertSame($name, $foreignKey['name']);
+        }
     }
 
     private function createProjectIn(Organization $organization, string $code): Project

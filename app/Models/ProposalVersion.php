@@ -1,0 +1,1 @@
+<?php namespace App\Models; use App\Models\Concerns\ImmutableConfigurationVersion; use Illuminate\Database\Eloquent\Model; class ProposalVersion extends Model {use ImmutableConfigurationVersion; protected $guarded=[]; protected function casts():array{return ['estimated_start'=>'date','validity_until'=>'date'];}}
