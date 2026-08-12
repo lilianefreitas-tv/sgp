@@ -2,15 +2,20 @@
 
 namespace App\Providers;
 
-use App\Models\Client;
-use App\Models\CommercialTransition; use App\Models\Opportunity; use App\Models\InitialAssessment; use App\Models\Proposal; use App\Models\ProposalVersion; use App\Models\NegotiationEntry;
 use App\Models\ApplicabilityDecision;
+use App\Models\Artifact;
+use App\Models\ArtifactRevision;
+use App\Models\Client;
+use App\Models\CommercialTransition;
 use App\Models\DocumentTemplate;
+use App\Models\InitialAssessment;
 use App\Models\Initiative;
 use App\Models\InitiativeConfigurationVersion;
 use App\Models\KanbanBoard;
 use App\Models\KanbanColumn;
 use App\Models\KanbanTaskPosition;
+use App\Models\NegotiationEntry;
+use App\Models\Opportunity;
 use App\Models\Organization;
 use App\Models\OrganizationAuditEvent;
 use App\Models\Project;
@@ -20,6 +25,8 @@ use App\Models\ProjectComment;
 use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
+use App\Models\Proposal;
+use App\Models\ProposalVersion;
 use App\Models\Requirement;
 use App\Models\RequirementDependency;
 use App\Models\RequirementVersion;
@@ -60,6 +67,8 @@ class AppServiceProvider extends ServiceProvider
 
         foreach ([
             Client::class,
+            Artifact::class,
+            ArtifactRevision::class,
             Opportunity::class, InitialAssessment::class, Proposal::class, ProposalVersion::class, NegotiationEntry::class, CommercialTransition::class,
             ApplicabilityDecision::class,
             Initiative::class,

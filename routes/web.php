@@ -22,6 +22,7 @@ use App\Http\Controllers\PlatformOrganizationController;
 use App\Http\Controllers\PlatformUserController;
 use App\Http\Controllers\CommercialJourneyController;
 use App\Http\Controllers\InitiativeConversionController;
+use App\Http\Controllers\ArtifactController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,6 +45,8 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::get('initiatives', [InitiativeConversionController::class, 'index'])->name('initiatives.index');
     Route::get('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'show'])->name('initiatives.conversion.show');
     Route::post('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'convert'])->name('initiatives.conversion.convert');
+    Route::get('initiatives/{initiative}/artifacts', [ArtifactController::class, 'initiativeIndex'])->name('initiatives.artifacts.index');
+    Route::post('initiatives/{initiative}/artifacts', [ArtifactController::class, 'storeForInitiative'])->name('initiatives.artifacts.store');
     Route::get('commercial', [CommercialJourneyController::class,'index'])->name('commercial.index');
     Route::get('initiatives/{initiative}/commercial', [CommercialJourneyController::class,'show'])->name('commercial.show');
     Route::post('initiatives/{initiative}/commercial/opportunities', [CommercialJourneyController::class,'storeOpportunity'])->name('commercial.opportunities.store');
@@ -52,6 +55,11 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::post('opportunities/{opportunity}/negotiations', [CommercialJourneyController::class,'negotiation'])->name('commercial.negotiations.store');
     Route::patch('opportunities/{opportunity}/state', [CommercialJourneyController::class,'transition'])->name('commercial.opportunities.transition');
     Route::resource('projects', ProjectController::class)->except('destroy');
+    Route::get('projects/{project}/artifacts', [ArtifactController::class, 'projectIndex'])->name('projects.artifacts.index');
+    Route::post('projects/{project}/artifacts', [ArtifactController::class, 'storeForProject'])->name('projects.artifacts.store');
+    Route::get('artifacts/{artifact}', [ArtifactController::class, 'show'])->name('artifacts.show');
+    Route::post('artifacts/{artifact}/revisions', [ArtifactController::class, 'revise'])->name('artifacts.revisions.store');
+    Route::patch('artifacts/{artifact}/archive', [ArtifactController::class, 'archive'])->name('artifacts.archive');
     Route::get('/organization-members', [OrganizationMemberController::class, 'index'])->name('organization-members.index');
     Route::post('/organization-members', [OrganizationMemberController::class, 'store'])->name('organization-members.store');
     Route::patch('/organization-members/{membership}', [OrganizationMemberController::class, 'update'])->name('organization-members.update');
