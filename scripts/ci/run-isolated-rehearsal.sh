@@ -89,19 +89,33 @@ composer validate --no-check-publish
 php artisan config:clear
 
 printf 'Preparando banco descartável identificado como %s em %s.\n' "$DB_DATABASE" "$DB_HOST"
-php artisan migrate:fresh --force 2>&1 | tee "$evidence_dir/01-migrations.txt"
+php artisan migrate --force 2>&1 | tee "$evidence_dir/01-migrations.txt"
 php artisan migrate:status 2>&1 | tee "$evidence_dir/02-migration-status.txt"
 
-php artisan test \
-    --log-junit "$evidence_dir/10-testes-criticos.xml" \
-    tests/Feature/ProductionOrganizationTransitionTest.php \
-    tests/Feature/SelectiveProjectDataImportTest.php \
-    tests/Feature/OrganizationDataBackfillTest.php \
-    tests/Feature/OrganizationIntegrityTest.php \
-    tests/Feature/OrganizationContextIsolationTest.php \
-    tests/Feature/OrganizationFilesAndAuditTest.php \
-    tests/Feature/AdaptiveProjectConfigurationTest.php \
-    2>&1 | tee "$evidence_dir/10-testes-criticos.txt"
+run_critical_tests() {
+    local junit_file=$1
+    local output_file=$2
+
+    php artisan test \
+        --log-junit "$junit_file" \
+        tests/Feature/ProductionOrganizationTransitionTest.php \
+        tests/Feature/SelectiveProjectDataImportTest.php \
+        tests/Feature/OrganizationDataBackfillTest.php \
+        tests/Feature/OrganizationIntegrityTest.php \
+        tests/Feature/OrganizationContextIsolationTest.php \
+        tests/Feature/OrganizationFilesAndAuditTest.php \
+        tests/Feature/AdaptiveProjectConfigurationTest.php \
+        2>&1 | tee "$output_file"
+}
+
+run_critical_tests "$evidence_dir/10-testes-criticos.xml" "$evidence_dir/10-testes-criticos.txt"
+
+# The disposable database starts empty, so this rolls back the complete batch in Laravel's official reverse order.
+php artisan migrate:rollback --force 2>&1 | tee "$evidence_dir/11-rollback-completo.txt"
+php artisan migrate:status 2>&1 | tee "$evidence_dir/12-status-apos-rollback.txt"
+php artisan migrate --force 2>&1 | tee "$evidence_dir/13-reaplicacao-completa.txt"
+php artisan migrate:status 2>&1 | tee "$evidence_dir/14-status-apos-reaplicacao.txt"
+run_critical_tests "$evidence_dir/15-testes-criticos-apos-reaplicacao.xml" "$evidence_dir/15-testes-criticos-apos-reaplicacao.txt"
 
 php artisan test \
     --log-junit "$evidence_dir/20-suite-completa.xml" \
