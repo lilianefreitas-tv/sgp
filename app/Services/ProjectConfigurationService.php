@@ -56,13 +56,12 @@ class ProjectConfigurationService
             $locked = Project::query()->whereKey($project->id)->lockForUpdate()->firstOrFail();
             $current = $locked->configurationVersions()->whereNull('superseded_at')->lockForUpdate()->first();
             $now = now();
-            if ($current) {
-                $current->supersede($now);
-            }
+            if (! $current) $current = $this->version($locked, 1, $actor, 'Histórico inicial registrado antes da alteração dimensional.', $now);
+            $current->supersede($now);
             $locked->update($dimensions);
             $this->assertValidSource($locked);
 
-            return $this->version($locked, ($current?->sequence ?? 0) + 1, $actor, $justification, $now);
+            return $this->version($locked, $current->sequence + 1, $actor, $justification, $now);
         });
     }
 

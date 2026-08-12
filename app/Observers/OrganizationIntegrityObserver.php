@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationStatus;
 use App\Models\Client;
+use App\Models\ApplicabilityDecision;
 use App\Models\DocumentTemplate;
 use App\Models\Initiative;
 use App\Models\InitiativeConfigurationVersion;
@@ -55,6 +56,7 @@ class OrganizationIntegrityObserver
         ProjectActivity::class => ['projects', 'project_id'],
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
+        ApplicabilityDecision::class => ['projects', 'project_id'],
     ];
 
     public function creating(Model $model): void

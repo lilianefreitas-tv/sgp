@@ -345,10 +345,13 @@ class InitiativeFoundationTest extends TestCase
     {
         $project = Project::factory()->create(['client_id' => null, 'management_level' => ManagementLevel::Essential]);
         $migration = require database_path('migrations/2026_08_12_000000_create_initiative_foundation.php');
+        $applicability = require database_path('migrations/2026_08_12_100000_create_applicability_foundation.php');
+        $applicability->down();
         $migration->down();
         $this->assertSame('simplified', DB::table('projects')->where('id', $project->id)->value('management_level'));
 
         $migration->up();
+        $applicability->up();
         $row = DB::table('projects')->where('id', $project->id)->first();
         $this->assertSame('essential', $row->management_level);
         $this->assertNull($row->initiative_id);
