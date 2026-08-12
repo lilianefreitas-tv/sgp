@@ -21,8 +21,10 @@ use App\Services\InitiativeConfigurationService;
 use App\Services\OrganizationContext;
 use App\Services\ProjectConfigurationService;
 use Illuminate\Database\QueryException;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use LogicException;
 use Tests\TestCase;
 
@@ -343,19 +345,43 @@ class InitiativeFoundationTest extends TestCase
 
     public function test_incremental_migration_converts_simplified_and_keeps_existing_project_without_initiative(): void
     {
-        $project = Project::factory()->create(['client_id' => null, 'management_level' => ManagementLevel::Essential]);
-        $migration = require database_path('migrations/2026_08_12_000000_create_initiative_foundation.php');
-        $applicability = require database_path('migrations/2026_08_12_100000_create_applicability_foundation.php');
-        $applicability->down();
-        $migration->down();
-        $this->assertSame('simplified', DB::table('projects')->where('id', $project->id)->value('management_level'));
+        $originalConnection = DB::getDefaultConnection();
+        config()->set('database.connections.initiative_migration_test', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+            'foreign_key_constraints' => false,
+        ]);
+        DB::purge('initiative_migration_test');
+        DB::setDefaultConnection('initiative_migration_test');
 
-        $migration->up();
-        $applicability->up();
-        $row = DB::table('projects')->where('id', $project->id)->first();
-        $this->assertSame('essential', $row->management_level);
-        $this->assertNull($row->initiative_id);
-        $this->assertSame(0, DB::table('initiatives')->count());
+        try {
+            Schema::create('users', fn (Blueprint $table) => $table->id());
+            Schema::create('organizations', fn (Blueprint $table) => $table->id());
+            Schema::create('projects', function (Blueprint $table): void {
+                $table->id();
+                $table->unsignedBigInteger('organization_id');
+                $table->string('management_level', 30)->default(ManagementLevel::Simplified->value);
+                $table->unique(['id', 'organization_id'], 'projects_id_org_unique');
+            });
+            DB::table('organizations')->insert(['id' => 1]);
+            DB::table('projects')->insert([
+                'id' => 1,
+                'organization_id' => 1,
+                'management_level' => ManagementLevel::Simplified->value,
+            ]);
+
+            $migration = require database_path('migrations/2026_08_12_000000_create_initiative_foundation.php');
+            $migration->up();
+
+            $row = DB::table('projects')->where('id', 1)->first();
+            $this->assertSame(ManagementLevel::Essential->value, $row->management_level);
+            $this->assertNull($row->initiative_id);
+            $this->assertSame(0, DB::table('initiatives')->count());
+        } finally {
+            DB::disconnect('initiative_migration_test');
+            DB::setDefaultConnection($originalConnection);
+        }
     }
 
     private function activateMembership(): array
