@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Client;
+use App\Models\CommercialTransition; use App\Models\Opportunity; use App\Models\InitialAssessment; use App\Models\Proposal; use App\Models\ProposalVersion; use App\Models\NegotiationEntry;
 use App\Models\ApplicabilityDecision;
 use App\Models\DocumentTemplate;
 use App\Models\Initiative;
@@ -59,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
 
         foreach ([
             Client::class,
+            Opportunity::class, InitialAssessment::class, Proposal::class, ProposalVersion::class, NegotiationEntry::class, CommercialTransition::class,
             ApplicabilityDecision::class,
             Initiative::class,
             InitiativeConfigurationVersion::class,

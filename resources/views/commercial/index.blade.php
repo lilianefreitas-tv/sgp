@@ -1,0 +1,1 @@
+<x-app-layout><x-slot name="header">Jornada comercial</x-slot><div class="space-y-3">@foreach($initiatives as $initiative)<a class="block rounded border p-4" href="{{route('commercial.show',$initiative)}}">{{ $initiative->code }} — {{ $initiative->title }} ({{ $initiative->opportunity?->state ?? 'sem oportunidade' }})</a>@endforeach</div></x-app-layout>

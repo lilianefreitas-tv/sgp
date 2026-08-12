@@ -60,6 +60,7 @@ class Initiative extends Model
     {
         return $this->hasMany(InitiativeConfigurationVersion::class);
     }
+    public function opportunity(): HasOne { return $this->hasOne(Opportunity::class); }
 
     public function forceDelete(): bool
     {
