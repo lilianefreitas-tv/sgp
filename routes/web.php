@@ -21,6 +21,7 @@ use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\PlatformOrganizationController;
 use App\Http\Controllers\PlatformUserController;
 use App\Http\Controllers\CommercialJourneyController;
+use App\Http\Controllers\InitiativeConversionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,6 +41,9 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::put('/organization-context', [OrganizationContextController::class, 'update'])
         ->name('organization-context.update');
     Route::resource('clients', ClientController::class)->except(['show', 'destroy']);
+    Route::get('initiatives', [InitiativeConversionController::class, 'index'])->name('initiatives.index');
+    Route::get('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'show'])->name('initiatives.conversion.show');
+    Route::post('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'convert'])->name('initiatives.conversion.convert');
     Route::get('commercial', [CommercialJourneyController::class,'index'])->name('commercial.index');
     Route::get('initiatives/{initiative}/commercial', [CommercialJourneyController::class,'show'])->name('commercial.show');
     Route::post('initiatives/{initiative}/commercial/opportunities', [CommercialJourneyController::class,'storeOpportunity'])->name('commercial.opportunities.store');

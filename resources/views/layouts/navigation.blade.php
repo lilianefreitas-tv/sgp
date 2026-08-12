@@ -194,6 +194,13 @@
                 Projetos
             </a>
 
+            <a
+                href="{{ route('initiatives.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('initiatives.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                Iniciativas
+            </a>
+
             @if (Auth::user()->canCreateProjects())
                 <a
                     href="{{ route('clients.index') }}"
