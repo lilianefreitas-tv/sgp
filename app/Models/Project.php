@@ -143,6 +143,11 @@ class Project extends Model
         return $this->hasMany(ProjectConfigurationVersion::class);
     }
 
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(Artifact::class);
+    }
+
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         if ($user->administersCurrentOrganization()) {

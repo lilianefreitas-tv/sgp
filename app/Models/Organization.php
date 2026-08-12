@@ -23,6 +23,7 @@ class Organization extends Model
         'timezone',
         'next_project_number',
         'next_initiative_number',
+        'next_artifact_number',
         'settings',
     ];
 
@@ -33,6 +34,7 @@ class Organization extends Model
             'status' => OrganizationStatus::class,
             'next_project_number' => 'integer',
             'next_initiative_number' => 'integer',
+            'next_artifact_number' => 'integer',
             'settings' => 'array',
         ];
     }
@@ -50,6 +52,11 @@ class Organization extends Model
     public function initiatives(): HasMany
     {
         return $this->hasMany(Initiative::class);
+    }
+
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(Artifact::class);
     }
 
     public function users(): BelongsToMany

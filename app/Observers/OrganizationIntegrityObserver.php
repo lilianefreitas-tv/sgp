@@ -4,15 +4,18 @@ namespace App\Observers;
 
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationStatus;
-use App\Models\Client;
-use App\Models\Opportunity; use App\Models\InitialAssessment; use App\Models\Proposal; use App\Models\ProposalVersion; use App\Models\NegotiationEntry;
 use App\Models\ApplicabilityDecision;
+use App\Models\ArtifactRevision;
+use App\Models\Client;
 use App\Models\DocumentTemplate;
+use App\Models\InitialAssessment;
 use App\Models\Initiative;
 use App\Models\InitiativeConfigurationVersion;
 use App\Models\KanbanBoard;
 use App\Models\KanbanColumn;
 use App\Models\KanbanTaskPosition;
+use App\Models\NegotiationEntry;
+use App\Models\Opportunity;
 use App\Models\Project;
 use App\Models\ProjectActivity;
 use App\Models\ProjectAttachment;
@@ -20,6 +23,8 @@ use App\Models\ProjectComment;
 use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
+use App\Models\Proposal;
+use App\Models\ProposalVersion;
 use App\Models\Requirement;
 use App\Models\RequirementDependency;
 use App\Models\RequirementVersion;
@@ -57,8 +62,9 @@ class OrganizationIntegrityObserver
         ProjectActivity::class => ['projects', 'project_id'],
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
+        ArtifactRevision::class => ['artifacts', 'artifact_id'],
         ApplicabilityDecision::class => ['projects', 'project_id'],
-        Opportunity::class => ['initiatives','initiative_id'], InitialAssessment::class => ['opportunities','opportunity_id'], Proposal::class => ['opportunities','opportunity_id'], ProposalVersion::class => ['proposals','proposal_id'], NegotiationEntry::class => ['opportunities','opportunity_id'],
+        Opportunity::class => ['initiatives', 'initiative_id'], InitialAssessment::class => ['opportunities', 'opportunity_id'], Proposal::class => ['opportunities', 'opportunity_id'], ProposalVersion::class => ['proposals', 'proposal_id'], NegotiationEntry::class => ['opportunities', 'opportunity_id'],
     ];
 
     public function creating(Model $model): void
