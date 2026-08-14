@@ -23,6 +23,8 @@ use App\Models\Organization;
 use App\Models\OrganizationAuditEvent;
 use App\Models\Project;
 use App\Models\ProjectActivity;
+use App\Models\ProjectBaseline;
+use App\Models\ProjectBaselineItem;
 use App\Models\ProjectAttachment;
 use App\Models\ProjectComment;
 use App\Models\ProjectConfigurationVersion;
@@ -97,6 +99,8 @@ class AppServiceProvider extends ServiceProvider
             ProjectAttachment::class,
             ProjectOriginBaseline::class,
             ProjectActivity::class,
+            ProjectBaseline::class,
+            ProjectBaselineItem::class,
         ] as $model) {
             $model::observe(OrganizationIntegrityObserver::class);
             $model::addGlobalScope(new OrganizationScope($context));

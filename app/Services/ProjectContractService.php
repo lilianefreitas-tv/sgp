@@ -16,7 +16,8 @@ class ProjectContractService
     {
         return DB::transaction(function () use ($data, $actor): ProjectContract {
             $organizationId = $this->context->id();
-            $number = ProjectContract::query()->lockForUpdate()->count() + 1;
+            DB::table('organizations')->where('id', $organizationId)->lockForUpdate()->firstOrFail();
+            $number = ProjectContract::query()->count() + 1;
             $contract = ProjectContract::create(Arr::except($data, ['attachments', 'reason']) + [
                 'organization_id' => $organizationId, 'code' => sprintf('CTR-%06d', $number),
                 'content' => $this->sanitize((string) ($data['content'] ?? '')), 'created_by' => $actor->id, 'updated_by' => $actor->id,
