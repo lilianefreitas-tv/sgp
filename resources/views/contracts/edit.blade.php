@@ -1,0 +1,1 @@
+<x-app-layout><x-slot name="header"><h1 class="font-semibold">Nova versão contratual</h1></x-slot><div class="mx-auto max-w-7xl p-6"><form method="POST" action="{{ route('contracts.update',$contract) }}" enctype="multipart/form-data">@csrf @method('PUT') @include('contracts._form')</form></div></x-app-layout>

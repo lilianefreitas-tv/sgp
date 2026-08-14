@@ -66,6 +66,11 @@ class Initiative extends Model
         return $this->hasMany(Artifact::class);
     }
 
+    public function contracts(): HasMany
+    {
+        return $this->hasMany(ProjectContract::class);
+    }
+
     public function documentRoleAssignments(): HasMany
     {
         return $this->hasMany(DocumentRoleAssignment::class);

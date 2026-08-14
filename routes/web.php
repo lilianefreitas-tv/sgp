@@ -20,6 +20,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectAttachmentController;
 use App\Http\Controllers\ProjectCommentController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectContractController;
 use App\Http\Controllers\ProjectOriginDocumentController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\ProjectMemberController;
@@ -61,6 +62,8 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::post('opportunities/{opportunity}/negotiations', [CommercialJourneyController::class, 'negotiation'])->name('commercial.negotiations.store');
     Route::patch('opportunities/{opportunity}/state', [CommercialJourneyController::class, 'transition'])->name('commercial.opportunities.transition');
     Route::resource('projects', ProjectController::class)->except('destroy');
+    Route::resource('contracts', ProjectContractController::class)->except('destroy');
+    Route::get('contracts/{contract}/attachments/{attachment}', [ProjectContractController::class, 'download'])->name('contracts.attachments.download');
     Route::get('projects/{project}/artifacts', [ArtifactController::class, 'projectIndex'])->name('projects.artifacts.index');
     Route::post('projects/{project}/artifacts', [ArtifactController::class, 'storeForProject'])->name('projects.artifacts.store');
     Route::get('artifact-pendencies', [ArtifactController::class, 'pending'])->name('artifacts.pending');
