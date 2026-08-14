@@ -7,13 +7,21 @@ use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\ProjectMethodology;
+use App\Enums\ProjectOriginType;
 use App\Enums\ProjectStatus;
+use App\Services\OrganizationContext;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Services\OrganizationContext;
 
 class StoreProjectRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (! $this->filled('origin_type')) {
+            $this->merge(['origin_type' => ProjectOriginType::Direct->value]);
+        }
+    }
+
     public function authorize(): bool
     {
         return $this->user()?->canCreateProjects() === true;
@@ -32,6 +40,7 @@ class StoreProjectRequest extends FormRequest
                     ->where('organization_id', app(OrganizationContext::class)->id())
                     ->where('status', OrganizationMembershipStatus::Active->value)),
             ],
+            'origin_type' => ['required', Rule::enum(ProjectOriginType::class), Rule::notIn([ProjectOriginType::Initiative->value])],
             'name' => ['required', 'string', 'max:200'],
             'description' => ['nullable', 'string'],
             'objective' => ['required', 'string'],
@@ -53,6 +62,7 @@ class StoreProjectRequest extends FormRequest
         return [
             'client_id' => 'cliente ou unidade demandante',
             'manager_id' => 'responsável principal',
+            'origin_type' => 'origem do projeto',
             'execution_nature' => 'natureza da execução',
             'financial_management_mode' => 'tratamento financeiro',
             'management_level' => 'nível de gestão',

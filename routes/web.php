@@ -1,28 +1,31 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ArtifactController;
+use App\Http\Controllers\ArtifactPublicationController;
+use App\Http\Controllers\ArtifactWorkflowController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectMemberController;
-use App\Http\Controllers\RequirementController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\KanbanController;
+use App\Http\Controllers\CommercialJourneyController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentTemplateController;
-use App\Http\Controllers\ProjectAttachmentController;
-use App\Http\Controllers\ProjectCommentController;
-use App\Http\Controllers\ProjectHistoryController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\ProjectScheduleController;
-use App\Http\Controllers\OrganizationContextController;
+use App\Http\Controllers\InitiativeConversionController;
+use App\Http\Controllers\KanbanController;
 use App\Http\Controllers\OrganizationAuditController;
+use App\Http\Controllers\OrganizationContextController;
 use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\PlatformOrganizationController;
 use App\Http\Controllers\PlatformUserController;
-use App\Http\Controllers\CommercialJourneyController;
-use App\Http\Controllers\InitiativeConversionController;
-use App\Http\Controllers\ArtifactController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectAttachmentController;
+use App\Http\Controllers\ProjectCommentController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectOriginDocumentController;
+use App\Http\Controllers\ProjectHistoryController;
+use App\Http\Controllers\ProjectMemberController;
+use App\Http\Controllers\ProjectScheduleController;
+use App\Http\Controllers\RequirementController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -43,23 +46,33 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
         ->name('organization-context.update');
     Route::resource('clients', ClientController::class)->except(['show', 'destroy']);
     Route::get('initiatives', [InitiativeConversionController::class, 'index'])->name('initiatives.index');
+    Route::get('initiatives/create', [InitiativeConversionController::class, 'create'])->name('initiatives.create');
+    Route::post('initiatives', [InitiativeConversionController::class, 'store'])->name('initiatives.store');
     Route::get('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'show'])->name('initiatives.conversion.show');
     Route::post('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'convert'])->name('initiatives.conversion.convert');
     Route::get('initiatives/{initiative}/artifacts', [ArtifactController::class, 'initiativeIndex'])->name('initiatives.artifacts.index');
     Route::post('initiatives/{initiative}/artifacts', [ArtifactController::class, 'storeForInitiative'])->name('initiatives.artifacts.store');
-    Route::get('commercial', [CommercialJourneyController::class,'index'])->name('commercial.index');
-    Route::get('initiatives/{initiative}/commercial', [CommercialJourneyController::class,'show'])->name('commercial.show');
-    Route::post('initiatives/{initiative}/commercial/opportunities', [CommercialJourneyController::class,'storeOpportunity'])->name('commercial.opportunities.store');
-    Route::post('opportunities/{opportunity}/assessments', [CommercialJourneyController::class,'assessment'])->name('commercial.assessments.store');
-    Route::post('opportunities/{opportunity}/proposals', [CommercialJourneyController::class,'proposal'])->name('commercial.proposals.store');
-    Route::post('opportunities/{opportunity}/negotiations', [CommercialJourneyController::class,'negotiation'])->name('commercial.negotiations.store');
-    Route::patch('opportunities/{opportunity}/state', [CommercialJourneyController::class,'transition'])->name('commercial.opportunities.transition');
+    Route::post('initiatives/{initiative}/documents/dossier', [ArtifactController::class, 'synchronizeInitiativeDossier'])->name('initiatives.documents.dossier');
+    Route::get('commercial', [CommercialJourneyController::class, 'index'])->name('commercial.index');
+    Route::get('initiatives/{initiative}/commercial', [CommercialJourneyController::class, 'show'])->name('commercial.show');
+    Route::post('initiatives/{initiative}/commercial/opportunities', [CommercialJourneyController::class, 'storeOpportunity'])->name('commercial.opportunities.store');
+    Route::post('opportunities/{opportunity}/assessments', [CommercialJourneyController::class, 'assessment'])->name('commercial.assessments.store');
+    Route::post('opportunities/{opportunity}/proposals', [CommercialJourneyController::class, 'proposal'])->name('commercial.proposals.store');
+    Route::post('opportunities/{opportunity}/negotiations', [CommercialJourneyController::class, 'negotiation'])->name('commercial.negotiations.store');
+    Route::patch('opportunities/{opportunity}/state', [CommercialJourneyController::class, 'transition'])->name('commercial.opportunities.transition');
     Route::resource('projects', ProjectController::class)->except('destroy');
     Route::get('projects/{project}/artifacts', [ArtifactController::class, 'projectIndex'])->name('projects.artifacts.index');
     Route::post('projects/{project}/artifacts', [ArtifactController::class, 'storeForProject'])->name('projects.artifacts.store');
+    Route::get('artifact-pendencies', [ArtifactController::class, 'pending'])->name('artifacts.pending');
     Route::get('artifacts/{artifact}', [ArtifactController::class, 'show'])->name('artifacts.show');
     Route::post('artifacts/{artifact}/revisions', [ArtifactController::class, 'revise'])->name('artifacts.revisions.store');
     Route::patch('artifacts/{artifact}/archive', [ArtifactController::class, 'archive'])->name('artifacts.archive');
+    Route::post('artifacts/{artifact}/workflow/assignments', [ArtifactWorkflowController::class, 'assign'])->name('artifacts.workflow.assignments.store');
+    Route::post('artifacts/{artifact}/workflow/submit', [ArtifactWorkflowController::class, 'submit'])->name('artifacts.workflow.submit');
+    Route::post('artifact-workflow-rounds/{round}/decision', [ArtifactWorkflowController::class, 'decide'])->name('artifacts.workflow.decide');
+    Route::post('artifacts/{artifact}/publications', [ArtifactPublicationController::class, 'store'])->name('artifacts.publications.store');
+    Route::get('artifact-publications/{publication}/download', [ArtifactPublicationController::class, 'download'])->middleware('audit.file-boundary')->name('artifact-publications.download');
+    Route::patch('artifact-publications/{publication}/revoke', [ArtifactPublicationController::class, 'revoke'])->name('artifact-publications.revoke');
     Route::get('/organization-members', [OrganizationMemberController::class, 'index'])->name('organization-members.index');
     Route::post('/organization-members', [OrganizationMemberController::class, 'store'])->name('organization-members.store');
     Route::patch('/organization-members/{membership}', [OrganizationMemberController::class, 'update'])->name('organization-members.update');
@@ -92,6 +105,9 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::get('/projects/{project}/comments', [ProjectCommentController::class, 'index'])->name('projects.comments.index');
     Route::post('/projects/{project}/comments', [ProjectCommentController::class, 'store'])->name('projects.comments.store');
     Route::get('/projects/{project}/attachments', [ProjectAttachmentController::class, 'index'])->name('projects.attachments.index');
+    Route::get('/projects/{project}/origin-documents', [ProjectOriginDocumentController::class, 'index'])->name('projects.origin-documents.index');
+    Route::post('/projects/{project}/origin-documents', [ProjectOriginDocumentController::class, 'store'])->name('projects.origin-documents.store');
+    Route::post('/projects/{project}/origin-baseline', [ProjectOriginDocumentController::class, 'establishBaseline'])->name('projects.origin-baseline.store');
     Route::post('/projects/{project}/attachments', [ProjectAttachmentController::class, 'store'])->name('projects.attachments.store');
     Route::get('/projects/{project}/attachments/{attachment}/download', [ProjectAttachmentController::class, 'download'])
         ->middleware('audit.file-boundary')

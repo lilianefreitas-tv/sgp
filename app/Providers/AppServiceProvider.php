@@ -5,8 +5,11 @@ namespace App\Providers;
 use App\Models\ApplicabilityDecision;
 use App\Models\Artifact;
 use App\Models\ArtifactRevision;
+use App\Models\ArtifactWorkflowDecision;
+use App\Models\ArtifactWorkflowRound;
 use App\Models\Client;
 use App\Models\CommercialTransition;
+use App\Models\DocumentRoleAssignment;
 use App\Models\DocumentTemplate;
 use App\Models\InitialAssessment;
 use App\Models\Initiative;
@@ -25,6 +28,7 @@ use App\Models\ProjectComment;
 use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
+use App\Models\ProjectOriginBaseline;
 use App\Models\Proposal;
 use App\Models\ProposalVersion;
 use App\Models\Requirement;
@@ -69,6 +73,9 @@ class AppServiceProvider extends ServiceProvider
             Client::class,
             Artifact::class,
             ArtifactRevision::class,
+            ArtifactWorkflowRound::class,
+            ArtifactWorkflowDecision::class,
+            DocumentRoleAssignment::class,
             Opportunity::class, InitialAssessment::class, Proposal::class, ProposalVersion::class, NegotiationEntry::class, CommercialTransition::class,
             ApplicabilityDecision::class,
             Initiative::class,
@@ -88,6 +95,7 @@ class AppServiceProvider extends ServiceProvider
             ProjectDocument::class,
             ProjectComment::class,
             ProjectAttachment::class,
+            ProjectOriginBaseline::class,
             ProjectActivity::class,
         ] as $model) {
             $model::observe(OrganizationIntegrityObserver::class);

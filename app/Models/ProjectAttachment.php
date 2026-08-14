@@ -16,6 +16,16 @@ class ProjectAttachment extends Model
         'deleted_by',
         'context_type',
         'context_id',
+        'is_origin_document',
+        'origin_series_uuid',
+        'origin_category',
+        'origin_title',
+        'external_reference',
+        'original_document_date',
+        'declared_version',
+        'origin_version',
+        'origin_status',
+        'replaces_attachment_id',
         'disk',
         'path',
         'original_name',
@@ -30,6 +40,9 @@ class ProjectAttachment extends Model
     {
         return [
             'size_bytes' => 'integer',
+            'is_origin_document' => 'boolean',
+            'original_document_date' => 'date',
+            'origin_version' => 'integer',
             'deleted_at' => 'datetime',
         ];
     }
@@ -47,6 +60,11 @@ class ProjectAttachment extends Model
     public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    public function replacedVersion(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'replaces_attachment_id');
     }
 
     public function formattedSize(): string

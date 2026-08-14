@@ -107,6 +107,7 @@ run_critical_tests() {
         tests/Feature/AdaptiveProjectConfigurationTest.php \
         tests/Feature/InitiativeConversionTest.php \
         tests/Feature/ArtifactRevisionTest.php \
+        tests/Feature/ArtifactWorkflowTest.php \
         2>&1 | tee "$output_file"
 }
 

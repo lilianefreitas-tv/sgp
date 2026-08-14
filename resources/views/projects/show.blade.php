@@ -22,6 +22,29 @@
 
         @include('requirements._project-nav')
 
+        @if ($project->initiative)
+            <a href="{{ route('initiatives.artifacts.index', $project->initiative) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFE2D9] bg-[#F3FAF8] p-5 transition hover:border-[#2E8B74] hover:bg-[#EDF8F5]">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[.16em] text-[#2E8B74]">Documentação de origem</p>
+                    <p class="mt-1 font-bold text-[#256C5C]">Dossiê da Iniciativa {{ $project->initiative->code }}</p>
+                    <p class="mt-1 text-sm text-[#667680]">Consulte a necessidade, a descoberta e a trajetória comercial que deram origem a este projeto.</p>
+                </div>
+                <span class="text-xl text-[#2E8B74]">→</span>
+            </a>
+        @endif
+
+        <a href="{{ route('projects.origin-documents.index', $project) }}" class="group flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#CFC5E2] bg-gradient-to-r from-[#FBFAFD] to-[#F3EFF9] p-5 shadow-[0_6px_18px_rgba(89,65,115,0.12)] ring-1 ring-[#E8E1F1] transition duration-200 hover:-translate-y-0.5 hover:border-[#8064A2] hover:shadow-[0_10px_24px_rgba(89,65,115,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8064A2]">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[.16em] text-[#8064A2]">Documentação de origem</p>
+                <p class="mt-1 font-bold text-[#594173]">Arquivos recebidos antes do acompanhamento no SGP</p>
+                <p class="mt-1 text-sm text-[#667680]">Contratos, TAP, visão, propostas e outras referências preexistentes, preservadas com versões e integridade.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="rounded-full border border-[#DED5EA] bg-white px-3 py-1 text-sm font-bold text-[#8064A2] shadow-sm">{{ $project->origin_document_versions_count }} versões</span>
+                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-[#8064A2] text-lg text-white transition group-hover:translate-x-1">→</span>
+            </div>
+        </a>
+
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('projects.index') }}" class="inline-flex items-center justify-center rounded-lg border border-[#DCE3E7] bg-white px-4 py-2.5 text-sm font-semibold text-[#24313A] hover:bg-[#F5F7F9]">Voltar</a>
             @if ($canManage)
@@ -87,6 +110,14 @@
                 <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#287EA1]">{{ $project->documents_count }} gerados</span>
                 <span class="text-xl text-[#287EA1]">→</span>
             </div>
+        </a>
+
+        <a href="{{ route('projects.artifacts.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+            <div>
+                <p class="font-bold text-[#123B4A]">Registros documentais complementares</p>
+                <p class="mt-1 text-sm text-[#667680]">Gerencie conteúdo versionado, papéis, revisões e aprovações documentais.</p>
+            </div>
+            <span class="text-xl text-[#287EA1]">→</span>
         </a>
 
         <section class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">

@@ -17,7 +17,142 @@
     --sgp-border: #dce3e7;
 }
 
+@layer components {
+    .sgp-page-intro {
+        @apply relative overflow-hidden rounded-2xl px-6 py-6 text-white shadow-sm sm:px-7;
+        background: linear-gradient(135deg, #123b4a 0%, #1d5d73 72%, #287ea1 100%);
+    }
+
+    .sgp-page-intro::after {
+        content: "";
+        position: absolute;
+        width: 240px;
+        height: 240px;
+        right: -90px;
+        top: -125px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 9999px;
+    }
+
+    .sgp-page-intro > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .sgp-page-kicker {
+        @apply text-xs font-bold uppercase tracking-[0.18em];
+        color: #8ee0d2;
+    }
+
+    .sgp-page-actions {
+        @apply flex flex-col gap-2 sm:flex-row sm:items-center;
+    }
+
+    .sgp-page-actions .sgp-button-primary,
+    .sgp-page-actions .sgp-button-secondary {
+        width: 100%;
+    }
+
+    .sgp-card {
+        @apply rounded-2xl border bg-white shadow-sm;
+        border-color: var(--sgp-border);
+    }
+
+    .sgp-section-heading {
+        @apply text-base font-bold;
+        color: var(--sgp-text);
+    }
+
+    .sgp-section-description {
+        @apply mt-1 text-sm leading-6;
+        color: var(--sgp-text-muted);
+    }
+
+    .sgp-badge {
+        @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+    }
+
+    .sgp-badge-neutral { @apply bg-slate-100 text-slate-700; }
+    .sgp-badge-info { @apply bg-cyan-50 text-cyan-800; }
+    .sgp-badge-success { @apply bg-emerald-50 text-emerald-800; }
+    .sgp-badge-warning { @apply bg-amber-50 text-amber-800; }
+    .sgp-badge-danger { @apply bg-red-50 text-red-800; }
+
+    .sgp-stat-grid {
+        @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-4;
+    }
+
+    .sgp-stat-card {
+        @apply rounded-2xl border bg-white p-4 shadow-sm;
+        border-color: var(--sgp-border);
+    }
+
+    .sgp-stat-value {
+        @apply mt-2 text-2xl font-bold;
+        color: var(--sgp-primary);
+    }
+
+    .sgp-field-help {
+        @apply mt-2 text-xs leading-5;
+        color: var(--sgp-text-muted);
+    }
+
+    .sgp-form-section {
+        @apply border-t pt-7 first:border-t-0 first:pt-0;
+        border-color: #e8edf0;
+    }
+
+    .sgp-empty-state {
+        @apply flex flex-col items-center justify-center rounded-2xl border border-dashed bg-white px-6 py-12 text-center;
+        border-color: #bfcad0;
+    }
+
+    .sgp-empty-icon {
+        @apply flex h-12 w-12 items-center justify-center rounded-2xl;
+        background-color: #e6f0f3;
+        color: var(--sgp-primary);
+    }
+
+    .sgp-action-link {
+        @apply inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-sm font-semibold transition;
+        color: var(--sgp-primary-light);
+    }
+
+    .sgp-action-link:hover { background-color: #edf6f8; }
+
+    .sgp-timeline {
+        @apply relative space-y-4 border-l-2 pl-6;
+        border-color: #d7e6ea;
+    }
+
+    .sgp-timeline-item { @apply relative; }
+
+    .sgp-timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -1.95rem;
+        top: 0.35rem;
+        width: 0.75rem;
+        height: 0.75rem;
+        border: 3px solid white;
+        border-radius: 9999px;
+        background-color: var(--sgp-success);
+        box-shadow: 0 0 0 1px #b9d8d1;
+    }
+
+    @media (min-width: 640px) {
+        .sgp-page-actions .sgp-button-primary,
+        .sgp-page-actions .sgp-button-secondary {
+            width: auto;
+        }
+    }
+}
+
 @layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
     html {
         font-family: Inter, ui-sans-serif, system-ui, -apple-system,
             BlinkMacSystemFont, "Segoe UI", sans-serif;
