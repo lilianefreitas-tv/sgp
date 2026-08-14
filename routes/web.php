@@ -113,6 +113,7 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::get('/projects/{project}/baselines', [ProjectBaselineController::class, 'index'])->name('projects.baselines.index');
     Route::post('/projects/{project}/baselines', [ProjectBaselineController::class, 'store'])->name('projects.baselines.store');
     Route::get('/projects/{project}/baselines/{baseline}', [ProjectBaselineController::class, 'show'])->name('projects.baselines.show');
+    Route::get('/projects/{project}/baselines/compare/{from}/{to}', [ProjectBaselineController::class, 'compare'])->name('projects.baselines.compare');
     Route::post('/projects/{project}/origin-documents', [ProjectOriginDocumentController::class, 'store'])->name('projects.origin-documents.store');
     Route::post('/projects/{project}/origin-baseline', [ProjectOriginDocumentController::class, 'establishBaseline'])->name('projects.origin-baseline.store');
     Route::post('/projects/{project}/attachments', [ProjectAttachmentController::class, 'store'])->name('projects.attachments.store');

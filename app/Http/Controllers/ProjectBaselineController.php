@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\ProjectBaseline;
 use App\Services\ProjectBaselineService;
+use App\Services\ProjectBaselineComparisonService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -43,6 +44,16 @@ class ProjectBaselineController extends Controller
         abort_unless($baseline->project_id === $project->id, 404);
 
         return view('projects.baselines.show', ['project' => $project, 'baseline' => $baseline->load(['items', 'creator'])]);
+    }
+
+    public function compare(Request $request, Project $project, ProjectBaseline $from, ProjectBaseline $to, ProjectBaselineComparisonService $service): View
+    {
+        $this->authorizeView($request, $project);
+        abort_unless($from->project_id === $project->id && $to->project_id === $project->id && $from->id !== $to->id, 404);
+        if ($from->version > $to->version) { [$from, $to] = [$to, $from]; }
+        $from->load(['items', 'creator']); $to->load(['items', 'creator']);
+
+        return view('projects.baselines.compare', compact('project', 'from', 'to') + $service->compare($from, $to));
     }
 
     private function authorizeView(Request $request, Project $project): void
