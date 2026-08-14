@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ArtifactType;
+use App\Enums\ArtifactWorkflowState;
 use App\Enums\OrganizationMembershipStatus;
 use App\Models\Artifact;
 use App\Models\ArtifactRevision;
@@ -53,9 +54,9 @@ class ArtifactRevisionService
     }
 
     /** @param array<mixed> $content @param array<mixed>|null $metadata */
-    public function revise(Artifact $artifact, array $content, ?array $metadata, int $schemaVersion, string $reason, User $actor): ArtifactRevision
+    public function revise(Artifact $artifact, array $content, ?array $metadata, int $schemaVersion, string $reason, User $actor, bool $replaceContent = false): ArtifactRevision
     {
-        return DB::transaction(function () use ($artifact, $content, $metadata, $schemaVersion, $reason, $actor): ArtifactRevision {
+        return DB::transaction(function () use ($artifact, $content, $metadata, $schemaVersion, $reason, $actor, $replaceContent): ArtifactRevision {
             $organizationId = $this->authorize($actor, $artifact->organization_id);
             $locked = Artifact::query()->where('organization_id', $organizationId)->lockForUpdate()->find($artifact->id);
             if ($locked === null) {
@@ -64,12 +65,20 @@ class ArtifactRevisionService
             if ($locked->archived_at !== null) {
                 throw new LogicException('Artefatos arquivados não aceitam novas revisões.');
             }
+            if (in_array($locked->workflow_state, [ArtifactWorkflowState::InReview, ArtifactWorkflowState::AwaitingApproval], true)) {
+                throw new LogicException('Conclua a rodada de análise antes de registrar nova revisão.');
+            }
             $initiative = $locked->initiative_id === null ? null : Initiative::query()->where('organization_id', $organizationId)->lockForUpdate()->find($locked->initiative_id);
             $project = $locked->project_id === null ? null : Project::query()->where('organization_id', $organizationId)->lockForUpdate()->find($locked->project_id);
+            $currentRevision = $locked->revisions()
+                ->where('sequence', $locked->current_revision_sequence)
+                ->first();
+            $currentContent = $currentRevision?->content ?? [];
+            $completeSnapshot = $replaceContent ? $content : array_replace_recursive($currentContent, $content);
 
             return $this->appendLocked(
                 $locked,
-                $this->canonicalizer->canonicalize($content),
+                $this->canonicalizer->canonicalize($completeSnapshot),
                 $metadata === null ? null : $this->canonicalizer->canonicalize($metadata),
                 $schemaVersion,
                 $this->requiredText($reason, 'change_reason', 10000),
@@ -89,6 +98,9 @@ class ArtifactRevisionService
                 throw new LogicException('Artefato não encontrado no contexto organizacional ativo.');
             }
             $this->requiredText($reason, 'archive_reason', 10000);
+            if (in_array($locked->workflow_state, [ArtifactWorkflowState::InReview, ArtifactWorkflowState::AwaitingApproval], true)) {
+                throw new LogicException('Conclua a rodada de análise antes de arquivar o artefato.');
+            }
             if ($locked->archived_at === null) {
                 $locked->update(['archived_at' => now()]);
             }
@@ -162,7 +174,10 @@ class ArtifactRevisionService
             'change_reason' => $reason,
             'recorded_at' => now(),
         ]);
-        $artifact->update(['current_revision_sequence' => $sequence]);
+        $artifact->update([
+            'current_revision_sequence' => $sequence,
+            'workflow_state' => ArtifactWorkflowState::Draft,
+        ]);
 
         return $revision;
     }

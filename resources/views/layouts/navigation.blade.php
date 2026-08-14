@@ -198,7 +198,35 @@
                 href="{{ route('initiatives.index') }}"
                 class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('initiatives.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3a6 6 0 0 0-3.75 10.69c.48.39.75.97.75 1.59V16h6v-.72c0-.62.27-1.2.75-1.59A6 6 0 0 0 12 3Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19h6M10 22h4" />
+                </svg>
+
                 Iniciativas
+            </a>
+
+            <a
+                href="{{ route('commercial.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('commercial.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 19V9m6 10V5m6 14v-7m4 7H2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m4 7 5-4 5 5 6-5" />
+                </svg>
+
+                Jornada comercial
+            </a>
+
+            <a
+                href="{{ route('artifacts.pending') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('artifacts.pending') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75 11.25 15 15 9.75M6.75 3.75h10.5A1.75 1.75 0 0 1 19 5.5v13A1.75 1.75 0 0 1 17.25 20.25H6.75A1.75 1.75 0 0 1 5 18.5v-13a1.75 1.75 0 0 1 1.75-1.75Z" />
+                </svg>
+
+                Pendências documentais
             </a>
 
             @if (Auth::user()->canCreateProjects())

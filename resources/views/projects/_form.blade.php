@@ -6,6 +6,20 @@
         <p class="mt-1 text-sm text-[#667680]">Informações centrais do projeto e de quem responde por sua condução.</p>
 
         <div class="mt-5 grid gap-5 sm:grid-cols-2">
+            @unless($editing)
+                <div class="sm:col-span-2">
+                    <label for="origin_type" class="sgp-field-label">Como este projeto chegou ao SGP? <span class="text-[#C44B4B]">*</span></label>
+                    <select id="origin_type" name="origin_type" class="sgp-input" required>
+                        @foreach ($originTypes as $value => $label)
+                            <option value="{{ $value }}" @selected(old('origin_type', 'direct') === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <div class="mt-3 rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#1D5D73]">
+                        <strong>Projeto incorporado:</strong> use quando o trabalho já existia antes do cadastro e os contratos, TAP, visão ou demais documentos foram produzidos fora do SGP.
+                    </div>
+                    <x-input-error :messages="$errors->get('origin_type')" class="mt-2" />
+                </div>
+            @endunless
             <div class="sm:col-span-2">
                 <label for="name" class="sgp-field-label">Nome do projeto <span class="text-[#C44B4B]">*</span></label>
                 <input id="name" name="name" class="sgp-input" value="{{ old('name', $project->name ?? '') }}" maxlength="200" required>

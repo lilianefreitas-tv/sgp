@@ -6,6 +6,7 @@ use App\Enums\ExecutionNature;
 use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
 use App\Enums\ProjectMethodology;
+use App\Enums\ProjectOriginType;
 use App\Enums\ProjectRole;
 use App\Enums\ProjectStatus;
 use App\Http\Requests\StoreProjectRequest;
@@ -93,10 +94,12 @@ class ProjectController extends Controller
             ->where('is_active', true)
             ->with('user')
             ->orderBy('user_id')]);
+        $project->load('originBaseline');
         $project->loadCount([
             'requirements as active_requirements_count' => fn ($query) => $query->where('is_active', true),
             'tasks as active_tasks_count' => fn ($query) => $query->where('is_active', true),
             'documents as documents_count',
+            'originDocumentVersions as origin_document_versions_count',
         ]);
 
         $members = $project->memberships
@@ -235,6 +238,10 @@ class ProjectController extends Controller
             'executionNatures' => ExecutionNature::options(),
             'financialModes' => FinancialManagementMode::options(),
             'methodologies' => ProjectMethodology::options(),
+            'originTypes' => collect(ProjectOriginType::cases())
+                ->reject(fn (ProjectOriginType $type) => $type === ProjectOriginType::Initiative)
+                ->mapWithKeys(fn (ProjectOriginType $type) => [$type->value => $type->label()])
+                ->all(),
             'statuses' => ProjectStatus::options(),
         ];
     }

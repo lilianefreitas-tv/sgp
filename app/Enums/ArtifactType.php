@@ -22,4 +22,17 @@ enum ArtifactType: string
     {
         return collect(self::cases())->mapWithKeys(fn (self $type) => [$type->value => $type->label()])->all();
     }
+
+    /** @return array<string, string> */
+    public static function optionsForParent(string $parentType): array
+    {
+        return collect(self::cases())
+            ->filter(fn (self $type) => match ($parentType) {
+                'initiative' => $type !== self::ProjectRecord,
+                'project' => $type !== self::InitiativeRecord,
+                default => false,
+            })
+            ->mapWithKeys(fn (self $type) => [$type->value => $type->label()])
+            ->all();
+    }
 }

@@ -66,6 +66,11 @@ class Initiative extends Model
         return $this->hasMany(Artifact::class);
     }
 
+    public function documentRoleAssignments(): HasMany
+    {
+        return $this->hasMany(DocumentRoleAssignment::class);
+    }
+
     public function opportunity(): HasOne
     {
         return $this->hasOne(Opportunity::class);

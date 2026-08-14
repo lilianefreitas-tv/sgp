@@ -6,6 +6,8 @@ use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationStatus;
 use App\Models\ApplicabilityDecision;
 use App\Models\ArtifactRevision;
+use App\Models\ArtifactWorkflowDecision;
+use App\Models\ArtifactWorkflowRound;
 use App\Models\Client;
 use App\Models\DocumentTemplate;
 use App\Models\InitialAssessment;
@@ -23,6 +25,7 @@ use App\Models\ProjectComment;
 use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
+use App\Models\ProjectOriginBaseline;
 use App\Models\Proposal;
 use App\Models\ProposalVersion;
 use App\Models\Requirement;
@@ -59,10 +62,13 @@ class OrganizationIntegrityObserver
         ProjectDocument::class => ['projects', 'project_id'],
         ProjectComment::class => ['projects', 'project_id'],
         ProjectAttachment::class => ['projects', 'project_id'],
+        ProjectOriginBaseline::class => ['projects', 'project_id'],
         ProjectActivity::class => ['projects', 'project_id'],
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
         ArtifactRevision::class => ['artifacts', 'artifact_id'],
+        ArtifactWorkflowRound::class => ['artifacts', 'artifact_id'],
+        ArtifactWorkflowDecision::class => ['artifact_workflow_rounds', 'round_id'],
         ApplicabilityDecision::class => ['projects', 'project_id'],
         Opportunity::class => ['initiatives', 'initiative_id'], InitialAssessment::class => ['opportunities', 'opportunity_id'], Proposal::class => ['opportunities', 'opportunity_id'], ProposalVersion::class => ['proposals', 'proposal_id'], NegotiationEntry::class => ['opportunities', 'opportunity_id'],
     ];
