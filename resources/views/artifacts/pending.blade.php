@@ -2,10 +2,10 @@
     <x-slot name="header">Pendências documentais</x-slot>
 
     <div class="mx-auto max-w-6xl space-y-6 py-8">
-        <section class="overflow-hidden rounded-2xl bg-[#155363] p-8 text-white shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#62D5C8]">Fluxo documental</p>
+        <section class="sgp-page-intro">
+            <p class="sgp-page-kicker">Fluxo documental</p>
             <h1 class="mt-2 text-3xl font-bold">Minhas pendências</h1>
-            <p class="mt-2 max-w-3xl text-sm text-slate-100">Revisões aguardando sua análise técnica ou sua decisão formal.</p>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-white/80">Correções, revisões, aprovações e publicações que aguardam uma ação sua.</p>
         </section>
 
         <section class="space-y-3">
@@ -19,7 +19,11 @@
                     <span class="rounded-full bg-cyan-50 px-3 py-1 text-sm font-semibold text-cyan-800">{{ $artifact->workflow_state->label() }}</span>
                 </a>
             @empty
-                <div class="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">Você não possui pendências documentais neste contexto.</div>
+                <div class="sgp-empty-state">
+                    <div class="sgp-empty-icon"><span class="text-lg">✓</span></div>
+                    <h2 class="mt-4 font-bold text-[#24313A]">Nenhuma ação documental pendente</h2>
+                    <p class="mt-2 max-w-xl text-sm leading-6 text-[#667680]">Quando um documento precisar de correção, revisão, aprovação ou publicação por você, ele aparecerá nesta área.</p>
+                </div>
             @endforelse
         </section>
     </div>

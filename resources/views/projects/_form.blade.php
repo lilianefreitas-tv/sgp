@@ -1,6 +1,10 @@
 @php($editing = isset($project))
 
 <div class="space-y-7">
+    @if(!$editing && isset($sourceContract) && $sourceContract)
+        <input type="hidden" name="contract_id" value="{{ $sourceContract->id }}">
+        <div class="rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#1D5D73]"><strong>Contrato de origem:</strong> {{ $sourceContract->code }} · {{ $sourceContract->title }}. Os dados abaixo foram pré-preenchidos e podem ser ajustados.</div>
+    @endif
     <section>
         <h2 class="text-base font-bold text-[#24313A]">Identificação e responsabilidade</h2>
         <p class="mt-1 text-sm text-[#667680]">Informações centrais do projeto e de quem responde por sua condução.</p>
@@ -22,7 +26,7 @@
             @endunless
             <div class="sm:col-span-2">
                 <label for="name" class="sgp-field-label">Nome do projeto <span class="text-[#C44B4B]">*</span></label>
-                <input id="name" name="name" class="sgp-input" value="{{ old('name', $project->name ?? '') }}" maxlength="200" required>
+                <input id="name" name="name" class="sgp-input" value="{{ old('name', $project->name ?? ($sourceContract->title ?? '')) }}" maxlength="200" required>
                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
 
@@ -63,7 +67,7 @@
         <div class="mt-5 grid gap-5">
             <div>
                 <label for="objective" class="sgp-field-label">Objetivo <span class="text-[#C44B4B]">*</span></label>
-                <textarea id="objective" name="objective" rows="3" class="sgp-input" required>{{ old('objective', $project->objective ?? '') }}</textarea>
+                <textarea id="objective" name="objective" rows="3" class="sgp-input" required>{{ old('objective', $project->objective ?? ($sourceContract->object ?? '')) }}</textarea>
                 <x-input-error :messages="$errors->get('objective')" class="mt-2" />
             </div>
             <div>

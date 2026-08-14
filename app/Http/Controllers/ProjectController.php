@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\ProjectActivity;
 use App\Models\ProjectMembership;
+use App\Models\ProjectContract;
 use App\Models\User;
 use App\Services\ProjectConfigurationService;
 use Illuminate\Http\RedirectResponse;
@@ -60,14 +61,23 @@ class ProjectController extends Controller
     {
         abort_unless($request->user()->canCreateProjects(), 403);
 
-        return view('projects.create', $this->formOptions());
+        $sourceContract = $request->integer('contract')
+            ? ProjectContract::query()->whereNull('project_id')->findOrFail($request->integer('contract'))
+            : null;
+
+        return view('projects.create', $this->formOptions() + compact('sourceContract'));
     }
 
     public function store(StoreProjectRequest $request): RedirectResponse
     {
         $project = DB::transaction(function () use ($request): Project {
             $data = $this->normalizeDates($request->validated());
+            $contractId = $data['contract_id'] ?? null;
+            unset($data['contract_id']);
             $project = Project::create($data);
+            if ($contractId) {
+                ProjectContract::query()->whereNull('project_id')->findOrFail($contractId)->update(['project_id' => $project->id, 'updated_by' => $request->user()->id]);
+            }
 
             $this->activateManagerMembership($project);
             ProjectActivity::record(

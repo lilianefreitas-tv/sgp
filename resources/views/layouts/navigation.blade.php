@@ -219,6 +219,18 @@
             </a>
 
             <a
+                href="{{ route('contracts.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('contracts.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 4.75h10A2.25 2.25 0 0 1 19.25 7v12.25H4.75V7A2.25 2.25 0 0 1 7 4.75Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 4.75V3h6v1.75M8 10h8M8 14h8" />
+                </svg>
+
+                Contratos
+            </a>
+
+            <a
                 href="{{ route('artifacts.pending') }}"
                 class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('artifacts.pending') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
