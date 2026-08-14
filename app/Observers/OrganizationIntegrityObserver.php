@@ -20,6 +20,8 @@ use App\Models\NegotiationEntry;
 use App\Models\Opportunity;
 use App\Models\Project;
 use App\Models\ProjectActivity;
+use App\Models\ProjectBaseline;
+use App\Models\ProjectBaselineItem;
 use App\Models\ProjectAttachment;
 use App\Models\ProjectComment;
 use App\Models\ProjectConfigurationVersion;
@@ -64,6 +66,8 @@ class OrganizationIntegrityObserver
         ProjectAttachment::class => ['projects', 'project_id'],
         ProjectOriginBaseline::class => ['projects', 'project_id'],
         ProjectActivity::class => ['projects', 'project_id'],
+        ProjectBaseline::class => ['projects', 'project_id'],
+        ProjectBaselineItem::class => ['project_baselines', 'project_baseline_id'],
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
         ArtifactRevision::class => ['artifacts', 'artifact_id'],

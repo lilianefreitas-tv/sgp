@@ -21,6 +21,7 @@ use App\Http\Controllers\ProjectAttachmentController;
 use App\Http\Controllers\ProjectCommentController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectContractController;
+use App\Http\Controllers\ProjectBaselineController;
 use App\Http\Controllers\ProjectOriginDocumentController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\ProjectMemberController;
@@ -109,6 +110,9 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::post('/projects/{project}/comments', [ProjectCommentController::class, 'store'])->name('projects.comments.store');
     Route::get('/projects/{project}/attachments', [ProjectAttachmentController::class, 'index'])->name('projects.attachments.index');
     Route::get('/projects/{project}/origin-documents', [ProjectOriginDocumentController::class, 'index'])->name('projects.origin-documents.index');
+    Route::get('/projects/{project}/baselines', [ProjectBaselineController::class, 'index'])->name('projects.baselines.index');
+    Route::post('/projects/{project}/baselines', [ProjectBaselineController::class, 'store'])->name('projects.baselines.store');
+    Route::get('/projects/{project}/baselines/{baseline}', [ProjectBaselineController::class, 'show'])->name('projects.baselines.show');
     Route::post('/projects/{project}/origin-documents', [ProjectOriginDocumentController::class, 'store'])->name('projects.origin-documents.store');
     Route::post('/projects/{project}/origin-baseline', [ProjectOriginDocumentController::class, 'establishBaseline'])->name('projects.origin-baseline.store');
     Route::post('/projects/{project}/attachments', [ProjectAttachmentController::class, 'store'])->name('projects.attachments.store');

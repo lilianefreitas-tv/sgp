@@ -45,6 +45,11 @@
             </div>
         </a>
 
+        <a href="{{ route('projects.baselines.index', $project) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#287EA1]">Governança da configuração</p><p class="mt-1 font-bold text-[#123B4A]">Baselines do projeto</p><p class="mt-1 text-sm text-[#667680]">Constitua versões imutáveis do escopo, requisitos, documentos e contratos vigentes.</p></div>
+            <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#1D5D73]">{{ $project->baselines_count }} versões</span><span class="text-xl text-[#287EA1]">→</span></div>
+        </a>
+
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('projects.index') }}" class="inline-flex items-center justify-center rounded-lg border border-[#DCE3E7] bg-white px-4 py-2.5 text-sm font-semibold text-[#24313A] hover:bg-[#F5F7F9]">Voltar</a>
             @if ($canManage)
