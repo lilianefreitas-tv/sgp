@@ -111,6 +111,7 @@ class ProjectController extends Controller
             'documents as documents_count',
             'originDocumentVersions as origin_document_versions_count',
             'baselines as baselines_count',
+            'changeRequests as change_requests_count',
         ]);
 
         $members = $project->memberships

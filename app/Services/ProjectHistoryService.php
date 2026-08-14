@@ -21,6 +21,7 @@ class ProjectHistoryService
             'document' => 'Documentos',
             'comment' => 'Comentários',
             'attachment' => 'Anexos',
+            'change_request' => 'Solicitações de mudança',
         ];
     }
 
@@ -75,6 +76,7 @@ class ProjectHistoryService
                     'requirement' => 'requirement',
                     'task' => 'task',
                     'document' => 'document',
+                    'change_request' => 'change_request',
                     default => 'project',
                 },
                 'title' => $activity->description,
@@ -85,6 +87,7 @@ class ProjectHistoryService
                     'requirement' => 'purple',
                     'task' => 'green',
                     'document' => 'amber',
+                    'change_request' => 'purple',
                     default => 'blue',
                 },
             ]));

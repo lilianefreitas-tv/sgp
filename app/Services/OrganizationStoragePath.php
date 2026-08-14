@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ChangeRequest;
 use App\Models\Project;
 use LogicException;
 
@@ -14,6 +15,16 @@ class OrganizationStoragePath
     public function attachments(Project $project): string
     {
         return $this->projectBase($project).'/attachments';
+    }
+
+    public function changeRequests(Project $project, ChangeRequest $changeRequest): string
+    {
+        if ($changeRequest->project_id !== $project->id
+            || $changeRequest->organization_id !== $project->organization_id) {
+            throw new LogicException('A solicitação de mudança não pertence ao projeto autorizado.');
+        }
+
+        return $this->attachments($project).'/change-requests/'.$changeRequest->id;
     }
 
     public function documents(Project $project, string $type): string

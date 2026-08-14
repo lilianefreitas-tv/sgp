@@ -9,6 +9,9 @@ use App\Models\ArtifactRevision;
 use App\Models\ArtifactWorkflowDecision;
 use App\Models\ArtifactWorkflowRound;
 use App\Models\Client;
+use App\Models\ChangeRequest;
+use App\Models\ChangeRequestAffectedItem;
+use App\Models\ChangeRequestTransition;
 use App\Models\DocumentTemplate;
 use App\Models\InitialAssessment;
 use App\Models\Initiative;
@@ -68,6 +71,9 @@ class OrganizationIntegrityObserver
         ProjectActivity::class => ['projects', 'project_id'],
         ProjectBaseline::class => ['projects', 'project_id'],
         ProjectBaselineItem::class => ['project_baselines', 'project_baseline_id'],
+        ChangeRequest::class => ['projects', 'project_id'],
+        ChangeRequestAffectedItem::class => ['change_requests', 'change_request_id'],
+        ChangeRequestTransition::class => ['change_requests', 'change_request_id'],
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
         ArtifactRevision::class => ['artifacts', 'artifact_id'],

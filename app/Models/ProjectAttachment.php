@@ -16,6 +16,7 @@ class ProjectAttachment extends Model
         'deleted_by',
         'context_type',
         'context_id',
+        'attachment_kind',
         'is_origin_document',
         'origin_series_uuid',
         'origin_category',
