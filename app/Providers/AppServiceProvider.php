@@ -10,6 +10,7 @@ use App\Models\ArtifactWorkflowRound;
 use App\Models\Client;
 use App\Models\ChangeRequest;
 use App\Models\ChangeRequestAffectedItem;
+use App\Models\ChangeRequestImpactAnalysis;
 use App\Models\ChangeRequestTransition;
 use App\Models\CommercialTransition;
 use App\Models\DocumentRoleAssignment;
@@ -108,6 +109,7 @@ class AppServiceProvider extends ServiceProvider
             ProjectBaselineItem::class,
             ChangeRequest::class,
             ChangeRequestAffectedItem::class,
+            ChangeRequestImpactAnalysis::class,
             ChangeRequestTransition::class,
         ] as $model) {
             $model::observe(OrganizationIntegrityObserver::class);

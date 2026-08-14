@@ -99,6 +99,11 @@
                     </form>
                 @endcan
 
+                @if($changeRequest->state === \App\Enums\ChangeRequestState::UnderAnalysis
+                    && $changeRequest->currentImpactAnalysis?->status !== \App\Enums\ChangeRequestAnalysisStatus::Completed)
+                    <p class="rounded-xl border border-[#E8D59B] bg-[#FFF9E8] p-4 text-sm font-medium text-[#765A00]">Conclua a análise de impacto para liberar a decisão final.</p>
+                @endif
+
                 @can('cancel', $changeRequest)
                     <form method="POST" action="{{ route('projects.change-requests.cancel', [$project, $changeRequest]) }}" class="space-y-2 rounded-xl border border-[#F0C7C7] bg-[#FFF8F8] p-4" onsubmit="return confirm('Cancelar esta solicitação? O histórico será preservado.')">
                         @csrf
@@ -117,6 +122,8 @@
                 @endif
             </aside>
         </section>
+
+        @include('projects.change-requests._impact-analysis')
 
         <section class="grid gap-5 xl:grid-cols-[minmax(320px,1fr)_minmax(0,2fr)]">
             @can('manageAttachments', $changeRequest)

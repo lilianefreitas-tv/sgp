@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ChangeRequestAnalysisStatus;
 use App\Enums\ChangeRequestState;
 use App\Enums\ProjectRole;
 use App\Models\ChangeRequest;
@@ -43,8 +44,19 @@ class ChangeRequestPolicy
 
     public function decide(User $user, ChangeRequest $changeRequest): bool
     {
+        if ($changeRequest->state !== ChangeRequestState::UnderAnalysis
+            || ! $user->canManageProject($changeRequest->project)) {
+            return false;
+        }
+
+        return $changeRequest->currentImpactAnalysis?->status === ChangeRequestAnalysisStatus::Completed;
+    }
+
+    public function analyzeImpact(User $user, ChangeRequest $changeRequest): bool
+    {
         return $changeRequest->state === ChangeRequestState::UnderAnalysis
-            && $user->canManageProject($changeRequest->project);
+            && ($user->canManageProject($changeRequest->project)
+                || $changeRequest->analyst_id === $user->id);
     }
 
     public function cancel(User $user, ChangeRequest $changeRequest): bool

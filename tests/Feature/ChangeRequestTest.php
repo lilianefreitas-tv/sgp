@@ -2,7 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ChangeRequestAnalysisStatus;
+use App\Enums\ChangeRequestClassification;
 use App\Enums\ChangeRequestOrigin;
+use App\Enums\ChangeRequestRecommendation;
+use App\Enums\ChangeRequestRiskLevel;
 use App\Enums\ChangeRequestState;
 use App\Enums\ChangeRequestUrgency;
 use App\Enums\OrganizationMembershipStatus;
@@ -15,6 +19,7 @@ use App\Models\Project;
 use App\Models\Requirement;
 use App\Models\User;
 use App\Services\ChangeRequestService;
+use App\Services\ChangeRequestImpactAnalysisService;
 use App\Services\OrganizationContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -116,6 +121,15 @@ class ChangeRequestTest extends TestCase
         $this->actingAs($manager)
             ->withSession(['active_organization_id' => $organization->id])
             ->post(route('projects.change-requests.approve', [$project, $changeRequest]), [
+                'reason' => 'Tentativa sem análise concluída.',
+            ])
+            ->assertForbidden();
+
+        $this->completeImpactAnalysis($changeRequest, $manager, ChangeRequestRecommendation::Approve);
+
+        $this->actingAs($manager)
+            ->withSession(['active_organization_id' => $organization->id])
+            ->post(route('projects.change-requests.approve', [$project, $changeRequest]), [
                 'reason' => 'Mudança viável e alinhada aos objetivos do projeto.',
             ])
             ->assertRedirect();
@@ -140,6 +154,7 @@ class ChangeRequestTest extends TestCase
         $changeRequest = $service->create($project, $this->completeData(), $manager);
         $changeRequest = $service->transition($changeRequest, ChangeRequestState::Submitted, $manager);
         $changeRequest = $service->transition($changeRequest, ChangeRequestState::UnderAnalysis, $manager);
+        $this->completeImpactAnalysis($changeRequest, $manager, ChangeRequestRecommendation::Reject);
 
         $this->actingAs($manager)
             ->withSession(['active_organization_id' => $organization->id])
@@ -162,6 +177,64 @@ class ChangeRequestTest extends TestCase
             'actor_id' => $manager->id,
             'reason' => 'Impacto incompatível com o objetivo vigente do projeto.',
         ]);
+    }
+
+    public function test_impact_analysis_can_be_saved_progressively_and_is_immutable_after_completion(): void
+    {
+        [, $manager, $project] = $this->scenario();
+        $changeRequest = app(ChangeRequestService::class)->create($project, $this->completeData(), $manager);
+        $changeRequest = app(ChangeRequestService::class)->transition($changeRequest, ChangeRequestState::Submitted, $manager);
+        $changeRequest = app(ChangeRequestService::class)->transition($changeRequest, ChangeRequestState::UnderAnalysis, $manager);
+        $analysisService = app(ChangeRequestImpactAnalysisService::class);
+
+        $draft = $analysisService->saveDraft($changeRequest, [
+            'executive_summary' => 'Avaliação iniciada.',
+            'classification' => ChangeRequestClassification::ScopeChange->value,
+        ], $manager);
+
+        $this->assertSame(ChangeRequestAnalysisStatus::Draft, $draft->status);
+        $this->assertSame('Avaliação iniciada.', $draft->executive_summary);
+
+        try {
+            $analysisService->complete($changeRequest, [
+                'executive_summary' => 'Ainda incompleta.',
+            ], $manager);
+            $this->fail('Uma análise incompleta não pode ser concluída.');
+        } catch (ValidationException) {
+            $this->assertSame(ChangeRequestAnalysisStatus::Draft, $draft->fresh()->status);
+        }
+
+        $completed = $analysisService->complete(
+            $changeRequest,
+            $this->completeImpactData(ChangeRequestRecommendation::Approve),
+            $manager,
+        );
+
+        $this->assertSame(ChangeRequestAnalysisStatus::Completed, $completed->status);
+        $this->assertNotNull($completed->completed_at);
+
+        $this->expectException(LogicException::class);
+        $completed->update(['executive_summary' => 'Tentativa de alteração.']);
+    }
+
+    public function test_new_analysis_round_preserves_completed_previous_round(): void
+    {
+        [, $manager, $project] = $this->scenario();
+        $service = app(ChangeRequestService::class);
+        $changeRequest = $service->create($project, $this->completeData(), $manager);
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::Submitted, $manager);
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::UnderAnalysis, $manager);
+        $this->completeImpactAnalysis($changeRequest, $manager, ChangeRequestRecommendation::ReturnForAdjustment);
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::Returned, $manager, 'Ajustar os requisitos afetados.');
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::Submitted, $manager);
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::UnderAnalysis, $manager);
+
+        $analyses = $changeRequest->impactAnalyses()->orderBy('round')->get();
+        $this->assertCount(2, $analyses);
+        $this->assertSame(ChangeRequestAnalysisStatus::Completed, $analyses[0]->status);
+        $this->assertSame(ChangeRequestAnalysisStatus::Draft, $analyses[1]->status);
+        $this->assertSame(1, $analyses[0]->round);
+        $this->assertSame(2, $analyses[1]->round);
     }
 
     public function test_affected_items_and_baseline_must_belong_to_the_same_project(): void
@@ -231,7 +304,7 @@ class ChangeRequestTest extends TestCase
             ->assertOk();
     }
 
-    public function test_requirements_analyst_can_start_analysis_and_requester_can_cancel(): void
+    public function test_assigned_requirements_analyst_can_complete_analysis_but_cannot_decide(): void
     {
         [$organization, $manager, $project] = $this->scenario();
         $analyst = User::factory()->create();
@@ -264,6 +337,30 @@ class ChangeRequestTest extends TestCase
             'state' => ChangeRequestState::UnderAnalysis->value,
             'analyst_id' => $analyst->id,
         ]);
+        $this->assertDatabaseHas('change_request_impact_analyses', [
+            'change_request_id' => $changeRequest->id,
+            'round' => 1,
+            'analyst_id' => $analyst->id,
+            'status' => ChangeRequestAnalysisStatus::Draft->value,
+        ]);
+
+        $changeRequest = $changeRequest->fresh();
+        $this->actingAs($analyst)
+            ->withSession(['active_organization_id' => $organization->id])
+            ->post(route('projects.change-requests.impact-analysis.complete', [$project, $changeRequest]),
+                $this->completeImpactData(ChangeRequestRecommendation::Approve))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('change_request_impact_analyses', [
+            'change_request_id' => $changeRequest->id,
+            'round' => 1,
+            'completed_by' => $analyst->id,
+            'status' => ChangeRequestAnalysisStatus::Completed->value,
+        ]);
+
+        $this->post(route('projects.change-requests.approve', [$project, $changeRequest]), [
+            'reason' => 'Analista não pode decidir.',
+        ])->assertForbidden();
     }
 
     /** @return array<string, mixed> */
@@ -275,6 +372,46 @@ class ChangeRequestTest extends TestCase
             'description' => 'A regra atual precisa ser ajustada.',
             'justification' => 'Adequar o fluxo à governança aprovada.',
             'urgency' => ChangeRequestUrgency::Medium->value,
+        ];
+    }
+
+    private function completeImpactAnalysis(
+        ChangeRequest $changeRequest,
+        User $actor,
+        ChangeRequestRecommendation $recommendation,
+    ): void {
+        app(ChangeRequestImpactAnalysisService::class)->complete(
+            $changeRequest,
+            $this->completeImpactData($recommendation),
+            $actor,
+        );
+    }
+
+    /** @return array<string, mixed> */
+    private function completeImpactData(ChangeRequestRecommendation $recommendation): array
+    {
+        return [
+            'classification' => ChangeRequestClassification::ScopeChange->value,
+            'risk_level' => ChangeRequestRiskLevel::Medium->value,
+            'recommendation' => $recommendation->value,
+            'executive_summary' => 'Mudança tecnicamente viável com impactos controláveis.',
+            'scope_impact' => 'Altera uma entrega prevista sem mudar o objetivo principal.',
+            'requirements_impact' => 'Exige revisão dos requisitos e critérios de aceite associados.',
+            'technical_impact' => 'Exige ajuste no serviço e na interface relacionados.',
+            'data_impact' => 'Não aplicável, sem alteração de estrutura ou migração de dados.',
+            'security_impact' => 'Mantém as permissões e o isolamento organizacional vigentes.',
+            'schedule_impact' => 'Acrescenta dois dias ao cronograma planejado.',
+            'resources_impact' => 'Utiliza a equipe atual sem necessidade de nova especialidade.',
+            'cost_impact' => 'Absorvido pelo orçamento vigente do projeto.',
+            'contract_impact' => 'Não aplicável, dentro do escopo contratual vigente.',
+            'quality_impact' => 'Exige regressão do fluxo alterado.',
+            'testing_impact' => 'Inclui testes de fluxo, autorização e isolamento.',
+            'operations_impact' => 'Implantação seguirá a janela operacional existente.',
+            'documentation_impact' => 'Atualiza especificação, matriz e registro de mudança.',
+            'risks_and_mitigations' => 'Risco de regressão mitigado por testes automatizados.',
+            'estimated_effort_hours' => 16,
+            'estimated_schedule_days' => 2,
+            'estimated_cost_amount' => 0,
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ChangeRequestAnalysisStatus;
 use App\Enums\ChangeRequestState;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
@@ -141,8 +142,18 @@ class ChangeRequestService
 
             if (! in_array($target, $allowed, true)) {
                 throw ValidationException::withMessages([
-                    'state' => "A transição de {$from->label()} para {$target->label()} não está disponível no P07.1.",
+                    'state' => "A transição de {$from->label()} para {$target->label()} não está disponível no fluxo atual.",
                 ]);
+            }
+
+            $decisionAnalysis = null;
+            if (in_array($target, [ChangeRequestState::Approved, ChangeRequestState::Rejected], true)) {
+                $decisionAnalysis = $locked->impactAnalyses()->latest('round')->first();
+                if ($decisionAnalysis?->status !== ChangeRequestAnalysisStatus::Completed) {
+                    throw ValidationException::withMessages([
+                        'analysis' => 'Conclua a análise de impacto antes de registrar a decisão final.',
+                    ]);
+                }
             }
 
             $reason = $this->nullableText($reason);
@@ -184,13 +195,41 @@ class ChangeRequestService
             }
             $locked->save();
 
+            $analysisRound = null;
+            if ($target === ChangeRequestState::UnderAnalysis) {
+                $analysisRound = $locked->impactAnalyses()->create([
+                    'organization_id' => $locked->organization_id,
+                    'round' => ((int) $locked->impactAnalyses()->max('round')) + 1,
+                    'analyst_id' => $locked->analyst_id,
+                    'status' => ChangeRequestAnalysisStatus::Draft,
+                    'created_by' => $actor->id,
+                    'updated_by' => $actor->id,
+                ]);
+            }
+
+            $metadata = ['source' => 'P07.1'];
+            if ($analysisRound !== null) {
+                $metadata = [
+                    'source' => 'P07.2',
+                    'analysis_id' => $analysisRound->id,
+                    'analysis_round' => $analysisRound->round,
+                ];
+            } elseif ($decisionAnalysis !== null) {
+                $metadata = [
+                    'source' => 'P07.2',
+                    'analysis_id' => $decisionAnalysis->id,
+                    'analysis_round' => $decisionAnalysis->round,
+                    'recommendation' => $decisionAnalysis->recommendation->value,
+                ];
+            }
+
             $locked->transitions()->create([
                 'organization_id' => $locked->organization_id,
                 'from_state' => $from,
                 'to_state' => $target,
                 'actor_id' => $actor->id,
                 'reason' => $reason,
-                'metadata' => ['source' => 'P07.1'],
+                'metadata' => $metadata,
                 'occurred_at' => $now,
             ]);
             ProjectActivity::record(
@@ -203,7 +242,15 @@ class ChangeRequestService
                 ['details' => $locked->code.($reason ? ' · '.$reason : '')],
             );
 
-            return $locked->fresh()->load(['requester', 'analyst', 'baseline', 'affectedItems', 'transitions.actor']);
+            return $locked->fresh()->load([
+                'requester',
+                'analyst',
+                'baseline',
+                'affectedItems',
+                'impactAnalyses.analyst',
+                'impactAnalyses.completedBy',
+                'transitions.actor',
+            ]);
         });
     }
 

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ChangeRequestOrigin;
+use App\Enums\ChangeRequestClassification;
+use App\Enums\ChangeRequestRecommendation;
+use App\Enums\ChangeRequestRiskLevel;
 use App\Enums\ChangeRequestState;
 use App\Enums\ChangeRequestUrgency;
 use App\Enums\OrganizationMembershipStatus;
@@ -80,6 +83,8 @@ class ChangeRequestController extends Controller
             'analyst',
             'baseline',
             'affectedItems',
+            'impactAnalyses.analyst',
+            'impactAnalyses.completedBy',
             'transitions.actor',
             'attachments.uploader',
         ]);
@@ -236,6 +241,9 @@ class ChangeRequestController extends Controller
             'canManageProject' => $request->user()->canManageProject($project),
             'maxUploadMb' => config('sgp.attachments.max_kb') / 1024,
             'allowedExtensions' => config('sgp.attachments.allowed_extensions'),
+            'analysisClassifications' => ChangeRequestClassification::options(),
+            'analysisRiskLevels' => ChangeRequestRiskLevel::options(),
+            'analysisRecommendations' => ChangeRequestRecommendation::options(),
         ];
     }
 

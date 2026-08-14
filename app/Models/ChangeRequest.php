@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use LogicException;
 
 class ChangeRequest extends Model
@@ -94,6 +95,16 @@ class ChangeRequest extends Model
     public function affectedItems(): HasMany
     {
         return $this->hasMany(ChangeRequestAffectedItem::class);
+    }
+
+    public function impactAnalyses(): HasMany
+    {
+        return $this->hasMany(ChangeRequestImpactAnalysis::class);
+    }
+
+    public function currentImpactAnalysis(): HasOne
+    {
+        return $this->hasOne(ChangeRequestImpactAnalysis::class)->ofMany('round', 'max');
     }
 
     public function transitions(): HasMany

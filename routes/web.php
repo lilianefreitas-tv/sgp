@@ -6,6 +6,7 @@ use App\Http\Controllers\ArtifactWorkflowController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChangeRequestAttachmentController;
 use App\Http\Controllers\ChangeRequestController;
+use App\Http\Controllers\ChangeRequestImpactAnalysisController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CommercialJourneyController;
 use App\Http\Controllers\DashboardController;
@@ -124,6 +125,8 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::put('/projects/{project}/change-requests/{changeRequest}', [ChangeRequestController::class, 'update'])->name('projects.change-requests.update');
     Route::post('/projects/{project}/change-requests/{changeRequest}/submit', [ChangeRequestController::class, 'submit'])->name('projects.change-requests.submit');
     Route::post('/projects/{project}/change-requests/{changeRequest}/start-analysis', [ChangeRequestController::class, 'startAnalysis'])->name('projects.change-requests.start-analysis');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/impact-analysis', [ChangeRequestImpactAnalysisController::class, 'update'])->name('projects.change-requests.impact-analysis.update');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/impact-analysis/complete', [ChangeRequestImpactAnalysisController::class, 'complete'])->name('projects.change-requests.impact-analysis.complete');
     Route::post('/projects/{project}/change-requests/{changeRequest}/return', [ChangeRequestController::class, 'returnForAdjustment'])->name('projects.change-requests.return');
     Route::post('/projects/{project}/change-requests/{changeRequest}/approve', [ChangeRequestController::class, 'approve'])->name('projects.change-requests.approve');
     Route::post('/projects/{project}/change-requests/{changeRequest}/reject', [ChangeRequestController::class, 'reject'])->name('projects.change-requests.reject');
