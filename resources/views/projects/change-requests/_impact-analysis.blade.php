@@ -40,7 +40,7 @@
                     <p class="mt-2 font-semibold"><span style="color: #b42318;">*</span> Obrigatório para concluir a análise.</p>
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-3">
+                <div class="sgp-change-request-grid-three">
                     <div>
                         <label for="classification" class="sgp-field-label">Classificação <span aria-hidden="true" style="color: #b42318;">*</span><span class="sr-only"> obrigatório para concluir</span></label>
                         <select id="classification" name="classification" class="sgp-input">
@@ -69,7 +69,7 @@
                     <textarea id="executive_summary" name="executive_summary" rows="4" maxlength="10000" class="sgp-input" placeholder="Consolide a viabilidade, os principais efeitos e a orientação técnica.">{{ old('executive_summary', $currentAnalysis->executive_summary) }}</textarea>
                 </div>
 
-                <div class="grid gap-5 lg:grid-cols-2">
+                <div class="sgp-change-request-grid-three">
                     @foreach($impactFields as $field => [$label, $help])
                         <div>
                             <label for="{{ $field }}" class="sgp-field-label">{{ $label }} <span aria-hidden="true" style="color: #b42318;">*</span><span class="sr-only"> obrigatório para concluir</span></label>
@@ -79,32 +79,34 @@
                     @endforeach
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-3">
+                <div class="sgp-change-request-grid-three">
                     <div><label for="estimated_effort_hours" class="sgp-field-label">Esforço estimado, horas</label><input id="estimated_effort_hours" name="estimated_effort_hours" type="number" min="0" step="0.25" value="{{ old('estimated_effort_hours', $currentAnalysis->estimated_effort_hours) }}" class="sgp-input"></div>
                     <div><label for="estimated_schedule_days" class="sgp-field-label">Prazo estimado, dias</label><input id="estimated_schedule_days" name="estimated_schedule_days" type="number" min="0" step="1" value="{{ old('estimated_schedule_days', $currentAnalysis->estimated_schedule_days) }}" class="sgp-input"></div>
                     <div><label for="estimated_cost_amount" class="sgp-field-label">Custo estimado</label><input id="estimated_cost_amount" name="estimated_cost_amount" type="number" min="0" step="0.01" value="{{ old('estimated_cost_amount', $currentAnalysis->estimated_cost_amount) }}" class="sgp-input"></div>
                 </div>
 
-                <div class="flex flex-col gap-3 border-t border-[#E8EDF0] pt-5 sm:flex-row sm:justify-end">
-                    <button type="submit" class="inline-flex items-center justify-center rounded-lg border border-[#C9D3D9] px-5 py-3 text-sm font-semibold text-[#52616A] hover:bg-[#F5F7F9]">Salvar rascunho</button>
-                    <button type="submit" formaction="{{ route('projects.change-requests.impact-analysis.complete', [$project, $changeRequest]) }}" class="sgp-button-primary w-auto px-5" onclick="return confirm('Concluir e congelar esta rodada de análise?')">Concluir análise</button>
+                <div class="sgp-change-request-action-grid border-t border-[#E8EDF0] pt-5">
+                    <div class="sgp-change-request-action-buttons">
+                        <button type="submit" class="inline-flex items-center justify-center rounded-lg border border-[#C9D3D9] px-5 py-3 text-sm font-semibold text-[#52616A] hover:bg-[#F5F7F9]">Salvar rascunho</button>
+                        <button type="submit" formaction="{{ route('projects.change-requests.impact-analysis.complete', [$project, $changeRequest]) }}" class="sgp-button-primary w-auto px-5" onclick="return confirm('Concluir e congelar esta rodada de análise?')">Concluir análise</button>
+                    </div>
                 </div>
             </form>
         @elseif($currentAnalysis)
             <div class="space-y-6 p-6">
-                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div class="sgp-change-request-grid-three">
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Analista</p><p class="mt-2 font-semibold text-[#24313A]">{{ $currentAnalysis->analyst->name }}</p></div>
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Classificação</p><p class="mt-2 font-semibold text-[#24313A]">{{ $currentAnalysis->classification?->label() ?? 'Não informada' }}</p></div>
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Risco</p><p class="mt-2 font-semibold text-[#24313A]">{{ $currentAnalysis->risk_level?->label() ?? 'Não informado' }}</p></div>
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Recomendação</p><p class="mt-2 font-semibold text-[#24313A]">{{ $currentAnalysis->recommendation?->label() ?? 'Não informada' }}</p></div>
                 </div>
                 <div class="rounded-xl border border-[#C9DCE4] bg-[#F5F9FB] p-5"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Síntese executiva</p><p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#24313A]">{{ $currentAnalysis->executive_summary ?: 'Não informada.' }}</p></div>
-                <div class="grid gap-4 lg:grid-cols-2">
+                <div class="sgp-change-request-grid-three">
                     @foreach($impactFields as $field => [$label])
                         <article class="rounded-xl border border-[#E1E7EA] p-4"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">{{ $label }}</p><p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#24313A]">{{ $currentAnalysis->{$field} ?: 'Não informado.' }}</p></article>
                     @endforeach
                 </div>
-                <div class="grid gap-4 md:grid-cols-3">
+                <div class="sgp-change-request-grid-three">
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Esforço</p><p class="mt-2 font-semibold">{{ $currentAnalysis->estimated_effort_hours !== null ? number_format((float) $currentAnalysis->estimated_effort_hours, 2, ',', '.').' h' : 'Não estimado' }}</p></div>
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Prazo</p><p class="mt-2 font-semibold">{{ $currentAnalysis->estimated_schedule_days !== null ? $currentAnalysis->estimated_schedule_days.' dias' : 'Não estimado' }}</p></div>
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Custo</p><p class="mt-2 font-semibold">{{ $currentAnalysis->estimated_cost_amount !== null ? 'R$ '.number_format((float) $currentAnalysis->estimated_cost_amount, 2, ',', '.') : 'Não estimado' }}</p></div>

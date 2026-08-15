@@ -1,4 +1,49 @@
 <x-app-layout>
+    <style>
+        .sgp-change-request-grid-three,
+        .sgp-change-request-attachment-grid,
+        .sgp-change-request-action-grid {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .sgp-change-request-action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 768px) {
+            .sgp-change-request-grid-three,
+            .sgp-change-request-attachment-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .sgp-change-request-attachment-action {
+                justify-self: end;
+                width: auto;
+            }
+
+            .sgp-change-request-action-buttons {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .sgp-change-request-grid-three,
+            .sgp-change-request-attachment-grid,
+            .sgp-change-request-action-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .sgp-change-request-action-buttons,
+            .sgp-change-request-attachment-action {
+                grid-column: 3;
+            }
+        }
+    </style>
+
     <x-slot name="header">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -34,7 +79,7 @@
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Responsável pela análise</p><p class="mt-2 font-semibold text-[#24313A]">{{ $changeRequest->analyst?->name ?? 'Não atribuído' }}</p></article>
         </section>
 
-        <section class="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+        <section class="space-y-5">
             <article class="space-y-5 rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
                 <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Descrição</p><p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#24313A]">{{ $changeRequest->description ?: 'Ainda não informada.' }}</p></div>
                 <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Justificativa</p><p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#24313A]">{{ $changeRequest->justification ?: 'Ainda não informada.' }}</p></div>
@@ -51,11 +96,13 @@
                 </div>
             </article>
 
-            <aside class="space-y-4 rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
                 <div><h2 class="font-bold text-[#24313A]">Fluxo da solicitação</h2><p class="mt-1 text-sm text-[#667680]">Submissão, análise e decisão formal com histórico preservado.</p></div>
 
+                <div class="mt-5 grid gap-4 lg:grid-cols-2 xl:grid-cols-3 xl:items-start">
+
                 @can('submit', $changeRequest)
-                    <form method="POST" action="{{ route('projects.change-requests.submit', [$project, $changeRequest]) }}">@csrf<button class="sgp-button-primary w-full justify-center">Submeter para análise</button></form>
+                    <form method="POST" action="{{ route('projects.change-requests.submit', [$project, $changeRequest]) }}" class="rounded-xl border border-[#DCE3E7] bg-[#F8FAFB] p-4">@csrf<button class="sgp-button-primary w-full justify-center">Submeter para análise</button></form>
                 @endcan
 
                 @can('startAnalysis', $changeRequest)
@@ -120,27 +167,28 @@
                 @elseif($changeRequest->state === \App\Enums\ChangeRequestState::Implemented)
                     <p class="rounded-xl bg-[#F5F7F9] p-4 text-sm text-[#667680]">A implementação será habilitada no P07.3.</p>
                 @endif
-            </aside>
+                </div>
+            </article>
         </section>
 
         @include('projects.change-requests._impact-analysis')
 
-        <section class="grid gap-5 xl:grid-cols-[minmax(320px,1fr)_minmax(0,2fr)]">
+        <section class="space-y-5">
             @can('manageAttachments', $changeRequest)
                 <article class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
                     <h2 class="font-bold text-[#24313A]">Adicionar anexo ou evidência</h2>
                     <p class="mt-1 text-sm text-[#667680]">O arquivo ficará em armazenamento privado.</p>
-                    <form method="POST" action="{{ route('projects.change-requests.attachments.store', [$project, $changeRequest]) }}" enctype="multipart/form-data" class="mt-5 space-y-4">
+                    <form method="POST" action="{{ route('projects.change-requests.attachments.store', [$project, $changeRequest]) }}" enctype="multipart/form-data" class="sgp-change-request-attachment-grid mt-5">
                         @csrf
                         <div><label for="attachment_kind" class="sgp-field-label">Categoria</label><select id="attachment_kind" name="attachment_kind" class="sgp-input" required><option value="attachment">Anexo</option><option value="evidence">Evidência</option></select></div>
-                        <div><label for="file" class="sgp-field-label">Arquivo</label><input id="file" name="file" type="file" class="mt-1 block w-full rounded-lg border border-[#C9D3D9] bg-white px-3 py-2 text-sm" required><p class="mt-1 text-xs text-[#82919A]">Máximo {{ number_format($maxUploadMb, 0, ',', '.') }} MB. {{ implode(', ', $allowedExtensions) }}.</p></div>
                         <div><label for="attachment_description" class="sgp-field-label">Descrição</label><textarea id="attachment_description" name="description" rows="3" maxlength="300" class="sgp-input"></textarea></div>
-                        <button class="sgp-button-primary w-full justify-center">Vincular arquivo</button>
+                        <div><label for="file" class="sgp-field-label">Arquivo</label><input id="file" name="file" type="file" class="mt-1 block w-full rounded-lg border border-[#C9D3D9] bg-white px-3 py-2 text-sm" required><p class="mt-1 text-xs text-[#82919A]">Máximo {{ number_format($maxUploadMb, 0, ',', '.') }} MB. {{ implode(', ', $allowedExtensions) }}.</p></div>
+                        <button class="sgp-change-request-attachment-action sgp-button-primary w-full justify-center px-6">Vincular arquivo</button>
                     </form>
                 </article>
             @endcan
 
-            <article class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm {{ auth()->user()->cannot('manageAttachments', $changeRequest) ? 'xl:col-span-2' : '' }}">
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white shadow-sm">
                 <div class="border-b border-[#DCE3E7] px-6 py-5"><h2 class="font-bold text-[#24313A]">Anexos e evidências</h2><p class="mt-1 text-sm text-[#667680]">Downloads sujeitos à autorização do projeto.</p></div>
                 <div class="divide-y divide-[#E8EDF0]">
                     @forelse($changeRequest->attachments as $attachment)
