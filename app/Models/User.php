@@ -163,8 +163,22 @@ class User extends Authenticatable
 
     public function canContributeToProject(Project $project): bool
     {
-        return $this->currentOrganizationRole() !== OrganizationRole::Reader
-            && $this->canAccessProject($project);
+        if ($this->currentOrganizationRole() === OrganizationRole::Reader
+            || ! $this->canAccessProject($project)) {
+            return false;
+        }
+
+        $activeRoles = $this->projectMemberships()
+            ->where('project_id', $project->id)
+            ->where('is_active', true)
+            ->pluck('role');
+
+        return $activeRoles->isEmpty()
+            ? $this->administersCurrentOrganization()
+            : $activeRoles->contains(
+                fn (mixed $role): bool => ($role instanceof ProjectRole ? $role->value : (string) $role)
+                    !== ProjectRole::Observer->value,
+            );
     }
 
     public function currentOrganizationRole(): ?OrganizationRole

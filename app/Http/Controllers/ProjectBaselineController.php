@@ -43,7 +43,7 @@ class ProjectBaselineController extends Controller
         $this->authorizeView($request, $project);
         abort_unless($baseline->project_id === $project->id, 404);
 
-        return view('projects.baselines.show', ['project' => $project, 'baseline' => $baseline->load(['items', 'creator'])]);
+        return view('projects.baselines.show', ['project' => $project, 'baseline' => $baseline->load(['items', 'creator', 'sourceChangeRequest'])]);
     }
 
     public function compare(Request $request, Project $project, ProjectBaseline $from, ProjectBaseline $to, ProjectBaselineComparisonService $service): View

@@ -66,8 +66,10 @@ class DashboardCalendarScheduleTest extends TestCase
             ->assertDontSee('Abrir calendário')
             ->assertSeeInOrder([
                 'Painel',
+                'Pendências documentais',
                 'Calendário',
-                'Gerenciamento',
+                'Negócios e portfólio',
+                'Gestão de projetos',
             ]);
     }
 

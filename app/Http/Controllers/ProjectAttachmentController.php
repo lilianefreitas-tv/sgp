@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ProjectRole;
 use App\Http\Requests\StoreProjectAttachmentRequest;
+use App\Models\ChangeRequest;
 use App\Models\Project;
 use App\Models\ProjectAttachment;
 use App\Services\OrganizationAuditService;
@@ -32,6 +33,9 @@ class ProjectAttachmentController extends Controller
             ->latest()
             ->paginate(15);
         $contexts->addLabels($project, $attachments);
+        foreach ($attachments as $attachment) {
+            $attachment->can_remove = $this->canRemove($request, $project, $attachment);
+        }
 
         return view('attachments.index', [
             'project' => $project,
@@ -173,6 +177,15 @@ class ProjectAttachmentController extends Controller
         Project $project,
         ProjectAttachment $attachment,
     ): bool {
+        if ($attachment->context_type === 'change_request') {
+            $changeRequest = ChangeRequest::query()
+                ->where('project_id', $project->id)
+                ->find($attachment->context_id);
+
+            return $changeRequest !== null
+                && $request->user()->can('manageAttachments', $changeRequest);
+        }
+
         return $request->user()->administersCurrentOrganization()
             || $attachment->uploaded_by === $request->user()->id
             || $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project);

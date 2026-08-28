@@ -8,6 +8,12 @@ use App\Models\ArtifactRevision;
 use App\Models\ArtifactWorkflowDecision;
 use App\Models\ArtifactWorkflowRound;
 use App\Models\Client;
+use App\Models\ChangeRequest;
+use App\Models\ChangeRequestAffectedItem;
+use App\Models\ChangeRequestImpactAnalysis;
+use App\Models\ChangeRequestImplementation;
+use App\Models\ChangeRequestImplementationEvent;
+use App\Models\ChangeRequestTransition;
 use App\Models\CommercialTransition;
 use App\Models\DocumentRoleAssignment;
 use App\Models\DocumentTemplate;
@@ -27,6 +33,9 @@ use App\Models\ProjectBaseline;
 use App\Models\ProjectBaselineItem;
 use App\Models\ProjectAttachment;
 use App\Models\ProjectComment;
+use App\Models\ProjectContract;
+use App\Models\ProjectContractAttachment;
+use App\Models\ProjectContractVersion;
 use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
@@ -41,6 +50,7 @@ use App\Models\Task;
 use App\Models\TaskHistory;
 use App\Observers\OrganizationIntegrityObserver;
 use App\Policies\OrganizationPolicy;
+use App\Policies\ChangeRequestPolicy;
 use App\Services\OrganizationContext;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -63,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $context = $this->app->make(OrganizationContext::class);
         Gate::policy(Organization::class, OrganizationPolicy::class);
+        Gate::policy(ChangeRequest::class, ChangeRequestPolicy::class);
 
         View::share([
             'activeOrganization' => null,
@@ -101,6 +112,15 @@ class AppServiceProvider extends ServiceProvider
             ProjectActivity::class,
             ProjectBaseline::class,
             ProjectBaselineItem::class,
+            ProjectContract::class,
+            ProjectContractVersion::class,
+            ProjectContractAttachment::class,
+            ChangeRequest::class,
+            ChangeRequestAffectedItem::class,
+            ChangeRequestImpactAnalysis::class,
+            ChangeRequestImplementation::class,
+            ChangeRequestImplementationEvent::class,
+            ChangeRequestTransition::class,
         ] as $model) {
             $model::observe(OrganizationIntegrityObserver::class);
             $model::addGlobalScope(new OrganizationScope($context));

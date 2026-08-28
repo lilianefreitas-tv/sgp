@@ -24,7 +24,7 @@ class CommercialJourneyController extends Controller
         abort_unless($initiative->origin->value === 'commercial', 404);
 
         return view('commercial.show', [
-            'initiative' => $initiative,
+            'initiative' => $initiative->load(['contracts.project', 'project']),
             'opportunity' => $initiative->opportunity()->with(['assessments', 'proposals.versions', 'negotiations'])->first(),
         ]);
     }

@@ -4,6 +4,10 @@ use App\Http\Controllers\ArtifactController;
 use App\Http\Controllers\ArtifactPublicationController;
 use App\Http\Controllers\ArtifactWorkflowController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ChangeRequestAttachmentController;
+use App\Http\Controllers\ChangeRequestController;
+use App\Http\Controllers\ChangeRequestImpactAnalysisController;
+use App\Http\Controllers\ChangeRequestImplementationController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CommercialJourneyController;
 use App\Http\Controllers\DashboardController;
@@ -50,6 +54,13 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::get('initiatives', [InitiativeConversionController::class, 'index'])->name('initiatives.index');
     Route::get('initiatives/create', [InitiativeConversionController::class, 'create'])->name('initiatives.create');
     Route::post('initiatives', [InitiativeConversionController::class, 'store'])->name('initiatives.store');
+    Route::get('initiatives/{initiative}', [InitiativeConversionController::class, 'details'])->name('initiatives.show');
+    Route::get('initiatives/{initiative}/edit', [InitiativeConversionController::class, 'edit'])->name('initiatives.edit');
+    Route::put('initiatives/{initiative}', [InitiativeConversionController::class, 'update'])->name('initiatives.update');
+    Route::patch('initiatives/{initiative}/cancel', [InitiativeConversionController::class, 'cancel'])->name('initiatives.cancel');
+    Route::patch('initiatives/{initiative}/archive', [InitiativeConversionController::class, 'archive'])->name('initiatives.archive');
+    Route::patch('initiatives/{initiative}/restore', [InitiativeConversionController::class, 'restore'])->name('initiatives.restore');
+    Route::patch('initiatives/{initiative}/contract', [InitiativeConversionController::class, 'linkContract'])->name('initiatives.contract.link');
     Route::get('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'show'])->name('initiatives.conversion.show');
     Route::post('initiatives/{initiative}/conversion', [InitiativeConversionController::class, 'convert'])->name('initiatives.conversion.convert');
     Route::get('initiatives/{initiative}/artifacts', [ArtifactController::class, 'initiativeIndex'])->name('initiatives.artifacts.index');
@@ -64,7 +75,11 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::patch('opportunities/{opportunity}/state', [CommercialJourneyController::class, 'transition'])->name('commercial.opportunities.transition');
     Route::resource('projects', ProjectController::class)->except('destroy');
     Route::resource('contracts', ProjectContractController::class)->except('destroy');
-    Route::get('contracts/{contract}/attachments/{attachment}', [ProjectContractController::class, 'download'])->name('contracts.attachments.download');
+    Route::patch('contracts/{contract}/project', [ProjectContractController::class, 'linkProject'])
+        ->name('contracts.project.link');
+    Route::get('contracts/{contract}/attachments/{attachment}', [ProjectContractController::class, 'download'])
+        ->middleware('audit.file-boundary')
+        ->name('contracts.attachments.download');
     Route::get('projects/{project}/artifacts', [ArtifactController::class, 'projectIndex'])->name('projects.artifacts.index');
     Route::post('projects/{project}/artifacts', [ArtifactController::class, 'storeForProject'])->name('projects.artifacts.store');
     Route::get('artifact-pendencies', [ArtifactController::class, 'pending'])->name('artifacts.pending');
@@ -114,6 +129,29 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::post('/projects/{project}/baselines', [ProjectBaselineController::class, 'store'])->name('projects.baselines.store');
     Route::get('/projects/{project}/baselines/{baseline}', [ProjectBaselineController::class, 'show'])->name('projects.baselines.show');
     Route::get('/projects/{project}/baselines/compare/{from}/{to}', [ProjectBaselineController::class, 'compare'])->name('projects.baselines.compare');
+    Route::get('/projects/{project}/change-requests', [ChangeRequestController::class, 'index'])->name('projects.change-requests.index');
+    Route::get('/projects/{project}/change-requests/create', [ChangeRequestController::class, 'create'])->name('projects.change-requests.create');
+    Route::post('/projects/{project}/change-requests', [ChangeRequestController::class, 'store'])->name('projects.change-requests.store');
+    Route::get('/projects/{project}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('projects.change-requests.show');
+    Route::get('/projects/{project}/change-requests/{changeRequest}/edit', [ChangeRequestController::class, 'edit'])->name('projects.change-requests.edit');
+    Route::put('/projects/{project}/change-requests/{changeRequest}', [ChangeRequestController::class, 'update'])->name('projects.change-requests.update');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/submit', [ChangeRequestController::class, 'submit'])->name('projects.change-requests.submit');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/assign-analyst', [ChangeRequestController::class, 'assignAnalyst'])->name('projects.change-requests.assign-analyst');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/start-analysis', [ChangeRequestController::class, 'startAnalysis'])->name('projects.change-requests.start-analysis');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/impact-analysis', [ChangeRequestImpactAnalysisController::class, 'update'])->name('projects.change-requests.impact-analysis.update');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/impact-analysis/complete', [ChangeRequestImpactAnalysisController::class, 'complete'])->name('projects.change-requests.impact-analysis.complete');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/implementation', [ChangeRequestImplementationController::class, 'update'])->name('projects.change-requests.implementation.update');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/implementation/start', [ChangeRequestImplementationController::class, 'start'])->name('projects.change-requests.implementation.start');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/implementation/complete', [ChangeRequestImplementationController::class, 'complete'])->name('projects.change-requests.implementation.complete');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/return', [ChangeRequestController::class, 'returnForAdjustment'])->name('projects.change-requests.return');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/approve', [ChangeRequestController::class, 'approve'])->name('projects.change-requests.approve');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/reject', [ChangeRequestController::class, 'reject'])->name('projects.change-requests.reject');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/cancel', [ChangeRequestController::class, 'cancel'])->name('projects.change-requests.cancel');
+    Route::post('/projects/{project}/change-requests/{changeRequest}/attachments', [ChangeRequestAttachmentController::class, 'store'])->name('projects.change-requests.attachments.store');
+    Route::get('/projects/{project}/change-requests/{changeRequest}/attachments/{attachment}/download', [ChangeRequestAttachmentController::class, 'download'])
+        ->middleware('audit.file-boundary')
+        ->name('projects.change-requests.attachments.download');
+    Route::delete('/projects/{project}/change-requests/{changeRequest}/attachments/{attachment}', [ChangeRequestAttachmentController::class, 'destroy'])->name('projects.change-requests.attachments.destroy');
     Route::post('/projects/{project}/origin-documents', [ProjectOriginDocumentController::class, 'store'])->name('projects.origin-documents.store');
     Route::post('/projects/{project}/origin-baseline', [ProjectOriginDocumentController::class, 'establishBaseline'])->name('projects.origin-baseline.store');
     Route::post('/projects/{project}/attachments', [ProjectAttachmentController::class, 'store'])->name('projects.attachments.store');

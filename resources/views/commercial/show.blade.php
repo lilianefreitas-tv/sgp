@@ -7,6 +7,7 @@
         $hasProposal = $opportunity?->proposals->isNotEmpty() ?? false;
         $acceptance = $opportunity?->negotiations->first(fn ($entry) => $entry->interaction_type === 'acceptance' && $entry->decision === 'Aceita' && $entry->proposal_version_id !== null);
         $isWon = $opportunity?->state === 'won';
+        $contracts = $initiative->contracts;
         $commercialSteps = [
             ['label' => 'Iniciativa', 'done' => true, 'hint' => 'Origem comercial definida'],
             ['label' => 'Oportunidade', 'done' => $opportunity !== null, 'hint' => 'Prioridade e estimativa'],
@@ -31,6 +32,14 @@
                     <li class="flex gap-3 px-4 py-4"><span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold {{ $step['done'] ? 'bg-[#2E8B74] text-white' : 'bg-[#EAF0F2] text-[#667680]' }}">{{ $step['done'] ? '✓' : $loop->iteration }}</span><div><p class="text-sm font-bold text-[#24313A]">{{ $step['label'] }}</p><p class="mt-1 text-xs leading-5 text-[#667680]">{{ $step['hint'] }}</p></div></li>
                 @endforeach
             </ol>
+        </section>
+
+        <section class="rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#287EA1]">Contratação, quando aplicável</p><h2 class="mt-1 font-bold text-[#123B4A]">Instrumentos vinculados à iniciativa</h2><p class="mt-1 text-sm text-[#667680]">O contrato é opcional. Quando existir, será herdado pelo projeto na conversão.</p></div>
+                <a href="{{ route('contracts.create',['initiative'=>$initiative->id]) }}" class="sgp-button-primary sm:w-auto">Registrar contrato</a>
+            </div>
+            <div class="mt-4 grid gap-3 md:grid-cols-2">@forelse($contracts as $contract)<a href="{{ route('contracts.show',$contract) }}" class="rounded-xl border border-white bg-white p-4 transition hover:border-[#287EA1]"><p class="text-xs font-semibold text-[#287EA1]">{{ $contract->code }} · {{ $contract->status->label() }}</p><p class="mt-1 font-bold text-[#24313A]">{{ $contract->title }}</p>@if($contract->project)<p class="mt-2 text-xs text-[#2E8B74]">Vinculado ao projeto {{ $contract->project->code }}</p>@endif</a>@empty<p class="text-sm text-[#667680]">Nenhum contrato registrado para esta iniciativa.</p>@endforelse</div>
         </section>
 
         @if(!$opportunity)

@@ -69,10 +69,17 @@ class ProjectContextService
     public function addLabels(Project $project, iterable $records): void
     {
         $labels = collect($this->options($project))->keyBy('value');
+        $changeRequestLabels = $project->changeRequests()
+            ->get(['id', 'code', 'title'])
+            ->mapWithKeys(fn ($changeRequest) => [
+                'change_request:'.$changeRequest->id => $changeRequest->code.' · '.$changeRequest->title,
+            ]);
 
         foreach ($records as $record) {
             $key = $record->context_type.':'.$record->context_id;
-            $record->context_label = $labels->get($key)['label'] ?? 'Registro indisponível';
+            $record->context_label = $labels->get($key)['label']
+                ?? $changeRequestLabels->get($key)
+                ?? 'Registro indisponível';
         }
     }
 }

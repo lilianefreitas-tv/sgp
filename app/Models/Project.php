@@ -171,6 +171,11 @@ class Project extends Model
         return $this->hasMany(ProjectBaseline::class)->orderByDesc('version');
     }
 
+    public function changeRequests(): HasMany
+    {
+        return $this->hasMany(ChangeRequest::class)->orderByDesc('updated_at');
+    }
+
     public function originDocuments(): HasMany
     {
         return $this->hasMany(Artifact::class, 'initiative_id', 'initiative_id');
