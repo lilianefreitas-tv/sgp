@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ChangeRequest;
 use App\Models\Project;
 use App\Models\ProjectBaseline;
 use App\Models\User;
@@ -9,6 +10,25 @@ use Illuminate\Support\Facades\DB;
 
 class ProjectBaselineService
 {
+    public function createFromChange(
+        ChangeRequest $changeRequest,
+        string $title,
+        string $justification,
+        User $actor,
+    ): ProjectBaseline {
+        $project = $changeRequest->project;
+
+        return $this->create($project, [
+            'title' => $title,
+            'justification' => $justification,
+            'source_change_request_id' => $changeRequest->id,
+            'requirements' => $project->requirements()->where('is_active', true)->pluck('id')->all(),
+            'artifacts' => $project->artifacts()->whereNull('archived_at')->pluck('id')->all(),
+            'contracts' => $project->contracts()->pluck('id')->all(),
+            'origin_documents' => $project->originDocumentVersions()->where('origin_status', 'current')->pluck('id')->all(),
+        ], $actor);
+    }
+
     public function create(Project $project, array $data, User $actor): ProjectBaseline
     {
         return DB::transaction(function () use ($project, $data, $actor): ProjectBaseline {
@@ -16,6 +36,7 @@ class ProjectBaselineService
             $version = (int) $project->baselines()->max('version') + 1;
             $baseline = $project->baselines()->create([
                 'organization_id' => $project->organization_id,
+                'source_change_request_id' => $data['source_change_request_id'] ?? null,
                 'version' => $version,
                 'title' => $data['title'],
                 'justification' => $data['justification'],

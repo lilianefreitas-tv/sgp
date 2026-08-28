@@ -25,7 +25,7 @@ class CollaborationAndHistoryTest extends TestCase
         $project = Project::factory()->create();
         $member = User::factory()->create(['name' => 'Participante Comentadora']);
         $requirement = Requirement::factory()->create(['project_id' => $project->id]);
-        $this->addMember($project, $member, ProjectRole::Observer);
+        $this->addMember($project, $member, ProjectRole::Developer);
 
         $this->actingAs($member)
             ->post(route('projects.comments.store', $project), [

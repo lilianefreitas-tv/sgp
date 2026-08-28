@@ -260,7 +260,7 @@ class InitiativeFoundationTest extends TestCase
         $initiative->delete();
     }
 
-    public function test_initiative_change_does_not_propagate_to_linked_project(): void
+    public function test_linked_project_makes_initiative_structurally_immutable(): void
     {
         [$organization, $actor] = $this->activateMembership();
         $service = app(InitiativeConfigurationService::class);
@@ -268,8 +268,15 @@ class InitiativeFoundationTest extends TestCase
         $project = Project::factory()->create(['organization_id' => $organization->id, 'client_id' => null,
             'initiative_id' => $initiative->id, 'management_level' => ManagementLevel::Essential]);
 
-        $service->change($initiative, ['management_level' => ManagementLevel::Complete], $actor, 'Governança ampliada.');
+        $this->assertThrows(fn () => $service->change(
+            $initiative,
+            ['management_level' => ManagementLevel::Complete],
+            $actor,
+            'Governança ampliada.',
+        ), LogicException::class);
+        $this->assertSame(ManagementLevel::Essential, $initiative->fresh()->management_level);
         $this->assertSame(ManagementLevel::Essential, $project->fresh()->management_level);
+        $this->assertSame(1, $initiative->configurationVersions()->count());
     }
 
     public function test_project_configuration_source_rejects_version_from_another_organization(): void

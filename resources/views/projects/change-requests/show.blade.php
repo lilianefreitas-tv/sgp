@@ -105,16 +105,32 @@
                     <form method="POST" action="{{ route('projects.change-requests.submit', [$project, $changeRequest]) }}" class="rounded-xl border border-[#DCE3E7] bg-[#F8FAFB] p-4">@csrf<button class="sgp-button-primary w-full justify-center">Submeter para análise</button></form>
                 @endcan
 
-                @can('startAnalysis', $changeRequest)
-                    <form method="POST" action="{{ route('projects.change-requests.start-analysis', [$project, $changeRequest]) }}" class="space-y-2 rounded-xl border border-[#DCE3E7] bg-[#F8FAFB] p-4">
+                @can('assignAnalyst', $changeRequest)
+                    <form method="POST" action="{{ route('projects.change-requests.assign-analyst', [$project, $changeRequest]) }}" class="space-y-2 rounded-xl border border-[#DCE3E7] bg-[#F8FAFB] p-4">
                         @csrf
-                        <label for="analyst_id" class="sgp-field-label">Responsável pela análise</label>
-                        <select id="analyst_id" name="analyst_id" class="sgp-input">
-                            <option value="">Usar meu usuário</option>
-                            @foreach($projectUsers as $userOption)<option value="{{ $userOption->id }}" @selected($changeRequest->analyst_id === $userOption->id)>{{ $userOption->name }}</option>@endforeach
+                        <label for="analyst_id" class="sgp-field-label">Designar responsável <span class="text-[#B42318]">*</span></label>
+                        <select id="analyst_id" name="analyst_id" class="sgp-input" required>
+                            <option value="">Selecione um gerente ou analista</option>
+                            @foreach($eligibleAnalysts as $userOption)<option value="{{ $userOption->id }}" @selected($changeRequest->analyst_id === $userOption->id)>{{ $userOption->name }}</option>@endforeach
                         </select>
-                        <button class="sgp-button-primary w-full justify-center">Iniciar análise</button>
+                        <p class="text-xs text-[#667680]">Esta ação apenas designa. A própria pessoa deverá iniciar a análise.</p>
+                        <button class="sgp-button-secondary w-full justify-center">Designar analista</button>
                     </form>
+                @endcan
+
+                @can('startAnalysis', $changeRequest)
+                    <form method="POST" action="{{ route('projects.change-requests.start-analysis', [$project, $changeRequest]) }}" class="space-y-3 rounded-xl border border-[#B9D9E3] bg-[#F2F9FB] p-4">
+                        @csrf
+                        <div>
+                            <p class="font-bold text-[#123B4A]">Iniciar minha análise</p>
+                            <p class="mt-1 text-xs text-[#456B78]">O início, a rodada e todas as ações serão registrados em nome de {{ auth()->user()->name }}.</p>
+                        </div>
+                        <button class="sgp-button-primary w-full justify-center">Iniciar análise como meu usuário</button>
+                    </form>
+                @else
+                    @if($changeRequest->state === \App\Enums\ChangeRequestState::Submitted && $changeRequest->analyst_id && $changeRequest->analyst_id !== auth()->id())
+                        <p class="rounded-xl border border-[#DCE3E7] bg-[#F8FAFB] p-4 text-sm text-[#667680]">Aguardando {{ $changeRequest->analyst?->name }} iniciar a própria análise.</p>
+                    @endif
                 @endcan
 
                 @can('returnForAdjustment', $changeRequest)
@@ -161,17 +177,19 @@
                 @endcan
 
                 @if($changeRequest->state === \App\Enums\ChangeRequestState::Approved)
-                    <p class="rounded-xl border border-[#BFE2D9] bg-[#EDF8F5] p-4 text-sm font-medium text-[#256C5C]">Solicitação aprovada. A implementação e a nova baseline serão tratadas no P07.3.</p>
+                    <p class="rounded-xl border border-[#BFE2D9] bg-[#EDF8F5] p-4 text-sm font-medium text-[#256C5C]">Solicitação aprovada. Registre o planejamento, as evidências, o tratamento contratual e o destino de baseline.</p>
                 @elseif($changeRequest->state === \App\Enums\ChangeRequestState::Rejected)
                     <p class="rounded-xl border border-[#F0C7C7] bg-[#FFF4F4] p-4 text-sm font-medium text-[#A53E3E]">Solicitação rejeitada. A decisão está encerrada e preservada no histórico.</p>
                 @elseif($changeRequest->state === \App\Enums\ChangeRequestState::Implemented)
-                    <p class="rounded-xl bg-[#F5F7F9] p-4 text-sm text-[#667680]">A implementação será habilitada no P07.3.</p>
+                    <p class="rounded-xl border border-[#BFE2D9] bg-[#EDF8F5] p-4 text-sm font-medium text-[#256C5C]">Mudança implementada. A execução, as evidências e a baseline resultante estão preservadas.</p>
                 @endif
                 </div>
             </article>
         </section>
 
         @include('projects.change-requests._impact-analysis')
+
+        @include('projects.change-requests._implementation')
 
         <section class="space-y-5">
             @can('manageAttachments', $changeRequest)
@@ -212,7 +230,7 @@
                 @foreach($changeRequest->transitions as $transition)
                     <li class="grid gap-2 px-6 py-4 md:grid-cols-[170px_minmax(0,1fr)_180px] md:items-start">
                         <time class="text-sm text-[#667680]">{{ $transition->occurred_at->format('d/m/Y H:i') }}</time>
-                        <div><p class="font-semibold text-[#24313A]">{{ $transition->from_state?->label() ?? 'Registro inicial' }} → {{ $transition->to_state->label() }}</p>@if($transition->reason)<p class="mt-1 text-sm text-[#667680]">{{ $transition->reason }}</p>@endif</div>
+                        <div><p class="font-semibold text-[#24313A]">{{ data_get($transition->metadata, 'event_type') === 'analyst_assigned' ? 'Analista designado' : (($transition->from_state?->label() ?? 'Registro inicial').' → '.$transition->to_state->label()) }}</p>@if($transition->reason)<p class="mt-1 text-sm text-[#667680]">{{ $transition->reason }}</p>@endif</div>
                         <p class="text-sm font-medium text-[#667680] md:text-right">{{ $transition->actor->name }}</p>
                     </li>
                 @endforeach

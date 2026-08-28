@@ -64,6 +64,15 @@ class AuditTenantFileBoundary
             return $this->lookup('project_documents', 'document', 'document.export', $request);
         }
 
+        if ($routeName === 'contracts.attachments.download') {
+            return $this->lookup(
+                'project_contract_attachments',
+                'attachment',
+                'contract.attachment.download',
+                $request,
+            );
+        }
+
         return null;
     }
 

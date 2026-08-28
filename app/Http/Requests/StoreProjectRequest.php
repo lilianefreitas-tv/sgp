@@ -34,7 +34,8 @@ class StoreProjectRequest extends FormRequest
                 'nullable',
                 Rule::exists('project_contracts', 'id')->where(fn ($query) => $query
                     ->where('organization_id', app(OrganizationContext::class)->id())
-                    ->whereNull('project_id')),
+                    ->whereNull('project_id')
+                    ->whereNull('initiative_id')),
             ],
             'client_id' => [
                 'nullable',

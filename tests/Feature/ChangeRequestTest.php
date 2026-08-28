@@ -363,6 +363,89 @@ class ChangeRequestTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_manager_designates_analyst_but_only_authenticated_assignee_starts_analysis(): void
+    {
+        [$organization, $manager, $project] = $this->scenario();
+        $analyst = $this->projectUser($organization, $project, ProjectRole::RequirementsAnalyst);
+        $otherAnalyst = $this->projectUser($organization, $project, ProjectRole::RequirementsAnalyst);
+        $service = app(ChangeRequestService::class);
+        $changeRequest = $service->create($project, $this->completeData(), $manager);
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::Submitted, $manager);
+
+        $this->actingAs($manager)
+            ->withSession(['active_organization_id' => $organization->id])
+            ->post(route('projects.change-requests.assign-analyst', [$project, $changeRequest]), [
+                'analyst_id' => $analyst->id,
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($otherAnalyst)
+            ->withSession(['active_organization_id' => $organization->id])
+            ->post(route('projects.change-requests.start-analysis', [$project, $changeRequest]), [
+                'analyst_id' => $otherAnalyst->id,
+            ])
+            ->assertForbidden();
+
+        $this->actingAs($analyst)
+            ->withSession(['active_organization_id' => $organization->id])
+            ->post(route('projects.change-requests.start-analysis', [$project, $changeRequest]), [
+                'analyst_id' => $otherAnalyst->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('change_requests', [
+            'id' => $changeRequest->id,
+            'state' => ChangeRequestState::UnderAnalysis->value,
+            'analyst_id' => $analyst->id,
+        ]);
+        $this->assertDatabaseHas('change_request_transitions', [
+            'change_request_id' => $changeRequest->id,
+            'from_state' => ChangeRequestState::Submitted->value,
+            'to_state' => ChangeRequestState::Submitted->value,
+            'actor_id' => $manager->id,
+        ]);
+    }
+
+    public function test_organization_administrator_without_project_manager_role_cannot_decide(): void
+    {
+        [$organization, $manager, $project] = $this->scenario();
+        $service = app(ChangeRequestService::class);
+        $changeRequest = $service->create($project, $this->completeData(), $manager);
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::Submitted, $manager);
+        $changeRequest = $service->transition($changeRequest, ChangeRequestState::UnderAnalysis, $manager);
+        $this->completeImpactAnalysis($changeRequest, $manager, ChangeRequestRecommendation::Approve);
+
+        $administrator = User::factory()->create();
+        OrganizationMembership::factory()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $administrator->id,
+            'role_code' => OrganizationRole::Administrator,
+            'status' => OrganizationMembershipStatus::Active,
+        ]);
+
+        $this->actingAs($administrator)
+            ->withSession(['active_organization_id' => $organization->id])
+            ->post(route('projects.change-requests.approve', [$project, $changeRequest]), [
+                'reason' => 'Tentativa por atalho administrativo.',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_observer_can_view_but_cannot_create_change_request(): void
+    {
+        [$organization, $manager, $project] = $this->scenario();
+        $observer = $this->projectUser($organization, $project, ProjectRole::Observer);
+        $changeRequest = app(ChangeRequestService::class)->create($project, $this->completeData(), $manager);
+
+        $this->actingAs($observer)
+            ->withSession(['active_organization_id' => $organization->id])
+            ->get(route('projects.change-requests.show', [$project, $changeRequest]))
+            ->assertOk();
+
+        $this->get(route('projects.change-requests.create', $project))->assertForbidden();
+        $this->post(route('projects.change-requests.store', $project), $this->completeData())->assertForbidden();
+    }
+
     /** @return array<string, mixed> */
     private function completeData(): array
     {
@@ -435,5 +518,27 @@ class ChangeRequestTest extends TestCase
         ]);
 
         return [$organization, $actor, $project];
+    }
+
+    private function projectUser(
+        Organization $organization,
+        Project $project,
+        ProjectRole $role,
+    ): User {
+        $user = User::factory()->create();
+        OrganizationMembership::factory()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $user->id,
+            'role_code' => OrganizationRole::Member,
+            'status' => OrganizationMembershipStatus::Active,
+        ]);
+        $project->memberships()->create([
+            'user_id' => $user->id,
+            'role' => $role,
+            'is_active' => true,
+            'started_at' => today(),
+        ]);
+
+        return $user;
     }
 }

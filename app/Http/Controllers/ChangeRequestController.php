@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Enums\ChangeRequestOrigin;
 use App\Enums\ChangeRequestClassification;
+use App\Enums\ChangeRequestBaselineDisposition;
+use App\Enums\ChangeRequestContractDisposition;
 use App\Enums\ChangeRequestRecommendation;
 use App\Enums\ChangeRequestRiskLevel;
 use App\Enums\ChangeRequestState;
 use App\Enums\ChangeRequestUrgency;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
+use App\Enums\ProjectRole;
 use App\Http\Requests\StoreChangeRequestRequest;
 use App\Http\Requests\UpdateChangeRequestRequest;
 use App\Models\ChangeRequest;
@@ -47,13 +50,13 @@ class ChangeRequestController extends Controller
         ) + [
             'states' => ChangeRequestState::options(),
             'urgencies' => ChangeRequestUrgency::options(),
-            'canCreate' => $request->user()->canContributeToProject($project),
+            'canCreate' => $this->canRequestChange($request->user(), $project),
         ]);
     }
 
     public function create(Request $request, Project $project): View
     {
-        abort_unless($request->user()->canContributeToProject($project), 403);
+        abort_unless($this->canRequestChange($request->user(), $project), 403);
 
         $changeRequest = new ChangeRequest([
             'requester_id' => $request->user()->id,
@@ -85,6 +88,11 @@ class ChangeRequestController extends Controller
             'affectedItems',
             'impactAnalyses.analyst',
             'impactAnalyses.completedBy',
+            'implementation.responsible',
+            'implementation.completedBy',
+            'implementation.contract',
+            'implementation.newBaseline',
+            'implementation.events.actor',
             'transitions.actor',
             'attachments.uploader',
         ]);
@@ -135,16 +143,27 @@ class ChangeRequestController extends Controller
     ): RedirectResponse {
         $this->ensureNested($project, $changeRequest);
         abort_unless($request->user()->can('startAnalysis', $changeRequest), 403);
-        $data = $request->validate(['analyst_id' => ['nullable', 'integer']]);
         $service->transition(
             $changeRequest,
             ChangeRequestState::UnderAnalysis,
             $request->user(),
-            null,
-            isset($data['analyst_id']) ? (int) $data['analyst_id'] : null,
         );
 
-        return back()->with('success', 'Análise iniciada e responsável registrado.');
+        return back()->with('success', 'Análise iniciada e registrada em seu usuário.');
+    }
+
+    public function assignAnalyst(
+        Request $request,
+        Project $project,
+        ChangeRequest $changeRequest,
+        ChangeRequestService $service,
+    ): RedirectResponse {
+        $this->ensureNested($project, $changeRequest);
+        abort_unless($request->user()->can('assignAnalyst', $changeRequest), 403);
+        $data = $request->validate(['analyst_id' => ['required', 'integer']]);
+        $service->assignAnalyst($changeRequest, (int) $data['analyst_id'], $request->user());
+
+        return back()->with('success', 'Responsável pela análise designado. A própria pessoa deverá iniciar a análise.');
     }
 
     public function returnForAdjustment(
@@ -238,12 +257,15 @@ class ChangeRequestController extends Controller
             'origins' => ChangeRequestOrigin::options(),
             'urgencies' => ChangeRequestUrgency::options(),
             'projectUsers' => $this->projectUsers($project),
-            'canManageProject' => $request->user()->canManageProject($project),
+            'eligibleAnalysts' => $this->eligibleAnalysts($project),
+            'canManageProject' => $request->user()->hasProjectRole(ProjectRole::ProjectManager, $project),
             'maxUploadMb' => config('sgp.attachments.max_kb') / 1024,
             'allowedExtensions' => config('sgp.attachments.allowed_extensions'),
             'analysisClassifications' => ChangeRequestClassification::options(),
             'analysisRiskLevels' => ChangeRequestRiskLevel::options(),
             'analysisRecommendations' => ChangeRequestRecommendation::options(),
+            'implementationContractDispositions' => ChangeRequestContractDisposition::options(),
+            'implementationBaselineDispositions' => ChangeRequestBaselineDisposition::options(),
         ];
     }
 
@@ -260,18 +282,43 @@ class ChangeRequestController extends Controller
             ->whereHas('organizationMemberships', fn ($query) => $query
                 ->where('organization_id', $project->organization_id)
                 ->where('status', OrganizationMembershipStatus::Active->value))
-            ->where(function ($query) use ($memberIds, $project): void {
-                $query->whereIn('id', $memberIds)
-                    ->orWhereHas('organizationMemberships', fn ($membership) => $membership
-                        ->where('organization_id', $project->organization_id)
-                        ->where('status', OrganizationMembershipStatus::Active->value)
-                        ->whereIn('role_code', [
-                            OrganizationRole::Owner->value,
-                            OrganizationRole::Administrator->value,
-                        ]));
-            })
+            ->whereIn('id', $memberIds)
             ->orderBy('name')
             ->get();
+    }
+
+    private function eligibleAnalysts(Project $project)
+    {
+        $eligibleIds = $project->memberships()
+            ->where('is_active', true)
+            ->whereIn('role', [
+                ProjectRole::ProjectManager->value,
+                ProjectRole::RequirementsAnalyst->value,
+            ])
+            ->pluck('user_id')
+            ->push($project->manager_id)
+            ->unique();
+
+        return User::query()
+            ->where('is_active', true)
+            ->whereIn('id', $eligibleIds)
+            ->whereHas('organizationMemberships', fn ($query) => $query
+                ->where('organization_id', $project->organization_id)
+                ->where('status', OrganizationMembershipStatus::Active->value)
+                ->where('role_code', '!=', OrganizationRole::Reader->value))
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function canRequestChange(User $user, Project $project): bool
+    {
+        return $user->canContributeToProject($project)
+            && $project->hasActiveMember($user)
+            && $user->projectMemberships()
+                ->where('project_id', $project->id)
+                ->where('is_active', true)
+                ->where('role', '!=', ProjectRole::Observer->value)
+                ->exists();
     }
 
     private function ensureCanView(Request $request, Project $project): void

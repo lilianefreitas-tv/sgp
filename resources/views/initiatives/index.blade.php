@@ -20,16 +20,22 @@
                 </a>
             </div>
         </section>
+        <nav class="flex flex-wrap gap-2" aria-label="Filtros das iniciativas">
+            @foreach (['active' => 'Ativas', 'converted' => 'Convertidas', 'cancelled' => 'Canceladas', 'archived' => 'Arquivadas', 'all' => 'Todas'] as $key => $label)
+                <a href="{{ route('initiatives.index', ['status' => $key]) }}" class="rounded-full border px-4 py-2 text-sm font-semibold {{ $filter === $key ? 'border-[#154C5D] bg-[#154C5D] text-white' : 'border-[#DCE3E7] bg-white text-[#41515B] hover:bg-[#F1F6F7]' }}">{{ $label }}</a>
+            @endforeach
+        </nav>
         @forelse ($initiatives as $initiative)
             @php($status = $availability[$initiative->id])
             <article class="rounded-xl border border-[#DCE3E7] bg-white p-5 shadow-sm">
                 <div class="flex flex-col items-start justify-between gap-4 sm:flex-row">
                     <div>
-                        <p class="text-sm text-[#667680]">{{ $initiative->code }} · {{ $initiative->origin->label() }}</p>
-                        <h2 class="mt-1 text-lg font-semibold text-[#24313A]">{{ $initiative->title }}</h2>
+                        <p class="text-sm text-[#667680]">{{ $initiative->code }} · {{ $initiative->origin->label() }} · {{ $initiative->state->label() }}</p>
+                        <h2 class="mt-1 text-lg font-semibold text-[#24313A]"><a class="hover:text-[#176B7D]" href="{{ route('initiatives.show', $initiative) }}">{{ $initiative->title }}</a></h2>
                         <p class="mt-2 text-sm text-[#667680]">{{ $status['reason'] }}</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 sm:justify-end">
+                        <a class="sgp-link" href="{{ route('initiatives.show', $initiative) }}">Gerenciar</a>
                         <a class="sgp-link" href="{{ route('initiatives.artifacts.index', $initiative) }}">Documentos</a>
                         @if ($initiative->origin === \App\Enums\InitiativeOrigin::Commercial)
                             <a class="sgp-link" href="{{ route('commercial.show', $initiative) }}">Jornada comercial</a>

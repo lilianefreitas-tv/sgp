@@ -18,8 +18,8 @@ class ChangeRequestPolicy
     public function update(User $user, ChangeRequest $changeRequest): bool
     {
         return $changeRequest->state->isEditable()
-            && $user->canContributeToProject($changeRequest->project)
-            && ($user->canManageProject($changeRequest->project)
+            && $this->canRequest($user, $changeRequest)
+            && ($this->isProjectManager($user, $changeRequest)
                 || $changeRequest->requester_id === $user->id);
     }
 
@@ -31,7 +31,14 @@ class ChangeRequestPolicy
     public function startAnalysis(User $user, ChangeRequest $changeRequest): bool
     {
         return $changeRequest->state === ChangeRequestState::Submitted
-            && $this->canAnalyze($user, $changeRequest);
+            && $this->isAnalysisRole($user, $changeRequest)
+            && ($changeRequest->analyst_id === null || $changeRequest->analyst_id === $user->id);
+    }
+
+    public function assignAnalyst(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $changeRequest->state === ChangeRequestState::Submitted
+            && $this->isProjectManager($user, $changeRequest);
     }
 
     public function returnForAdjustment(User $user, ChangeRequest $changeRequest): bool
@@ -45,7 +52,7 @@ class ChangeRequestPolicy
     public function decide(User $user, ChangeRequest $changeRequest): bool
     {
         if ($changeRequest->state !== ChangeRequestState::UnderAnalysis
-            || ! $user->canManageProject($changeRequest->project)) {
+            || ! $this->isProjectManager($user, $changeRequest)) {
             return false;
         }
 
@@ -55,7 +62,7 @@ class ChangeRequestPolicy
     public function analyzeImpact(User $user, ChangeRequest $changeRequest): bool
     {
         return $changeRequest->state === ChangeRequestState::UnderAnalysis
-            && ($user->canManageProject($changeRequest->project)
+            && ($this->isProjectManager($user, $changeRequest)
                 || $changeRequest->analyst_id === $user->id);
     }
 
@@ -66,7 +73,7 @@ class ChangeRequestPolicy
             ChangeRequestState::Submitted,
             ChangeRequestState::UnderAnalysis,
             ChangeRequestState::Returned,
-        ], true) && ($user->canManageProject($changeRequest->project)
+        ], true) && ($this->isProjectManager($user, $changeRequest)
             || ($user->canContributeToProject($changeRequest->project)
                 && ($changeRequest->requester_id === $user->id
                     || $changeRequest->analyst_id === $user->id)));
@@ -78,13 +85,59 @@ class ChangeRequestPolicy
             || (in_array($changeRequest->state, [
                 ChangeRequestState::Submitted,
                 ChangeRequestState::UnderAnalysis,
-            ], true) && $this->canAnalyze($user, $changeRequest));
+            ], true) && $this->canAnalyze($user, $changeRequest))
+            || ($changeRequest->state === ChangeRequestState::Approved
+                && $this->canImplement($user, $changeRequest));
+    }
+
+    public function updateImplementation(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $changeRequest->state === ChangeRequestState::Approved
+            && $this->canImplement($user, $changeRequest);
+    }
+
+    public function startImplementation(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $this->updateImplementation($user, $changeRequest);
+    }
+
+    public function completeImplementation(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $changeRequest->state === ChangeRequestState::Approved
+            && $this->isProjectManager($user, $changeRequest);
     }
 
     private function canAnalyze(User $user, ChangeRequest $changeRequest): bool
     {
-        return $user->canManageProject($changeRequest->project)
-            || $changeRequest->analyst_id === $user->id
+        return $this->isProjectManager($user, $changeRequest)
+            || $changeRequest->analyst_id === $user->id;
+    }
+
+    private function canImplement(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $this->isProjectManager($user, $changeRequest)
+            || $changeRequest->implementation?->responsible_id === $user->id;
+    }
+
+    private function canRequest(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $user->canContributeToProject($changeRequest->project)
+            && $changeRequest->project->hasActiveMember($user)
+            && $user->projectMemberships()
+                ->where('project_id', $changeRequest->project_id)
+                ->where('is_active', true)
+                ->where('role', '!=', ProjectRole::Observer->value)
+                ->exists();
+    }
+
+    private function isAnalysisRole(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $this->isProjectManager($user, $changeRequest)
             || $user->hasProjectRole(ProjectRole::RequirementsAnalyst, $changeRequest->project);
+    }
+
+    private function isProjectManager(User $user, ChangeRequest $changeRequest): bool
+    {
+        return $user->hasProjectRole(ProjectRole::ProjectManager, $changeRequest->project);
     }
 }

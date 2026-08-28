@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Enums\ChangeRequestAnalysisStatus;
+use App\Enums\ChangeRequestImplementationStatus;
 use App\Enums\ChangeRequestState;
 use App\Enums\OrganizationMembershipStatus;
-use App\Enums\OrganizationRole;
 use App\Enums\ProjectRole;
 use App\Models\ChangeRequest;
 use App\Models\Project;
@@ -29,6 +29,7 @@ class ChangeRequestService
             ChangeRequestState::Cancelled,
         ],
         'returned' => [ChangeRequestState::Submitted, ChangeRequestState::Cancelled],
+        'approved' => [ChangeRequestState::Implemented],
     ];
 
     public function create(Project $project, array $data, User $actor): ChangeRequest
@@ -41,8 +42,7 @@ class ChangeRequestService
                 ->firstOrFail();
 
             $sequence = (int) $project->changeRequests()->max('sequence') + 1;
-            $requester = $this->resolveRequester($project, $data['requester_id'] ?? null, $actor);
-            $analyst = $this->resolveOptionalAnalyst($project, $data['analyst_id'] ?? null, $actor);
+            $requester = $this->resolveProjectUser($project, $actor->id, 'requester_id');
             $baselineId = $this->resolveBaseline($project, $data['baseline_id'] ?? null);
 
             $changeRequest = $project->changeRequests()->create([
@@ -56,7 +56,7 @@ class ChangeRequestService
                 'urgency' => $data['urgency'] ?? null,
                 'baseline_id' => $baselineId,
                 'requester_id' => $requester->id,
-                'analyst_id' => $analyst?->id,
+                'analyst_id' => null,
                 'state' => ChangeRequestState::Draft,
                 'created_by' => $actor->id,
                 'updated_by' => $actor->id,
@@ -97,10 +97,6 @@ class ChangeRequestService
             }
 
             $project = $locked->project;
-            $requester = $this->resolveRequester($project, $data['requester_id'] ?? $locked->requester_id, $actor);
-            $analyst = $actor->canManageProject($project)
-                ? $this->resolveOptionalAnalyst($project, $data['analyst_id'] ?? $locked->analyst_id, $actor)
-                : $locked->analyst;
             $locked->update([
                 'origin' => $data['origin'],
                 'title' => trim($data['title']),
@@ -108,8 +104,8 @@ class ChangeRequestService
                 'justification' => $this->nullableText($data['justification'] ?? null),
                 'urgency' => $data['urgency'] ?? null,
                 'baseline_id' => $this->resolveBaseline($project, $data['baseline_id'] ?? null),
-                'requester_id' => $requester->id,
-                'analyst_id' => $analyst?->id,
+                'requester_id' => $locked->requester_id,
+                'analyst_id' => $locked->analyst_id,
                 'updated_by' => $actor->id,
             ]);
             $this->syncAffectedItems($locked, $data['affected'] ?? []);
@@ -133,9 +129,8 @@ class ChangeRequestService
         ChangeRequestState $target,
         User $actor,
         ?string $reason = null,
-        ?int $analystId = null,
     ): ChangeRequest {
-        return DB::transaction(function () use ($changeRequest, $target, $actor, $reason, $analystId): ChangeRequest {
+        return DB::transaction(function () use ($changeRequest, $target, $actor, $reason): ChangeRequest {
             $locked = ChangeRequest::query()->lockForUpdate()->findOrFail($changeRequest->id);
             $from = $locked->state;
             $allowed = self::INITIAL_TRANSITIONS[$from->value] ?? [];
@@ -156,12 +151,23 @@ class ChangeRequestService
                 }
             }
 
+            $implementation = null;
+            if ($target === ChangeRequestState::Implemented) {
+                $implementation = $locked->implementation()->first();
+                if ($implementation?->status !== ChangeRequestImplementationStatus::Completed) {
+                    throw ValidationException::withMessages([
+                        'implementation' => 'Conclua e verifique a implementação antes de encerrar a solicitação.',
+                    ]);
+                }
+            }
+
             $reason = $this->nullableText($reason);
             if (in_array($target, [
                 ChangeRequestState::Returned,
                 ChangeRequestState::Approved,
                 ChangeRequestState::Rejected,
                 ChangeRequestState::Cancelled,
+                ChangeRequestState::Implemented,
             ], true)
                 && $reason === null) {
                 throw ValidationException::withMessages([
@@ -174,11 +180,13 @@ class ChangeRequestService
             }
 
             if ($target === ChangeRequestState::UnderAnalysis) {
-                $analyst = $this->resolveRequiredAnalyst(
-                    $locked->project,
-                    $analystId ?? $locked->analyst_id ?? $actor->id,
-                );
-                $locked->analyst_id = $analyst->id;
+                $this->resolveRequiredAnalyst($locked->project, $actor->id);
+                if ($locked->analyst_id !== null && $locked->analyst_id !== $actor->id) {
+                    throw ValidationException::withMessages([
+                        'analyst_id' => 'A solicitação foi designada para outra pessoa. Somente ela pode iniciar a própria análise.',
+                    ]);
+                }
+                $locked->analyst_id = $actor->id;
             }
 
             $now = now();
@@ -192,6 +200,8 @@ class ChangeRequestService
                 $locked->returned_at = $now;
             } elseif ($target === ChangeRequestState::Cancelled) {
                 $locked->cancelled_at = $now;
+            } elseif ($target === ChangeRequestState::Implemented) {
+                $locked->implemented_at = $now;
             }
             $locked->save();
 
@@ -221,6 +231,16 @@ class ChangeRequestService
                     'analysis_round' => $decisionAnalysis->round,
                     'recommendation' => $decisionAnalysis->recommendation->value,
                 ];
+            } elseif ($implementation !== null) {
+                $metadata = [
+                    'source' => 'P07.3',
+                    'implementation_id' => $implementation->id,
+                    'contract_disposition' => $implementation->contract_disposition->value,
+                    'contract_id' => $implementation->contract_id,
+                    'contract_version' => $implementation->amendment_contract_version,
+                    'baseline_disposition' => $implementation->baseline_disposition->value,
+                    'new_baseline_id' => $implementation->new_baseline_id,
+                ];
             }
 
             $locked->transitions()->create([
@@ -249,8 +269,58 @@ class ChangeRequestService
                 'affectedItems',
                 'impactAnalyses.analyst',
                 'impactAnalyses.completedBy',
+                'implementation.responsible',
+                'implementation.completedBy',
+                'implementation.contract',
+                'implementation.newBaseline',
+                'implementation.events.actor',
                 'transitions.actor',
             ]);
+        });
+    }
+
+    public function assignAnalyst(ChangeRequest $changeRequest, int $analystId, User $actor): ChangeRequest
+    {
+        return DB::transaction(function () use ($changeRequest, $analystId, $actor): ChangeRequest {
+            $locked = ChangeRequest::query()->lockForUpdate()->findOrFail($changeRequest->id);
+            if ($locked->state !== ChangeRequestState::Submitted) {
+                throw ValidationException::withMessages([
+                    'state' => 'O analista só pode ser designado enquanto a solicitação estiver submetida.',
+                ]);
+            }
+
+            $analyst = $this->resolveRequiredAnalyst($locked->project, $analystId);
+            $previousAnalystId = $locked->analyst_id;
+            $locked->update([
+                'analyst_id' => $analyst->id,
+                'updated_by' => $actor->id,
+            ]);
+
+            $locked->transitions()->create([
+                'organization_id' => $locked->organization_id,
+                'from_state' => ChangeRequestState::Submitted,
+                'to_state' => ChangeRequestState::Submitted,
+                'actor_id' => $actor->id,
+                'reason' => 'Responsável pela análise designado: '.$analyst->name.'.',
+                'metadata' => [
+                    'source' => 'P07.3-R2',
+                    'event_type' => 'analyst_assigned',
+                    'previous_analyst_id' => $previousAnalystId,
+                    'analyst_id' => $analyst->id,
+                ],
+                'occurred_at' => now(),
+            ]);
+            ProjectActivity::record(
+                $locked->project,
+                $actor,
+                'change_request_analyst_assigned',
+                'Responsável pela análise designado',
+                'change_request',
+                $locked->id,
+                ['details' => $locked->code.' · '.$analyst->name],
+            );
+
+            return $locked->fresh()->load(['analyst', 'transitions.actor']);
         });
     }
 
@@ -312,48 +382,10 @@ class ChangeRequestService
             : null;
     }
 
-    private function resolveRequester(Project $project, ?int $requestedId, User $actor): User
-    {
-        $requestedId ??= $actor->id;
-        if ($requestedId !== $actor->id && ! $actor->canManageProject($project)) {
-            throw ValidationException::withMessages([
-                'requester_id' => 'Somente a gestão do projeto pode registrar a solicitação em nome de outra pessoa.',
-            ]);
-        }
-
-        return $this->resolveProjectUser($project, $requestedId, 'requester_id');
-    }
-
-    private function resolveOptionalAnalyst(Project $project, ?int $analystId, User $actor): ?User
-    {
-        if ($analystId === null) {
-            return null;
-        }
-
-        if (! $actor->canManageProject($project)) {
-            throw ValidationException::withMessages([
-                'analyst_id' => 'O responsável pela análise deve ser atribuído pela gestão do projeto.',
-            ]);
-        }
-
-        return $this->resolveRequiredAnalyst($project, $analystId);
-    }
-
     private function resolveRequiredAnalyst(Project $project, int $analystId): User
     {
         $analyst = $this->resolveProjectUser($project, $analystId, 'analyst_id');
-        $organizationRole = $analyst->organizationMemberships()
-            ->where('organization_id', $project->organization_id)
-            ->where('status', OrganizationMembershipStatus::Active->value)
-            ->value('role_code');
-        $privilegedOrganizationRole = in_array($organizationRole, [
-            OrganizationRole::Owner->value,
-            OrganizationRole::Administrator->value,
-        ], true);
-
-        if (! $privilegedOrganizationRole
-            && $project->manager_id !== $analyst->id
-            && ! $analyst->hasProjectRole(ProjectRole::ProjectManager, $project)
+        if (! $analyst->hasProjectRole(ProjectRole::ProjectManager, $project)
             && ! $analyst->hasProjectRole(ProjectRole::RequirementsAnalyst, $project)) {
             throw ValidationException::withMessages([
                 'analyst_id' => 'Selecione um gerente ou analista de requisitos ativo no projeto.',
@@ -373,21 +405,7 @@ class ChangeRequestService
                 ->where('status', OrganizationMembershipStatus::Active->value))
             ->first();
 
-        $organizationRole = $user === null
-            ? null
-            : $user->organizationMemberships()
-                ->where('organization_id', $project->organization_id)
-                ->where('status', OrganizationMembershipStatus::Active->value)
-                ->value('role_code');
-        $privilegedOrganizationRole = in_array($organizationRole, [
-            OrganizationRole::Owner->value,
-            OrganizationRole::Administrator->value,
-        ], true);
-
-        if ($user === null
-            || (! $privilegedOrganizationRole
-                && $project->manager_id !== $user->id
-                && ! $project->hasActiveMember($user))) {
+        if ($user === null || ! $project->hasActiveMember($user)) {
             throw ValidationException::withMessages([
                 $field => 'Selecione uma pessoa ativa e vinculada ao projeto.',
             ]);

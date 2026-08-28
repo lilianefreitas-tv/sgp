@@ -28,12 +28,17 @@ class InitiativeConversionService
         private readonly AdaptiveConfigurationResolver $resolver,
         private readonly ApplicabilityEngine $engine,
         private readonly ProjectConfigurationService $projectConfigurations,
+        private readonly ProjectContractService $projectContracts,
     ) {}
 
     /** @return array{available: bool, reason: string} */
     public function availability(Initiative $initiative, User $actor): array
     {
-        $this->authorize($initiative, $actor);
+        $this->authorize($initiative, $actor, false);
+
+        if (! ($actor->isSuperAdmin() && $this->context->isPlatformAccess()) && ! $actor->canCreateProjects()) {
+            return ['available' => false, 'reason' => 'A conversão exige autorização para iniciar projetos nesta organização.'];
+        }
 
         if ($initiative->project()->exists() || $initiative->state === InitiativeState::Converted) {
             return ['available' => false, 'reason' => 'A iniciativa já foi convertida em projeto.'];
@@ -49,6 +54,9 @@ class InitiativeConversionService
 
         if ($initiative->origin === InitiativeOrigin::Commercial) {
             return $this->commercialAvailability($initiative);
+        }
+        if ($initiative->origin === InitiativeOrigin::ExistingContract && ! $initiative->contracts()->exists()) {
+            return ['available' => false, 'reason' => 'Vincule ao menos um contrato antes de iniciar o projeto.'];
         }
 
         return ['available' => true, 'reason' => 'A rota operacional desta origem está disponível.'];
@@ -104,6 +112,17 @@ class InitiativeConversionService
                 $actor,
                 'Histórico inicial criado na conversão da iniciativa '.$locked->code.'.',
             );
+
+            $locked->contracts()
+                ->whereNull('project_id')
+                ->lockForUpdate()
+                ->get()
+                ->each(fn ($contract) => $this->projectContracts->linkToProject(
+                    $contract,
+                    $project,
+                    $actor,
+                    'Vínculo herdado na conversão da iniciativa '.$locked->code.'.',
+                ));
 
             $locked->update([
                 'state' => InitiativeState::Converted,
@@ -199,7 +218,7 @@ class InitiativeConversionService
         }
     }
 
-    private function authorize(Initiative $initiative, User $actor): void
+    private function authorize(Initiative $initiative, User $actor, bool $requireProjectCreation = true): void
     {
         if (! $actor->exists || ! $actor->is_active
             || ! $this->context->active()
@@ -214,7 +233,7 @@ class InitiativeConversionService
             ->where('user_id', $actor->id)
             ->where('status', OrganizationMembershipStatus::Active->value)
             ->exists();
-        if (! $membership || ! $actor->canCreateProjects()) {
+        if (! $membership || ($requireProjectCreation && ! $actor->canCreateProjects())) {
             throw new LogicException('O ator não possui autorização para iniciar projetos nesta organização.');
         }
     }

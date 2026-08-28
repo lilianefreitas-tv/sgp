@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\ExecutionNature;
+use App\Enums\ContractEntryMode;
+use App\Enums\ContractStatus;
 use App\Enums\FinancialManagementMode;
 use App\Enums\GlobalProfile;
 use App\Enums\InitiativeOrigin;
@@ -21,6 +23,7 @@ use App\Services\CommercialJourneyService;
 use App\Services\InitiativeConfigurationService;
 use App\Services\InitiativeConversionService;
 use App\Services\OrganizationContext;
+use App\Services\ProjectContractService;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +48,15 @@ class InitiativeConversionTest extends TestCase
             'management_level' => ManagementLevel::Complete,
         ], $actor, 'Configuração final para conversão.');
         $source = $initiative->configurationVersions()->whereNull('superseded_at')->firstOrFail();
+        $contract = app(ProjectContractService::class)->create([
+            'initiative_id' => $initiative->id,
+            'title' => 'Contrato da iniciativa comercial',
+            'contract_kind' => 'private',
+            'entry_mode' => ContractEntryMode::Editor,
+            'status' => ContractStatus::Draft,
+            'content' => '<p>Condições aceitas.</p>',
+            'reason' => 'Registro anterior à conversão.',
+        ], $actor);
 
         $project = $this->convert($initiative, $actor, $organization);
 
@@ -65,12 +77,24 @@ class InitiativeConversionTest extends TestCase
             'source_initiative_configuration_version_id' => $source->id,
         ]);
         $this->assertDatabaseHas('project_activities', ['project_id' => $project->id, 'event_type' => 'initiative_converted']);
+        $this->assertSame($project->id, $contract->fresh()->project_id);
+        $this->assertSame($initiative->id, $contract->fresh()->initiative_id);
+        $this->assertDatabaseHas('project_contract_versions', [
+            'contract_id' => $contract->id,
+            'version' => 2,
+            'reason' => 'Vínculo herdado na conversão da iniciativa '.$initiative->code.'.',
+        ]);
+        $this->assertDatabaseHas('project_activities', [
+            'project_id' => $project->id,
+            'event_type' => 'contract_linked',
+            'subject_id' => $contract->id,
+        ]);
     }
 
-    public function test_internal_direct_and_existing_contract_convert_without_commercial_records(): void
+    public function test_internal_and_direct_convert_without_commercial_records(): void
     {
         [$organization, $actor] = $this->actor();
-        foreach ([InitiativeOrigin::Internal, InitiativeOrigin::Direct, InitiativeOrigin::ExistingContract] as $origin) {
+        foreach ([InitiativeOrigin::Internal, InitiativeOrigin::Direct] as $origin) {
             $initiative = $this->initiative($actor, $origin);
             $project = $this->convert($initiative, $actor, $organization);
             $this->assertSame($initiative->id, $project->initiative_id);
@@ -78,6 +102,28 @@ class InitiativeConversionTest extends TestCase
             $this->assertDatabaseMissing('proposals', ['initiative_id' => $initiative->id]);
             $this->assertDatabaseMissing('negotiation_entries', ['initiative_id' => $initiative->id]);
         }
+    }
+
+    public function test_existing_contract_origin_requires_a_linked_contract_before_conversion(): void
+    {
+        [$organization, $actor] = $this->actor();
+        $initiative = $this->initiative($actor, InitiativeOrigin::ExistingContract);
+
+        $this->assertFalse(app(InitiativeConversionService::class)->availability($initiative, $actor)['available']);
+        $this->assertThrows(fn () => $this->convert($initiative, $actor, $organization), LogicException::class);
+
+        app(ProjectContractService::class)->create([
+            'initiative_id' => $initiative->id,
+            'title' => 'Contrato existente',
+            'contract_kind' => 'private',
+            'entry_mode' => ContractEntryMode::Editor,
+            'status' => ContractStatus::Draft,
+            'content' => '<p>Instrumento válido.</p>',
+            'reason' => 'Contrato que fundamenta a iniciativa.',
+        ], $actor);
+
+        $project = $this->convert($initiative->fresh(), $actor, $organization);
+        $this->assertSame($initiative->id, $project->initiative_id);
     }
 
     public function test_conversion_is_idempotent_and_never_creates_a_second_project(): void
@@ -119,15 +165,15 @@ class InitiativeConversionTest extends TestCase
         $this->assertThrows(fn () => $this->convert($expired, $actor, $organization), LogicException::class);
     }
 
-    public function test_later_initiative_changes_do_not_propagate_to_converted_project(): void
+    public function test_later_initiative_structural_changes_are_blocked_after_conversion(): void
     {
         [$organization, $actor] = $this->actor();
         $initiative = $this->initiative($actor, InitiativeOrigin::Direct);
         $project = $this->convert($initiative, $actor, $organization);
 
-        app(InitiativeConfigurationService::class)->change($initiative, [
+        $this->assertThrows(fn () => app(InitiativeConfigurationService::class)->change($initiative->fresh(), [
             'methodology' => ProjectMethodology::Scrum,
-        ], $actor, 'Mudança posterior.');
+        ], $actor, 'Mudança posterior.'), LogicException::class);
 
         $this->assertSame(ProjectMethodology::Kanban, $project->fresh()->methodology);
     }

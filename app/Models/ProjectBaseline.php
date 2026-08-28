@@ -9,7 +9,7 @@ use LogicException;
 
 class ProjectBaseline extends Model
 {
-    protected $fillable = ['organization_id', 'project_id', 'version', 'title', 'justification', 'established_at', 'created_by'];
+    protected $fillable = ['organization_id', 'project_id', 'source_change_request_id', 'version', 'title', 'justification', 'established_at', 'created_by'];
 
     protected function casts(): array
     {
@@ -18,6 +18,7 @@ class ProjectBaseline extends Model
 
     protected static function booted(): void
     {
+        static::updating(fn () => throw new LogicException('Baselines constituídas são imutáveis.'));
         static::deleting(fn () => throw new LogicException('Baselines não podem ser excluídas.'));
     }
 
@@ -29,6 +30,11 @@ class ProjectBaseline extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function sourceChangeRequest(): BelongsTo
+    {
+        return $this->belongsTo(ChangeRequest::class, 'source_change_request_id');
     }
 
     public function items(): HasMany

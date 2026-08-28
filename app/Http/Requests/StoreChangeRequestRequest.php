@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\ChangeRequestOrigin;
 use App\Enums\ChangeRequestUrgency;
+use App\Enums\ProjectRole;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,7 +16,13 @@ class StoreChangeRequestRequest extends FormRequest
 
         return $this->user() !== null
             && $project !== null
-            && $this->user()->canContributeToProject($project);
+            && $this->user()->canContributeToProject($project)
+            && $project->hasActiveMember($this->user())
+            && $this->user()->projectMemberships()
+                ->where('project_id', $project->id)
+                ->where('is_active', true)
+                ->where('role', '!=', ProjectRole::Observer->value)
+                ->exists();
     }
 
     /** @return array<string, mixed> */
@@ -28,8 +35,6 @@ class StoreChangeRequestRequest extends FormRequest
             'justification' => ['nullable', 'string', 'max:10000'],
             'urgency' => ['nullable', Rule::enum(ChangeRequestUrgency::class)],
             'baseline_id' => ['nullable', 'integer'],
-            'requester_id' => ['nullable', 'integer'],
-            'analyst_id' => ['nullable', 'integer'],
             'affected' => ['nullable', 'array'],
             'affected.requirement' => ['nullable', 'array', 'max:100'],
             'affected.requirement.*' => ['integer', 'distinct'],

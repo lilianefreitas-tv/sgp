@@ -45,6 +45,11 @@
             </div>
         </a>
 
+        <a href="{{ route('contracts.index', ['project' => $project->id]) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#287EA1]">Fundação contratual</p><p class="mt-1 font-bold text-[#123B4A]">Contratos do projeto</p><p class="mt-1 text-sm text-[#667680]">Consulte o conteúdo, os anexos, as versões e os vínculos contratuais estruturados.</p></div>
+            <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#1D5D73]">{{ $project->contracts_count }} contrato(s)</span><span class="text-xl text-[#287EA1]">→</span></div>
+        </a>
+
         <a href="{{ route('projects.baselines.index', $project) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
             <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#287EA1]">Governança da configuração</p><p class="mt-1 font-bold text-[#123B4A]">Baselines do projeto</p><p class="mt-1 text-sm text-[#667680]">Constitua versões imutáveis do escopo, requisitos, documentos e contratos vigentes.</p></div>
             <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#1D5D73]">{{ $project->baselines_count }} versões</span><span class="text-xl text-[#287EA1]">→</span></div>

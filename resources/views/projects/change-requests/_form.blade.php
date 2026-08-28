@@ -56,7 +56,7 @@
 
     <section class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
         <h2 class="font-bold text-[#24313A]">Referências e responsáveis</h2>
-        <p class="mt-1 text-sm text-[#667680]">Baseline, itens afetados e responsável pela análise podem ser informados depois.</p>
+        <p class="mt-1 text-sm text-[#667680]">A baseline e os itens afetados podem ser informados depois. O analista será designado no fluxo após a submissão.</p>
 
         <div class="mt-5 grid gap-5 lg:grid-cols-3">
             <div>
@@ -72,32 +72,15 @@
 
             <div>
                 <label for="requester_id" class="sgp-field-label">Solicitante</label>
-                @if($canManageProject)
-                    <select id="requester_id" name="requester_id" class="sgp-input">
-                        @foreach($projectUsers as $userOption)
-                            <option value="{{ $userOption->id }}" @selected((string) old('requester_id', $changeRequest->requester_id ?: auth()->id()) === (string) $userOption->id)>{{ $userOption->name }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <input type="hidden" name="requester_id" value="{{ $changeRequest->requester_id ?: auth()->id() }}">
-                    <div class="sgp-input bg-[#F5F7F9]">{{ $changeRequest->requester?->name ?? auth()->user()->name }}</div>
-                @endif
+                <div class="sgp-input bg-[#F5F7F9]">{{ $changeRequest->requester?->name ?? auth()->user()->name }}</div>
+                <p class="mt-1 text-xs text-[#667680]">A solicitação é registrada em nome do usuário autenticado.</p>
                 @error('requester_id')<p class="mt-1 text-sm text-[#A53E3E]">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label for="analyst_id" class="sgp-field-label">Responsável pela análise</label>
-                @if($canManageProject)
-                    <select id="analyst_id" name="analyst_id" class="sgp-input">
-                        <option value="">Atribuir depois</option>
-                        @foreach($projectUsers as $userOption)
-                            <option value="{{ $userOption->id }}" @selected((string) old('analyst_id', $changeRequest->analyst_id) === (string) $userOption->id)>{{ $userOption->name }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <input type="hidden" name="analyst_id" value="{{ $changeRequest->analyst_id }}">
-                    <div class="sgp-input bg-[#F5F7F9]">{{ $changeRequest->analyst?->name ?? 'Atribuir depois' }}</div>
-                @endif
+                <div class="sgp-input bg-[#F5F7F9]">{{ $changeRequest->analyst?->name ?? 'Atribuir após a submissão' }}</div>
+                <p class="mt-1 text-xs text-[#667680]">Somente a gerência do projeto designa. A pessoa designada inicia a própria análise.</p>
                 @error('analyst_id')<p class="mt-1 text-sm text-[#A53E3E]">{{ $message }}</p>@enderror
             </div>
         </div>

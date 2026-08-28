@@ -18,6 +18,7 @@ use App\Models\ProjectMembership;
 use App\Models\ProjectContract;
 use App\Models\User;
 use App\Services\ProjectConfigurationService;
+use App\Services\ProjectContractService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,21 +63,26 @@ class ProjectController extends Controller
         abort_unless($request->user()->canCreateProjects(), 403);
 
         $sourceContract = $request->integer('contract')
-            ? ProjectContract::query()->whereNull('project_id')->findOrFail($request->integer('contract'))
+            ? ProjectContract::query()->whereNull('project_id')->whereNull('initiative_id')->findOrFail($request->integer('contract'))
             : null;
 
         return view('projects.create', $this->formOptions() + compact('sourceContract'));
     }
 
-    public function store(StoreProjectRequest $request): RedirectResponse
+    public function store(StoreProjectRequest $request, ProjectContractService $contracts): RedirectResponse
     {
-        $project = DB::transaction(function () use ($request): Project {
+        $project = DB::transaction(function () use ($request, $contracts): Project {
             $data = $this->normalizeDates($request->validated());
             $contractId = $data['contract_id'] ?? null;
             unset($data['contract_id']);
             $project = Project::create($data);
             if ($contractId) {
-                ProjectContract::query()->whereNull('project_id')->findOrFail($contractId)->update(['project_id' => $project->id, 'updated_by' => $request->user()->id]);
+                $contracts->linkToProject(
+                    ProjectContract::query()->whereNull('project_id')->findOrFail($contractId),
+                    $project,
+                    $request->user(),
+                    'Projeto criado a partir deste contrato.',
+                );
             }
 
             $this->activateManagerMembership($project);
@@ -112,6 +118,7 @@ class ProjectController extends Controller
             'originDocumentVersions as origin_document_versions_count',
             'baselines as baselines_count',
             'changeRequests as change_requests_count',
+            'contracts as contracts_count',
         ]);
 
         $members = $project->memberships

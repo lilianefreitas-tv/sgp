@@ -32,6 +32,7 @@ class ChangeRequest extends Model
         'analysis_started_at',
         'returned_at',
         'cancelled_at',
+        'implemented_at',
         'created_by',
         'updated_by',
     ];
@@ -47,6 +48,7 @@ class ChangeRequest extends Model
             'analysis_started_at' => 'datetime',
             'returned_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'implemented_at' => 'datetime',
         ];
     }
 
@@ -110,6 +112,16 @@ class ChangeRequest extends Model
     public function transitions(): HasMany
     {
         return $this->hasMany(ChangeRequestTransition::class)->orderBy('occurred_at')->orderBy('id');
+    }
+
+    public function implementation(): HasOne
+    {
+        return $this->hasOne(ChangeRequestImplementation::class);
+    }
+
+    public function generatedBaseline(): HasOne
+    {
+        return $this->hasOne(ProjectBaseline::class, 'source_change_request_id');
     }
 
     public function attachments(): HasMany

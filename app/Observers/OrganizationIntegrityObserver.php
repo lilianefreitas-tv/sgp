@@ -12,6 +12,8 @@ use App\Models\Client;
 use App\Models\ChangeRequest;
 use App\Models\ChangeRequestAffectedItem;
 use App\Models\ChangeRequestImpactAnalysis;
+use App\Models\ChangeRequestImplementation;
+use App\Models\ChangeRequestImplementationEvent;
 use App\Models\ChangeRequestTransition;
 use App\Models\DocumentTemplate;
 use App\Models\InitialAssessment;
@@ -28,6 +30,9 @@ use App\Models\ProjectBaseline;
 use App\Models\ProjectBaselineItem;
 use App\Models\ProjectAttachment;
 use App\Models\ProjectComment;
+use App\Models\ProjectContract;
+use App\Models\ProjectContractAttachment;
+use App\Models\ProjectContractVersion;
 use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
@@ -72,9 +77,13 @@ class OrganizationIntegrityObserver
         ProjectActivity::class => ['projects', 'project_id'],
         ProjectBaseline::class => ['projects', 'project_id'],
         ProjectBaselineItem::class => ['project_baselines', 'project_baseline_id'],
+        ProjectContractVersion::class => ['project_contracts', 'contract_id'],
+        ProjectContractAttachment::class => ['project_contracts', 'contract_id'],
         ChangeRequest::class => ['projects', 'project_id'],
         ChangeRequestAffectedItem::class => ['change_requests', 'change_request_id'],
         ChangeRequestImpactAnalysis::class => ['change_requests', 'change_request_id'],
+        ChangeRequestImplementation::class => ['change_requests', 'change_request_id'],
+        ChangeRequestImplementationEvent::class => ['change_request_implementations', 'implementation_id'],
         ChangeRequestTransition::class => ['change_requests', 'change_request_id'],
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
