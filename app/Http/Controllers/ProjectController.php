@@ -6,6 +6,7 @@ use App\Enums\ExecutionNature;
 use App\Enums\FinancialManagementMode;
 use App\Enums\ManagementLevel;
 use App\Enums\ProjectMethodology;
+use App\Enums\ProjectOriginType;
 use App\Enums\ProjectRole;
 use App\Enums\ProjectStatus;
 use App\Http\Requests\StoreProjectRequest;
@@ -14,7 +15,10 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\ProjectActivity;
 use App\Models\ProjectMembership;
+use App\Models\ProjectContract;
 use App\Models\User;
+use App\Services\ProjectConfigurationService;
+use App\Services\ProjectContractService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,14 +62,28 @@ class ProjectController extends Controller
     {
         abort_unless($request->user()->canCreateProjects(), 403);
 
-        return view('projects.create', $this->formOptions());
+        $sourceContract = $request->integer('contract')
+            ? ProjectContract::query()->whereNull('project_id')->whereNull('initiative_id')->findOrFail($request->integer('contract'))
+            : null;
+
+        return view('projects.create', $this->formOptions() + compact('sourceContract'));
     }
 
-    public function store(StoreProjectRequest $request): RedirectResponse
+    public function store(StoreProjectRequest $request, ProjectContractService $contracts): RedirectResponse
     {
-        $project = DB::transaction(function () use ($request): Project {
+        $project = DB::transaction(function () use ($request, $contracts): Project {
             $data = $this->normalizeDates($request->validated());
+            $contractId = $data['contract_id'] ?? null;
+            unset($data['contract_id']);
             $project = Project::create($data);
+            if ($contractId) {
+                $contracts->linkToProject(
+                    ProjectContract::query()->whereNull('project_id')->findOrFail($contractId),
+                    $project,
+                    $request->user(),
+                    'Projeto criado a partir deste contrato.',
+                );
+            }
 
             $this->activateManagerMembership($project);
             ProjectActivity::record(
@@ -92,10 +110,15 @@ class ProjectController extends Controller
             ->where('is_active', true)
             ->with('user')
             ->orderBy('user_id')]);
+        $project->load('originBaseline');
         $project->loadCount([
             'requirements as active_requirements_count' => fn ($query) => $query->where('is_active', true),
             'tasks as active_tasks_count' => fn ($query) => $query->where('is_active', true),
             'documents as documents_count',
+            'originDocumentVersions as origin_document_versions_count',
+            'baselines as baselines_count',
+            'changeRequests as change_requests_count',
+            'contracts as contracts_count',
         ]);
 
         $members = $project->memberships
@@ -127,7 +150,12 @@ class ProjectController extends Controller
     {
         DB::transaction(function () use ($request, $project): void {
             $configurationBefore = $this->configurationSnapshot($project);
-            $project->update($this->normalizeDates($request->validated()));
+            $data = $this->normalizeDates($request->validated());
+            unset($data['configuration_justification']);
+            $dimensions = collect(['execution_nature', 'financial_management_mode', 'management_level', 'methodology'])
+                ->filter(fn (string $field) => $data[$field] !== $project->{$field}->value)->mapWithKeys(fn (string $field) => [$field => $data[$field]])->all();
+            $project->update(array_diff_key($data, array_flip(array_keys($dimensions))));
+            if ($dimensions !== []) app(ProjectConfigurationService::class)->change($project, $dimensions, $request->user(), $request->input('configuration_justification'));
             $configurationAfter = $this->configurationSnapshot($project->fresh());
 
             $this->activateManagerMembership($project);
@@ -229,6 +257,10 @@ class ProjectController extends Controller
             'executionNatures' => ExecutionNature::options(),
             'financialModes' => FinancialManagementMode::options(),
             'methodologies' => ProjectMethodology::options(),
+            'originTypes' => collect(ProjectOriginType::cases())
+                ->reject(fn (ProjectOriginType $type) => $type === ProjectOriginType::Initiative)
+                ->mapWithKeys(fn (ProjectOriginType $type) => [$type->value => $type->label()])
+                ->all(),
             'statuses' => ProjectStatus::options(),
         ];
     }

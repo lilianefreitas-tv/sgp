@@ -1,0 +1,1 @@
+<?php namespace App\Models; use App\Models\Concerns\ImmutableConfigurationVersion; use Illuminate\Database\Eloquent\Model; class NegotiationEntry extends Model {use ImmutableConfigurationVersion; protected $guarded=[]; protected function casts():array{return ['occurred_at'=>'datetime'];}}

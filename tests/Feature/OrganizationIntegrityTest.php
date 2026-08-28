@@ -9,8 +9,8 @@ use App\Models\Project;
 use App\Models\Requirement;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class OrganizationIntegrityTest extends TestCase
@@ -143,40 +143,27 @@ class OrganizationIntegrityTest extends TestCase
         ]);
     }
 
-    public function test_f4_migration_can_be_rolled_back_and_applied_again(): void
-{
-    $migration = require database_path(
-        'migrations/2026_08_03_200000_enforce_organization_integrity.php'
-    );
+    public function test_current_schema_preserves_f4_composite_integrity_constraints(): void
+    {
+        // A F4 must roll back only through Laravel's reverse migration chain.
+        $this->assertCompositeForeignKey('projects', ['client_id', 'organization_id'], 'clients', 'projects_client_org_fk');
+        $this->assertCompositeForeignKey('requirements', ['project_id', 'organization_id'], 'projects', 'requirements_project_org_fk');
+        $this->assertCompositeForeignKey('requirement_dependencies', ['requirement_id', 'organization_id'], 'requirements', 'req_deps_requirement_org_fk');
+        $this->assertTrue(collect(Schema::getIndexes('projects'))->contains('name', 'projects_id_org_unique'));
 
-    $migration->down();
-
-    try {
-        $id = DB::table('clients')->insertGetId([
-            'organization_id' => null,
-            'name' => 'Cliente temporário',
-            'type' => 'unit',
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        DB::table('clients')->where('id', $id)->delete();
-    } finally {
-        $migration->up();
     }
 
-    $this->expectException(QueryException::class);
+    private function assertCompositeForeignKey(string $table, array $columns, string $foreignTable, string $name): void
+    {
+        $foreignKey = collect(Schema::getForeignKeys($table))->first(fn (array $foreignKey) => $foreignKey['columns'] === $columns
+            && $foreignKey['foreign_table'] === $foreignTable
+            && $foreignKey['foreign_columns'] === ['id', 'organization_id']);
 
-    DB::table('clients')->insert([
-        'organization_id' => null,
-        'name' => 'Cliente sem organização após reaplicação',
-        'type' => 'unit',
-        'is_active' => true,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-}
+        $this->assertNotNull($foreignKey);
+        if (DB::getDriverName() === 'pgsql') {
+            $this->assertSame($name, $foreignKey['name']);
+        }
+    }
 
     private function createProjectIn(Organization $organization, string $code): Project
     {

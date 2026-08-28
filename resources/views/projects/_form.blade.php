@@ -1,14 +1,32 @@
 @php($editing = isset($project))
 
 <div class="space-y-7">
+    @if(!$editing && isset($sourceContract) && $sourceContract)
+        <input type="hidden" name="contract_id" value="{{ $sourceContract->id }}">
+        <div class="rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#1D5D73]"><strong>Contrato de origem:</strong> {{ $sourceContract->code }} · {{ $sourceContract->title }}. Os dados abaixo foram pré-preenchidos e podem ser ajustados.</div>
+    @endif
     <section>
         <h2 class="text-base font-bold text-[#24313A]">Identificação e responsabilidade</h2>
         <p class="mt-1 text-sm text-[#667680]">Informações centrais do projeto e de quem responde por sua condução.</p>
 
         <div class="mt-5 grid gap-5 sm:grid-cols-2">
+            @unless($editing)
+                <div class="sm:col-span-2">
+                    <label for="origin_type" class="sgp-field-label">Como este projeto chegou ao SGP? <span class="text-[#C44B4B]">*</span></label>
+                    <select id="origin_type" name="origin_type" class="sgp-input" required>
+                        @foreach ($originTypes as $value => $label)
+                            <option value="{{ $value }}" @selected(old('origin_type', 'direct') === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <div class="mt-3 rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#1D5D73]">
+                        <strong>Projeto incorporado:</strong> use quando o trabalho já existia antes do cadastro e os contratos, TAP, visão ou demais documentos foram produzidos fora do SGP.
+                    </div>
+                    <x-input-error :messages="$errors->get('origin_type')" class="mt-2" />
+                </div>
+            @endunless
             <div class="sm:col-span-2">
                 <label for="name" class="sgp-field-label">Nome do projeto <span class="text-[#C44B4B]">*</span></label>
-                <input id="name" name="name" class="sgp-input" value="{{ old('name', $project->name ?? '') }}" maxlength="200" required>
+                <input id="name" name="name" class="sgp-input" value="{{ old('name', $project->name ?? ($sourceContract->title ?? '')) }}" maxlength="200" required>
                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
 
@@ -49,7 +67,7 @@
         <div class="mt-5 grid gap-5">
             <div>
                 <label for="objective" class="sgp-field-label">Objetivo <span class="text-[#C44B4B]">*</span></label>
-                <textarea id="objective" name="objective" rows="3" class="sgp-input" required>{{ old('objective', $project->objective ?? '') }}</textarea>
+                <textarea id="objective" name="objective" rows="3" class="sgp-input" required>{{ old('objective', $project->objective ?? ($sourceContract->object ?? '')) }}</textarea>
                 <x-input-error :messages="$errors->get('objective')" class="mt-2" />
             </div>
             <div>
@@ -105,7 +123,7 @@
                 <label for="management_level" class="sgp-field-label">Nível de gestão <span class="text-[#C44B4B]">*</span></label>
                 <select id="management_level" name="management_level" class="sgp-input" required>
                     @foreach ($levels as $value => $label)
-                        <option value="{{ $value }}" @selected(old('management_level', isset($project) ? $project->management_level->value : 'simplified') === $value)>{{ $label }}</option>
+                        <option value="{{ $value }}" @selected(old('management_level', isset($project) ? $project->management_level->value : 'essential') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
                 <div class="mt-2 space-y-1 text-xs text-[#667680]">
@@ -120,7 +138,7 @@
                 <label for="methodology" class="sgp-field-label">Metodologia <span class="text-[#C44B4B]">*</span></label>
                 <select id="methodology" name="methodology" class="sgp-input" required>
                     @foreach ($methodologies as $value => $label)
-                        <option value="{{ $value }}" @selected(old('methodology', $project->methodology ?? 'kanban') === $value)>{{ $label }}</option>
+                        <option value="{{ $value }}" @selected(old('methodology', $project->methodology?->value ?? 'kanban') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
                 <div class="mt-2 space-y-1 text-xs text-[#667680]">
@@ -130,6 +148,14 @@
                 </div>
                 <x-input-error :messages="$errors->get('methodology')" class="mt-2" />
             </div>
+            @if (isset($project))
+                <div class="sm:col-span-2">
+                    <label for="configuration_justification" class="sgp-field-label">Justificativa da alteração dimensional</label>
+                    <textarea id="configuration_justification" name="configuration_justification" rows="2" class="sgp-input">{{ old('configuration_justification') }}</textarea>
+                    <p class="mt-2 text-xs text-[#667680]">Obrigatória somente quando uma dimensão adaptativa for alterada.</p>
+                    <x-input-error :messages="$errors->get('configuration_justification')" class="mt-2" />
+                </div>
+            @endif
             <div>
                 <label for="status" class="sgp-field-label">Status <span class="text-[#C44B4B]">*</span></label>
                 <select id="status" name="status" class="sgp-input" required>

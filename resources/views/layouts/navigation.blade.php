@@ -142,6 +142,17 @@
             </a>
 
             <a
+                href="{{ route('artifacts.pending') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('artifacts.pending') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75 11.25 15 15 9.75M6.75 3.75h10.5A1.75 1.75 0 0 1 19 5.5v13A1.75 1.75 0 0 1 17.25 20.25H6.75A1.75 1.75 0 0 1 5 18.5v-13a1.75 1.75 0 0 1 1.75-1.75Z" />
+                </svg>
+
+                Pendências documentais
+            </a>
+
+            <a
                 href="{{ route('calendar.index') }}"
                 class="flex items-center gap-3 rounded-lg px-3 py-3
                        text-sm font-medium transition
@@ -160,7 +171,75 @@
                 class="mb-3 mt-8 px-3 text-xs font-semibold uppercase
                        tracking-widest text-slate-400"
             >
-                Gerenciamento
+                Negócios e portfólio
+            </p>
+
+            <a
+                href="{{ route('initiatives.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('initiatives.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3a6 6 0 0 0-3.75 10.69c.48.39.75.97.75 1.59V16h6v-.72c0-.62.27-1.2.75-1.59A6 6 0 0 0 12 3Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19h6M10 22h4" />
+                </svg>
+
+                Iniciativas
+            </a>
+
+            <a
+                href="{{ route('commercial.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('commercial.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 19V9m6 10V5m6 14v-7m4 7H2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m4 7 5-4 5 5 6-5" />
+                </svg>
+
+                Jornada comercial
+            </a>
+
+            <a
+                href="{{ route('contracts.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('contracts.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+            >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 4.75h10A2.25 2.25 0 0 1 19.25 7v12.25H4.75V7A2.25 2.25 0 0 1 7 4.75Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 4.75V3h6v1.75M8 10h8M8 14h8" />
+                </svg>
+
+                Contratos
+            </a>
+
+            @if (Auth::user()->canCreateProjects())
+                <a
+                    href="{{ route('clients.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3
+                           text-sm font-medium transition
+                           {{ request()->routeIs('clients.*')
+                                ? 'bg-white/15 text-white'
+                                : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M3 21h18M5 21V7l7-4 7 4v14M9 10h6M9 14h6M9 18h6"
+                        />
+                    </svg>
+
+                    Clientes e unidades
+                </a>
+            @endif
+
+            <p class="mb-3 mt-8 px-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
+                Gestão de projetos
             </p>
 
             <a
@@ -193,34 +272,6 @@
 
                 Projetos
             </a>
-
-            @if (Auth::user()->canCreateProjects())
-                <a
-                    href="{{ route('clients.index') }}"
-                    class="flex items-center gap-3 rounded-lg px-3 py-3
-                           text-sm font-medium transition
-                           {{ request()->routeIs('clients.*')
-                                ? 'bg-white/15 text-white'
-                                : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
-                >
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        aria-hidden="true"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.8"
-                            d="M3 21h18M5 21V7l7-4 7 4v14M9 10h6M9 14h6M9 18h6"
-                        />
-                    </svg>
-
-                    Clientes e unidades
-                </a>
-            @endif
 
             <a
                 href="{{ route('requirements.index') }}"
@@ -323,7 +374,7 @@
                     />
                 </svg>
 
-                Documentos
+                Documentação
             </a>
 
             <div
@@ -419,18 +470,6 @@
                     )
                 )
                 <a
-                    href="{{ route('document-templates.index') }}"
-                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
-                           {{ request()->routeIs('document-templates.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
-                >
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 4h9l3 3v13H6V4Zm9 0v4h4M9 12h6M9 16h6" />
-                    </svg>
-
-                    Modelos de documentos
-                </a>
-
-                <a
                     href="{{ route('organization-members.index') }}"
                     class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
                            {{ request()->routeIs('organization-members.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
@@ -440,6 +479,18 @@
                     </svg>
 
                     Equipe da organização
+                </a>
+
+                <a
+                    href="{{ route('document-templates.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('document-templates.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 4h9l3 3v13H6V4Zm9 0v4h4M9 12h6M9 16h6" />
+                    </svg>
+
+                    Modelos de documentos
                 </a>
                 @endif
 

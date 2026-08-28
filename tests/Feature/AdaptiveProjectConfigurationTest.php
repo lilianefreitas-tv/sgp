@@ -40,7 +40,7 @@ class AdaptiveProjectConfigurationTest extends TestCase
         $this->assertSame(ManagementLevel::Complete, $project->management_level);
     }
 
-    public function test_contracted_simplified_project_with_fixed_price_is_accepted(): void
+    public function test_contracted_essential_project_with_fixed_price_is_accepted(): void
     {
         $administrator = User::factory()->administrator()->create();
         $client = Client::factory()->create();
@@ -49,7 +49,7 @@ class AdaptiveProjectConfigurationTest extends TestCase
             ->post(route('projects.store'), $this->projectData($administrator, $client, [
                 'execution_nature' => ExecutionNature::Contracted->value,
                 'financial_management_mode' => FinancialManagementMode::FixedPrice->value,
-                'management_level' => ManagementLevel::Simplified->value,
+                'management_level' => ManagementLevel::Essential->value,
                 'methodology' => ProjectMethodology::Traditional->value,
             ]))
             ->assertSessionHasNoErrors();
@@ -58,7 +58,7 @@ class AdaptiveProjectConfigurationTest extends TestCase
             'client_id' => $client->id,
             'execution_nature' => ExecutionNature::Contracted->value,
             'financial_management_mode' => FinancialManagementMode::FixedPrice->value,
-            'management_level' => ManagementLevel::Simplified->value,
+            'management_level' => ManagementLevel::Essential->value,
             'methodology' => ProjectMethodology::Traditional->value,
         ]);
     }
@@ -68,7 +68,7 @@ class AdaptiveProjectConfigurationTest extends TestCase
         $administrator = User::factory()->administrator()->create();
         $project = Project::factory()->create([
             'manager_id' => $administrator->id,
-            'management_level' => ManagementLevel::Simplified,
+            'management_level' => ManagementLevel::Essential,
         ]);
         $requirement = Requirement::factory()->create(['project_id' => $project->id]);
         $task = Task::factory()->create(['project_id' => $project->id]);
@@ -90,7 +90,7 @@ class AdaptiveProjectConfigurationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame(
-            ['from' => 'Simplificado', 'to' => 'Completo'],
+            ['from' => 'Essencial', 'to' => 'Completo'],
             $activity->metadata['configuration_changes']['management_level'],
         );
     }
@@ -107,11 +107,11 @@ class AdaptiveProjectConfigurationTest extends TestCase
 
         $this->actingAs($administrator)
             ->put(route('projects.update', $project), $this->projectData($administrator, $project->client, [
-                'management_level' => ManagementLevel::Simplified->value,
+                'management_level' => ManagementLevel::Essential->value,
             ]))
             ->assertSessionHasNoErrors();
 
-        $this->assertSame(ManagementLevel::Simplified, $project->fresh()->management_level);
+        $this->assertSame(ManagementLevel::Essential, $project->fresh()->management_level);
         $this->assertDatabaseHas('requirements', ['id' => $requirement->id]);
         $this->assertDatabaseHas('tasks', ['id' => $task->id]);
     }
@@ -127,6 +127,46 @@ class AdaptiveProjectConfigurationTest extends TestCase
             ->assertSessionHasErrors('financial_management_mode');
 
         $this->assertDatabaseCount('projects', 0);
+    }
+
+    public function test_project_creation_and_update_reject_deprecated_simplified_level(): void
+    {
+        $administrator = User::factory()->administrator()->create();
+        $project = Project::factory()->create(['manager_id' => $administrator->id]);
+
+        $this->actingAs($administrator)
+            ->post(route('projects.store'), $this->projectData($administrator, null, ['management_level' => 'simplified']))
+            ->assertSessionHasErrors('management_level');
+
+        $this->actingAs($administrator)
+            ->put(route('projects.update', $project), $this->projectData($administrator, $project->client, ['management_level' => 'simplified']))
+            ->assertSessionHasErrors('management_level');
+
+        $this->actingAs($administrator)
+            ->post(route('projects.store'), $this->projectData($administrator, null, ['management_level' => 'essential']))
+            ->assertSessionHasNoErrors();
+    }
+
+    public function test_editing_non_kanban_methodology_keeps_the_selected_value_when_saving_other_field(): void
+    {
+        $administrator = User::factory()->administrator()->create();
+
+        foreach ([ProjectMethodology::Scrum, ProjectMethodology::Hybrid, ProjectMethodology::Traditional] as $methodology) {
+            $project = Project::factory()->create(['manager_id' => $administrator->id, 'methodology' => $methodology]);
+            $this->actingAs($administrator)
+                ->get(route('projects.edit', $project))
+                ->assertOk()
+                ->assertSee('value="'.$methodology->value.'" selected', false);
+
+            $this->actingAs($administrator)
+                ->put(route('projects.update', $project), $this->projectData($administrator, $project->client, [
+                    'name' => 'Nome atualizado '.$methodology->value,
+                    'methodology' => $methodology->value,
+                ]))
+                ->assertSessionHasNoErrors();
+
+            $this->assertSame($methodology, $project->fresh()->methodology);
+        }
     }
 
     public function test_project_form_explains_the_four_independent_dimensions(): void
@@ -176,6 +216,7 @@ class AdaptiveProjectConfigurationTest extends TestCase
             'description' => 'Projeto usado para validar a configuração adaptativa.',
             'objective' => 'Validar as dimensões independentes.',
             'justification' => 'Cobrir os requisitos RF081 a RF086.',
+            'configuration_justification' => 'Alteração dimensional justificada para fins de rastreabilidade.',
             'execution_nature' => ExecutionNature::Internal->value,
             'financial_management_mode' => FinancialManagementMode::NotApplicable->value,
             'management_level' => ManagementLevel::Intermediate->value,

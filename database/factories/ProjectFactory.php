@@ -24,7 +24,7 @@ class ProjectFactory extends Factory
             'justification' => fake()->paragraph(),
             'execution_nature' => ExecutionNature::Internal,
             'financial_management_mode' => FinancialManagementMode::NotApplicable,
-            'management_level' => ManagementLevel::Simplified,
+            'management_level' => ManagementLevel::Essential,
             'methodology' => ProjectMethodology::Kanban->value,
             'status' => ProjectStatus::Planning,
             'start_date' => now()->toDateString(),

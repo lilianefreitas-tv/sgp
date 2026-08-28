@@ -2,31 +2,59 @@
 
 namespace App\Providers;
 
+use App\Models\ApplicabilityDecision;
+use App\Models\Artifact;
+use App\Models\ArtifactRevision;
+use App\Models\ArtifactWorkflowDecision;
+use App\Models\ArtifactWorkflowRound;
 use App\Models\Client;
+use App\Models\ChangeRequest;
+use App\Models\ChangeRequestAffectedItem;
+use App\Models\ChangeRequestImpactAnalysis;
+use App\Models\ChangeRequestImplementation;
+use App\Models\ChangeRequestImplementationEvent;
+use App\Models\ChangeRequestTransition;
+use App\Models\CommercialTransition;
+use App\Models\DocumentRoleAssignment;
 use App\Models\DocumentTemplate;
+use App\Models\InitialAssessment;
+use App\Models\Initiative;
+use App\Models\InitiativeConfigurationVersion;
 use App\Models\KanbanBoard;
 use App\Models\KanbanColumn;
 use App\Models\KanbanTaskPosition;
+use App\Models\NegotiationEntry;
+use App\Models\Opportunity;
 use App\Models\Organization;
 use App\Models\OrganizationAuditEvent;
-use App\Models\Scopes\OrganizationScope;
 use App\Models\Project;
 use App\Models\ProjectActivity;
+use App\Models\ProjectBaseline;
+use App\Models\ProjectBaselineItem;
 use App\Models\ProjectAttachment;
 use App\Models\ProjectComment;
+use App\Models\ProjectContract;
+use App\Models\ProjectContractAttachment;
+use App\Models\ProjectContractVersion;
+use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
+use App\Models\ProjectOriginBaseline;
+use App\Models\Proposal;
+use App\Models\ProposalVersion;
 use App\Models\Requirement;
 use App\Models\RequirementDependency;
 use App\Models\RequirementVersion;
+use App\Models\Scopes\OrganizationScope;
 use App\Models\Task;
 use App\Models\TaskHistory;
 use App\Observers\OrganizationIntegrityObserver;
 use App\Policies\OrganizationPolicy;
+use App\Policies\ChangeRequestPolicy;
 use App\Services\OrganizationContext;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $context = $this->app->make(OrganizationContext::class);
         Gate::policy(Organization::class, OrganizationPolicy::class);
+        Gate::policy(ChangeRequest::class, ChangeRequestPolicy::class);
 
         View::share([
             'activeOrganization' => null,
@@ -55,7 +84,17 @@ class AppServiceProvider extends ServiceProvider
 
         foreach ([
             Client::class,
+            Artifact::class,
+            ArtifactRevision::class,
+            ArtifactWorkflowRound::class,
+            ArtifactWorkflowDecision::class,
+            DocumentRoleAssignment::class,
+            Opportunity::class, InitialAssessment::class, Proposal::class, ProposalVersion::class, NegotiationEntry::class, CommercialTransition::class,
+            ApplicabilityDecision::class,
+            Initiative::class,
+            InitiativeConfigurationVersion::class,
             Project::class,
+            ProjectConfigurationVersion::class,
             ProjectMembership::class,
             Requirement::class,
             RequirementVersion::class,
@@ -69,7 +108,19 @@ class AppServiceProvider extends ServiceProvider
             ProjectDocument::class,
             ProjectComment::class,
             ProjectAttachment::class,
+            ProjectOriginBaseline::class,
             ProjectActivity::class,
+            ProjectBaseline::class,
+            ProjectBaselineItem::class,
+            ProjectContract::class,
+            ProjectContractVersion::class,
+            ProjectContractAttachment::class,
+            ChangeRequest::class,
+            ChangeRequestAffectedItem::class,
+            ChangeRequestImpactAnalysis::class,
+            ChangeRequestImplementation::class,
+            ChangeRequestImplementationEvent::class,
+            ChangeRequestTransition::class,
         ] as $model) {
             $model::observe(OrganizationIntegrityObserver::class);
             $model::addGlobalScope(new OrganizationScope($context));

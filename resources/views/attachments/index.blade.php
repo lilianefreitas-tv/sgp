@@ -91,7 +91,7 @@
                                     </div>
                                     <div class="flex shrink-0 flex-wrap gap-2">
                                         <a href="{{ route('projects.attachments.download', [$project, $attachment]) }}" class="inline-flex rounded-lg border border-[#287EA1] px-3 py-2 text-xs font-semibold text-[#287EA1] hover:bg-[#EEF7FA]">Baixar</a>
-                                        @if(auth()->user()->administersCurrentOrganization() || auth()->id() === $attachment->uploaded_by || auth()->user()->hasProjectRole(\App\Enums\ProjectRole::ProjectManager, $project))
+                                        @if($attachment->can_remove)
                                             <form method="POST" action="{{ route('projects.attachments.destroy', [$project, $attachment]) }}" onsubmit="return confirm('Remover este anexo da consulta? O evento permanecerá no histórico.')">
                                                 @csrf
                                                 @method('DELETE')

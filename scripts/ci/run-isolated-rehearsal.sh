@@ -92,16 +92,34 @@ printf 'Preparando banco descartável identificado como %s em %s.\n' "$DB_DATABA
 php artisan migrate:fresh --force 2>&1 | tee "$evidence_dir/01-migrations.txt"
 php artisan migrate:status 2>&1 | tee "$evidence_dir/02-migration-status.txt"
 
-php artisan test \
-    --log-junit "$evidence_dir/10-testes-criticos.xml" \
-    tests/Feature/ProductionOrganizationTransitionTest.php \
-    tests/Feature/SelectiveProjectDataImportTest.php \
-    tests/Feature/OrganizationDataBackfillTest.php \
-    tests/Feature/OrganizationIntegrityTest.php \
-    tests/Feature/OrganizationContextIsolationTest.php \
-    tests/Feature/OrganizationFilesAndAuditTest.php \
-    tests/Feature/AdaptiveProjectConfigurationTest.php \
-    2>&1 | tee "$evidence_dir/10-testes-criticos.txt"
+run_critical_tests() {
+    local junit_file=$1
+    local output_file=$2
+
+    php artisan test \
+        --log-junit "$junit_file" \
+        tests/Feature/ProductionOrganizationTransitionTest.php \
+        tests/Feature/SelectiveProjectDataImportTest.php \
+        tests/Feature/OrganizationDataBackfillTest.php \
+        tests/Feature/OrganizationIntegrityTest.php \
+        tests/Feature/OrganizationContextIsolationTest.php \
+        tests/Feature/OrganizationFilesAndAuditTest.php \
+        tests/Feature/AdaptiveProjectConfigurationTest.php \
+        tests/Feature/InitiativeConversionTest.php \
+        tests/Feature/ArtifactRevisionTest.php \
+        tests/Feature/ArtifactWorkflowTest.php \
+        2>&1 | tee "$output_file"
+}
+
+run_critical_tests "$evidence_dir/10-testes-criticos.xml" "$evidence_dir/10-testes-criticos.txt"
+
+# This database is explicitly disposable. Recreate it instead of invoking down() on
+# irreversible production-transition migrations. The second clean installation
+# proves that the complete schema is repeatable without coupling the rehearsal to
+# rollback support or to the dependency graph of future migrations.
+php artisan migrate:fresh --force 2>&1 | tee "$evidence_dir/11-recriacao-completa.txt"
+php artisan migrate:status 2>&1 | tee "$evidence_dir/12-status-apos-recriacao.txt"
+run_critical_tests "$evidence_dir/15-testes-criticos-apos-recriacao.xml" "$evidence_dir/15-testes-criticos-apos-recriacao.txt"
 
 php artisan test \
     --log-junit "$evidence_dir/20-suite-completa.xml" \

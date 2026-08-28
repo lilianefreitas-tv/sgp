@@ -99,6 +99,7 @@ class SelectiveProjectDataImportTest extends TestCase
             'organization_id' => $this->organizations['sgp'],
             'client_id' => null,
             'manager_id' => $this->owner->id,
+            'management_level' => 'essential',
         ]);
         $this->assertDatabaseHas('projects', [
             'id' => 3,
