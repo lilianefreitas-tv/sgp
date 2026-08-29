@@ -176,6 +176,16 @@ class Project extends Model
         return $this->hasMany(ChangeRequest::class)->orderByDesc('updated_at');
     }
 
+    public function testCases(): HasMany
+    {
+        return $this->hasMany(ProjectTestCase::class)->orderBy('sequence');
+    }
+
+    public function homologations(): HasMany
+    {
+        return $this->hasMany(ProjectHomologation::class)->orderByDesc('sequence');
+    }
+
     public function originDocuments(): HasMany
     {
         return $this->hasMany(Artifact::class, 'initiative_id', 'initiative_id');

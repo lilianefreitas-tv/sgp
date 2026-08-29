@@ -119,6 +119,8 @@ class ProjectController extends Controller
             'baselines as baselines_count',
             'changeRequests as change_requests_count',
             'contracts as contracts_count',
+            'testCases as test_cases_count',
+            'homologations as homologations_count',
         ]);
 
         $members = $project->memberships

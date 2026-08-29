@@ -40,6 +40,8 @@ class NavigationSemanticTest extends TestCase
                 'Testes',
                 'Rastreabilidade',
             ])
+            ->assertSee(route('tests.index'), false)
+            ->assertSee(route('traceability.index'), false)
             ->assertDontSee('Clientes e unidades')
             ->assertDontSee('Equipe da organização')
             ->assertDontSee('Usuários da plataforma');

@@ -114,6 +114,32 @@ class User extends Authenticatable
         return $this->hasMany(ProjectAttachment::class, 'uploaded_by');
     }
 
+    public function testExecutions(): HasMany
+    {
+        return $this->hasMany(TestExecution::class, 'executed_by');
+    }
+
+    public function homologationDecisions(): HasMany
+    {
+        return $this->hasMany(ProjectHomologation::class, 'decided_by');
+    }
+
+    public function canPlanTests(Project $project): bool
+    {
+        return $this->hasProjectRole(ProjectRole::ProjectManager, $project)
+            || $this->hasProjectRole(ProjectRole::Tester, $project);
+    }
+
+    public function canExecuteTests(Project $project): bool
+    {
+        return $this->hasProjectRole(ProjectRole::Tester, $project);
+    }
+
+    public function canHomologateProject(Project $project): bool
+    {
+        return $this->hasProjectRole(ProjectRole::Validator, $project);
+    }
+
     public function hasProjectRole(ProjectRole $role, ?Project $project = null): bool
     {
         if ($this->currentOrganizationRole() === OrganizationRole::Reader) {
