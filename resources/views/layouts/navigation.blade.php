@@ -377,10 +377,12 @@
                 Documentação
             </a>
 
-            <div
-                class="flex items-center gap-3 rounded-lg px-3 py-3
-                       text-sm font-medium text-slate-400"
-                title="Funcionalidade em desenvolvimento"
+            <a
+                href="{{ route('tests.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                       {{ request()->routeIs('tests.*', 'projects.tests.*', 'projects.homologations.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
                 <svg
                     class="h-5 w-5"
@@ -398,12 +400,14 @@
                 </svg>
 
                 Testes
-            </div>
+            </a>
 
-            <div
-                class="flex items-center gap-3 rounded-lg px-3 py-3
-                       text-sm font-medium text-slate-400"
-                title="Funcionalidade em desenvolvimento"
+            <a
+                href="{{ route('traceability.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                       {{ request()->routeIs('traceability.*', 'projects.traceability.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
                 <svg
                     class="h-5 w-5"
@@ -421,7 +425,7 @@
                 </svg>
 
                 Rastreabilidade
-            </div>
+            </a>
 
             @if (
                 Auth::user()->isAdministrator()

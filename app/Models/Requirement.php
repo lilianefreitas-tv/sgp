@@ -82,6 +82,11 @@ class Requirement extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function testCases(): HasMany
+    {
+        return $this->hasMany(ProjectTestCase::class);
+    }
+
     public function dependencies(): BelongsToMany
     {
         return $this->belongsToMany(

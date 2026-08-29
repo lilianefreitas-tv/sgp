@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\ChangeRequest;
 use App\Models\Project;
+use App\Models\ProjectTestCase;
+use App\Models\TestExecution;
 use LogicException;
 
 class OrganizationStoragePath
@@ -32,6 +34,15 @@ class OrganizationStoragePath
         $safeType = preg_replace('/[^a-z0-9_-]+/i', '-', $type) ?: 'document';
 
         return $this->projectBase($project).'/generated-documents/'.$safeType;
+    }
+
+    public function testEvidence(Project $project, ProjectTestCase $case, TestExecution $execution): string
+    {
+        if ($case->project_id !== $project->id || $execution->test_case_id !== $case->id) {
+            throw new LogicException('A execução de teste não pertence ao projeto autorizado.');
+        }
+
+        return $this->projectBase($project).'/tests/'.$case->id.'/executions/'.$execution->id;
     }
 
     public function projectBase(Project $project): string
