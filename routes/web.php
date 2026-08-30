@@ -19,6 +19,9 @@ use App\Http\Controllers\OrganizationAuditController;
 use App\Http\Controllers\OrganizationContextController;
 use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\PlatformOrganizationController;
+use App\Http\Controllers\PlatformCommunicationController;
+use App\Http\Controllers\PlatformPasswordResetController;
+use App\Http\Controllers\PlatformSecurityAuditController;
 use App\Http\Controllers\PlatformUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectAttachmentController;
@@ -189,6 +192,21 @@ Route::middleware(['auth', 'active', 'administrator'])->prefix('platform')->name
     Route::post('/users/{user}/password-reset-link', [PlatformUserController::class, 'sendPasswordResetLink'])
         ->middleware('throttle:6,1')
         ->name('users.password-reset-link');
+    Route::get('/users/{user}/temporary-password', [PlatformPasswordResetController::class, 'confirm'])
+        ->middleware('password.confirm')
+        ->name('users.temporary-password.confirm');
+    Route::post('/users/{user}/temporary-password', [PlatformPasswordResetController::class, 'store'])
+        ->middleware(['password.confirm', 'throttle:3,1'])
+        ->name('users.temporary-password');
+    Route::get('/communication', [PlatformCommunicationController::class, 'index'])
+        ->middleware('organization:optional')
+        ->name('communication.index');
+    Route::post('/communication/test', [PlatformCommunicationController::class, 'test'])
+        ->middleware(['organization:optional', 'throttle:3,1'])
+        ->name('communication.test');
+    Route::get('/security-audit', PlatformSecurityAuditController::class)
+        ->middleware('organization:optional')
+        ->name('security-audit.index');
     Route::post('/organizations/{organization}/access', [PlatformOrganizationController::class, 'access'])
         ->name('organizations.access');
     Route::delete('/organization-access', [PlatformOrganizationController::class, 'leave'])

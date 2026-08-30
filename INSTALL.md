@@ -1,16 +1,19 @@
-# Instalação e operação do SGP v1.0.1
+# Instalação, atualização e operação do SGP v3.0.0
 
-## 1. Preparação
+Este manual descreve a candidata final da `BL-SGP-003`. Não inclua segredos reais, arquivos `.env`, dumps, tokens ou chaves no repositório ou nas evidências.
 
-Instale PHP 8.2 ou superior, Composer 2, PostgreSQL 14 ou superior, Node.js 20
-ou superior e npm. Habilite as extensões PHP exigidas pelo README.
+## 1. Requisitos
 
-Crie o banco e o usuário da aplicação no PostgreSQL. Em produção, use uma conta
-própria, senha forte e apenas os privilégios necessários sobre o banco do SGP.
-Em plataformas com filesystem efêmero, vincule também um Object Storage
-compatível com S3 e mantenha o bucket privado.
+- PHP 8.2 ou superior e extensões exigidas pelo Composer;
+- Composer 2;
+- PostgreSQL 14 ou superior;
+- Node.js 20 ou superior e npm;
+- Git;
+- armazenamento privado persistente, local ou compatível com S3;
+- serviço SMTP transacional com domínio remetente validado;
+- processo permanente para a fila Laravel quando `QUEUE_CONNECTION` não for `sync`.
 
-## 2. Instalação local do zero
+## 2. Instalação local
 
 ```powershell
 Set-Location C:\Projetos\sgp
@@ -22,216 +25,207 @@ npm run build
 php artisan migrate --seed
 php artisan sgp:create-first-administrator
 php artisan optimize:clear
-php artisan storage:unlink
 php artisan serve
 ```
 
-Edite o `.env` antes da migration:
+Configure o PostgreSQL antes da migration. Use usuário próprio da aplicação e privilégios mínimos. Não execute `php artisan storage:link`: documentos e anexos permanentes são privados.
+
+## 3. Configuração por ambiente
+
+### Aplicação
 
 ```dotenv
 APP_NAME=SGP
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://endereco-do-sgp
+APP_URL=https://endereco-oficial-do-sgp
+APP_KEY=base64:chave-exclusiva-do-ambiente
+APP_LOCALE=pt_BR
+APP_FALLBACK_LOCALE=pt_BR
+SGP_RELEASE_LABEL="Versão 3.0.0"
+```
 
+Gere uma chave exclusiva com `php artisan key:generate --show`. Não reutilize a chave local em produção.
+
+### Banco, sessão, cache e fila
+
+```dotenv
 DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
+DB_HOST=host-protegido
 DB_PORT=5432
 DB_DATABASE=sgp
 DB_USERNAME=sgp_app
-DB_PASSWORD=troque_esta_senha
+DB_PASSWORD=segredo-protegido
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+```
 
+### Armazenamento privado
+
+Para instalação persistente local:
+
+```dotenv
+FILESYSTEM_DISK=local
 SGP_PRIVATE_DISK=local
 ```
 
-Não execute `php artisan storage:link`: documentos e anexos são privados.
+Para plataforma com filesystem efêmero, use Object Storage privado e configure `SGP_PRIVATE_DISK=s3`. Preserve banco e objetos no mesmo ponto lógico de backup.
 
-O comando do primeiro administrador solicita nome, e-mail e senha no terminal.
-A senha não aparece na tela nem é aceita como argumento de linha de comando. Ela
-deve ter pelo menos 12 caracteres, letras maiúsculas e minúsculas, número e
-símbolo. O comando se recusa a criar outra conta quando já existe administrador
-ativo.
+### Comunicação transacional
 
-## 3. Atualização de instalação existente
+Exemplo para SMTP compatível com Resend:
 
-Faça backup do banco e do disco privado configurado antes de atualizar. Na
-instalação local, copie `storage/app/private`. Em Object Storage, preserve uma
-cópia consistente dos objetos.
+```dotenv
+MAIL_MAILER=smtp
+MAIL_SCHEME=tls
+MAIL_HOST=smtp.resend.com
+MAIL_PORT=587
+MAIL_USERNAME=resend
+MAIL_PASSWORD=chave-protegida-do-provedor
+MAIL_FROM_ADDRESS=nao-responda@dominio-verificado
+MAIL_FROM_NAME="PRISMA SGP"
+MAIL_EHLO_DOMAIN=dominio-verificado
+```
+
+No provedor de DNS, publique os registros solicitados pelo serviço transacional e aguarde a validação de DKIM e SPF. Configure DMARC conforme a política da organização. Nunca cole a chave SMTP em formulário, captura, chamado ou arquivo versionado.
+
+Depois de alterar variáveis:
+
+```powershell
+php artisan optimize:clear
+```
+
+Valide a configuração na área `Administração da plataforma > Comunicação e SMTP` e envie uma mensagem para endereço controlado. Confirme aceitação pelo provedor e recebimento real.
+
+## 4. Fila e tarefas em segundo plano
+
+Em desenvolvimento:
+
+```powershell
+php artisan queue:work --tries=3 --timeout=90
+```
+
+No Laravel Cloud, a opção recomendada para produção é uma **Managed Queue**, que provisiona e escala workers dedicados e apresenta jobs com falha no painel. Se a implantação mantiver `QUEUE_CONNECTION=database`, use um worker cluster ou processo de fundo com o mesmo comando. Depois de cada deploy, reinicie workers autogerenciados para carregar o código e a configuração atuais:
+
+```text
+php artisan queue:restart
+```
+
+Monitore a tabela de jobs com falha e os logs sanitizados. O teste de entrega da tela de SMTP é imediato; redefinições comuns continuam usando a fila configurada.
+
+## 5. Atualização de instalação existente
+
+Antes de atualizar, faça backup consistente do PostgreSQL e do armazenamento privado e valide a possibilidade de restauração.
 
 ```powershell
 php artisan down
-composer install --no-dev --optimize-autoloader
+composer install --no-dev --prefer-dist --optimize-autoloader
 npm ci
 npm run build
 php artisan migrate --force
 php artisan optimize:clear
 php artisan up
+php artisan queue:restart
 ```
 
-## 4. Testes
+Não execute rollback destrutivo em produção sem plano e backup compatíveis. O retorno recomendado é restaurar o banco e os arquivos privados do mesmo ponto e implantar novamente a última tag estável.
+
+## 6. Validação antes da publicação
 
 ```powershell
+php artisan optimize:clear
 php artisan test
+git diff --check
 ```
 
-Resultado de referência da release `v1.0.1`:
+Referência da candidata final:
 
 ```text
-Tests: 100 passed
-Assertions: 358
+Tests: 367 passed
+Assertions: 1473
 ```
 
-Os casos `HOM-001` a `HOM-034` foram aprovados em PostgreSQL. Em novas
-homologações, use um banco separado, nunca a produção.
+Execute ainda:
 
-## 5. Backup
+1. login e seleção de organização;
+2. permissões de Superadmin e conta comum;
+3. criação e consulta de registros críticos;
+4. upload e download privado;
+5. geração DOCX e PDF;
+6. envio SMTP real;
+7. redefinição pública de senha;
+8. senha temporária e troca obrigatória;
+9. auditoria da plataforma e auditoria organizacional;
+10. persistência após novo deploy.
 
-Banco:
+## 7. Laravel Cloud
 
-```powershell
-pg_dump -Fc -h 127.0.0.1 -U sgp_app -d sgp -f sgp_backup.dump
-```
-
-Arquivos privados:
-
-- disco `local`: copie integralmente `storage/app/private`;
-- Object Storage: exporte ou replique os objetos do bucket privado.
-
-Banco e arquivos precisam pertencer ao mesmo ponto lógico de recuperação.
-
-## 6. Restauração
-
-```powershell
-createdb -h 127.0.0.1 -U postgres sgp_restaurado
-pg_restore -h 127.0.0.1 -U postgres -d sgp_restaurado --clean --if-exists sgp_backup.dump
-```
-
-Restaure também o disco privado configurado, ajuste permissões ou credenciais e
-valide os downloads de documentos e anexos.
-
-A restauração da release `v1.0.0` foi validada em banco e diretório
-alternativos, com login, consultas, documentos e anexos preservados.
-
-## 7. Implantação no Laravel Cloud
-
-A `v1.0.1` está preparada para filesystem efêmero. Os arquivos DOCX e PDF são
-gerados temporariamente e enviados, junto com os anexos, ao disco privado
-persistente.
-
-### 7.1 Recursos
+### Recursos
 
 No ambiente de produção:
 
-1. vincule um Laravel Serverless Postgres;
-2. vincule um Laravel Object Storage com visibilidade `Private`;
-3. use `s3` como nome do disco e defina-o como disco padrão;
-4. mantenha aplicação, banco e bucket na mesma região, quando disponível.
+1. vincule PostgreSQL gerenciado;
+2. vincule Object Storage privado quando o filesystem for efêmero;
+3. mantenha aplicação, banco e bucket na mesma região quando possível;
+4. cadastre as variáveis protegidas sem sobrescrever credenciais injetadas pela plataforma;
+5. prefira uma Managed Queue; se mantiver o driver `database`, configure worker cluster ou processo de fundo permanente;
+6. associe o domínio oficial e valide HTTPS.
 
-O Laravel Cloud injeta as variáveis do banco, `FILESYSTEM_DISK` e as credenciais
-compatíveis com S3. Não copie essas credenciais para o repositório.
-
-### 7.2 Variáveis próprias
-
-Gere uma chave exclusiva para produção:
-
-```powershell
-php artisan key:generate --show
-```
-
-Cadastre no ambiente:
-
-```dotenv
-APP_NAME=SGP
-APP_ENV=production
-APP_DEBUG=false
-APP_KEY=base64:chave-gerada
-APP_LOCALE=pt_BR
-APP_FALLBACK_LOCALE=pt_BR
-LOG_LEVEL=warning
-
-SESSION_DRIVER=database
-CACHE_STORE=database
-QUEUE_CONNECTION=database
-
-SGP_PRIVATE_DISK=s3
-SGP_ATTACHMENT_MAX_KB=10240
-SGP_ATTACHMENT_EXTENSIONS=pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,webp,zip
-```
-
-Defina `APP_URL` com o domínio fornecido pelo Laravel Cloud assim que ele estiver
-disponível. Não sobrescreva manualmente as variáveis de banco e Object Storage
-injetadas pela plataforma.
-
-### 7.3 Build e deploy
-
-Build:
+### Build
 
 ```text
 composer install --no-dev --prefer-dist --optimize-autoloader && npm ci && npm run build && php artisan optimize
 ```
 
-Deploy:
+### Deploy
 
 ```text
 php artisan migrate --force
 ```
 
-Não execute `php artisan storage:link` nem `php artisan optimize:clear` durante
-o deploy.
+O Laravel Cloud pode disparar automaticamente um deploy após o push da branch configurada e executa as etapas de build e deploy antes da troca sem indisponibilidade. Após a publicação, confirme `APP_DEBUG=false`, `SGP_RELEASE_LABEL="Versão 3.0.0"`, migrations concluídas, fila ativa, SMTP operacional, armazenamento persistente e ausência de erro nos logs.
 
-### 7.4 Primeiro administrador
+## 8. Primeiro administrador
 
-Para o bootstrap inicial, cadastre temporariamente no ambiente:
-
-```dotenv
-SGP_BOOTSTRAP_ADMIN_PASSWORD=uma-senha-forte-temporaria
-```
-
-Após o deploy, execute no console do Laravel Cloud:
+Para bootstrap não interativo, cadastre temporariamente `SGP_BOOTSTRAP_ADMIN_PASSWORD` nas variáveis protegidas e execute:
 
 ```text
-php artisan sgp:create-first-administrator --name="Liliane Freitas" --email="email-da-administradora" --no-interaction
+php artisan sgp:create-first-administrator --name="Nome da administradora" --email="email-controlado" --no-interaction
 ```
 
-Depois da criação:
+Remova a variável imediatamente depois, faça novo deploy e valide o login. Nunca forneça a senha como argumento ou a registre em evidência.
 
-1. confirme o login;
-2. remova `SGP_BOOTSTRAP_ADMIN_PASSWORD` das variáveis do ambiente;
-3. faça novo deploy para aplicar a remoção;
-4. altere a senha dentro do SGP, se a senha temporária não for a definitiva.
+## 9. Backup e restauração
 
-Nunca passe a senha como argumento do comando nem a registre no GitHub.
+Banco:
 
-### 7.5 Validação de persistência
+```powershell
+pg_dump -Fc -h host -U sgp_app -d sgp -f sgp_backup.dump
+```
 
-Para concluir o `HOM-035`:
+Restauração em ambiente alternativo:
 
-1. autentique-se com a primeira conta administradora;
-2. cadastre um projeto;
-3. envie e baixe um anexo;
-4. gere e baixe os documentos DOCX e PDF;
-5. faça novo deploy;
-6. confirme que o anexo e os documentos continuam disponíveis;
-7. valide HTTPS, `APP_DEBUG=false`, logs, permissões e restauração.
+```powershell
+createdb -h host -U postgres sgp_restaurado
+pg_restore -h host -U postgres -d sgp_restaurado --clean --if-exists sgp_backup.dump
+```
 
-## 8. Checklist de produção
+Restaure também o disco privado correspondente. Valide autenticação, contagens, relacionamentos, anexos, documentos e logs antes de considerar o ensaio aprovado.
 
-- `APP_ENV=production`;
-- `APP_DEBUG=false`;
-- HTTPS ativo;
-- credenciais exclusivas para o banco;
-- diretórios temporários e `bootstrap/cache` graváveis pela aplicação;
-- tarefa de backup e teste periódico de restauração;
-- logs fora da área pública e com rotação;
-- servidor web apontando somente para `public`;
-- fila e agendador configurados quando forem adotados;
-- primeiro administrador criado por procedimento controlado;
-- nenhuma credencial padrão ou previsível mantida no banco;
-- arquivos permanentes no disco privado configurado;
-- bucket de produção com visibilidade privada;
-- variável `SGP_BOOTSTRAP_ADMIN_PASSWORD` removida após o bootstrap;
-- `HOM-035` executado no ambiente real de produção.
+## 10. Checklist de congelamento
 
-A tag `v1.0.0` preserva o MVP homologado. A `v1.0.1` acrescenta a adaptação
-operacional para nuvem, sem mudança de esquema de banco. O `HOM-035` permanece
-como ressalva operacional até a implantação externa.
+- [ ] backup e restauração verificados;
+- [ ] dependências e build aprovados;
+- [ ] migrations executadas sem erro;
+- [ ] 367 testes e 1.473 asserções aprovados;
+- [ ] validação funcional P01 a P09 concluída;
+- [ ] worker da fila ativo;
+- [ ] SMTP, redefinição e senha temporária aprovados;
+- [ ] Object Storage privado e persistência aprovados;
+- [ ] logs sem erro impeditivo e sem segredos;
+- [ ] commit implantado registrado;
+- [ ] tag `v3.0.0` criada no commit implantado;
+- [ ] release do GitHub publicada;
+- [ ] manifesto SHA-256 atualizado;
+- [ ] termo final assinado pela responsável.

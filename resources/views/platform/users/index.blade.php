@@ -95,6 +95,9 @@
                                     <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $user->is_active ? 'bg-[#E4F3F0] text-[#2E8B74]' : 'bg-[#FBECEC] text-[#A55252]' }}">
                                         {{ $user->is_active ? 'Ativa' : 'Inativa' }}
                                     </span>
+                                    @if ($user->must_change_password)
+                                        <span class="mt-2 block text-xs font-semibold text-[#7A5B18]">Troca de senha pendente</span>
+                                    @endif
                                 </td>
                                 <td class="px-5 py-4 text-right">
                                     <div class="flex flex-wrap justify-end gap-3">
@@ -103,6 +106,9 @@
                                                 @csrf
                                                 <button class="sgp-link">Reenviar link</button>
                                             </form>
+                                            @if (! $user->is(Auth::user()))
+                                                <a href="{{ route('platform.users.temporary-password.confirm', $user) }}" class="sgp-link">Senha temporária</a>
+                                            @endif
                                         @endif
                                         <a href="{{ route('platform.users.edit', $user) }}" class="sgp-link">Editar</a>
                                     </div>
