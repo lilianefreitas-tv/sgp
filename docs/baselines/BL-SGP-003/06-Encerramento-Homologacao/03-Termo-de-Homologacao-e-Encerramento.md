@@ -36,5 +36,5 @@ Depois da assinatura final, qualquer correção exige nova versão e qualquer mu
 
 ## Responsável
 
-Liliane de Freitas Terra Vieira  
+Liliane de Freitas Terra Vieira
 Data da aprovação funcional: 30/08/2026
