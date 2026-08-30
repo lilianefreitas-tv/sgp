@@ -8,7 +8,7 @@ use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\SecurityAuditEvent;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -42,8 +42,8 @@ class PasswordRecoveryTest extends TestCase
                 ->assertSessionHas('status', 'Se existir uma conta ativa com esse e-mail, enviaremos as instruções de redefinição.');
         }
 
-        Notification::assertSentTo($active, ResetPassword::class);
-        Notification::assertNotSentTo($inactive, ResetPassword::class);
+        Notification::assertSentTo($active, ResetPasswordNotification::class);
+        Notification::assertNotSentTo($inactive, ResetPasswordNotification::class);
         $this->assertDatabaseCount('security_audit_events', 3);
         $this->assertSame(0, SecurityAuditEvent::query()
             ->get()
@@ -63,7 +63,7 @@ class PasswordRecoveryTest extends TestCase
             ->assertSessionHas('success')
             ->assertSessionMissing('activation_url');
 
-        Notification::assertSentTo($target, ResetPassword::class);
+        Notification::assertSentTo($target, ResetPasswordNotification::class);
         $this->assertDatabaseHas('security_audit_events', [
             'actor_id' => $superadmin->id,
             'target_user_id' => $target->id,
@@ -99,8 +99,8 @@ class PasswordRecoveryTest extends TestCase
             ->assertRedirect()
             ->assertSessionHas('success');
 
-        Notification::assertSentTo($target, ResetPassword::class);
-        Notification::assertSentTo($secondTarget, ResetPassword::class);
+        Notification::assertSentTo($target, ResetPasswordNotification::class);
+        Notification::assertSentTo($secondTarget, ResetPasswordNotification::class);
         $this->assertDatabaseHas('security_audit_events', [
             'organization_id' => $organization->id,
             'actor_id' => $owner->id,

@@ -40,6 +40,8 @@ use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
 use App\Models\ProjectOriginBaseline;
+use App\Models\ProjectHomologation;
+use App\Models\ProjectTestCase;
 use App\Models\Proposal;
 use App\Models\ProposalVersion;
 use App\Models\Requirement;
@@ -48,6 +50,8 @@ use App\Models\RequirementVersion;
 use App\Models\Scopes\OrganizationScope;
 use App\Models\Task;
 use App\Models\TaskHistory;
+use App\Models\TestEvidence;
+use App\Models\TestExecution;
 use App\Observers\OrganizationIntegrityObserver;
 use App\Policies\OrganizationPolicy;
 use App\Policies\ChangeRequestPolicy;
@@ -109,6 +113,10 @@ class AppServiceProvider extends ServiceProvider
             ProjectComment::class,
             ProjectAttachment::class,
             ProjectOriginBaseline::class,
+            ProjectTestCase::class,
+            TestExecution::class,
+            TestEvidence::class,
+            ProjectHomologation::class,
             ProjectActivity::class,
             ProjectBaseline::class,
             ProjectBaselineItem::class,

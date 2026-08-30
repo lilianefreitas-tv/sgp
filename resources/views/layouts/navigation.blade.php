@@ -102,8 +102,32 @@
                     Usuários da plataforma
                 </a>
 
+                <a
+                    href="{{ route('platform.communication.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('platform.communication.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 6.75 12 13l9-6.25M4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5Z" />
+                    </svg>
+
+                    Comunicação e SMTP
+                </a>
+
+                <a
+                    href="{{ route('platform.security-audit.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('platform.security-audit.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3 5 6v5c0 4.6 2.8 8.4 7 10 4.2-1.6 7-5.4 7-10V6l-7-3Zm-3 9 2 2 4-4" />
+                    </svg>
+
+                    Auditoria da plataforma
+                </a>
+
                 <p class="mt-4 px-3 text-xs leading-5 text-slate-300">
-                    Gerencie as contas globais ou selecione uma organização para iniciar um acesso temporário e auditado.
+                    Gerencie contas, comunicação transacional e segurança ou selecione uma organização para iniciar um acesso temporário e auditado.
                 </p>
             @endif
 
@@ -377,10 +401,12 @@
                 Documentação
             </a>
 
-            <div
-                class="flex items-center gap-3 rounded-lg px-3 py-3
-                       text-sm font-medium text-slate-400"
-                title="Funcionalidade em desenvolvimento"
+            <a
+                href="{{ route('tests.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                       {{ request()->routeIs('tests.*', 'projects.tests.*', 'projects.homologations.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
                 <svg
                     class="h-5 w-5"
@@ -398,12 +424,14 @@
                 </svg>
 
                 Testes
-            </div>
+            </a>
 
-            <div
-                class="flex items-center gap-3 rounded-lg px-3 py-3
-                       text-sm font-medium text-slate-400"
-                title="Funcionalidade em desenvolvimento"
+            <a
+                href="{{ route('traceability.index') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                       {{ request()->routeIs('traceability.*', 'projects.traceability.*')
+                            ? 'bg-white/15 text-white'
+                            : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
             >
                 <svg
                     class="h-5 w-5"
@@ -421,7 +449,7 @@
                 </svg>
 
                 Rastreabilidade
-            </div>
+            </a>
 
             @if (
                 Auth::user()->isAdministrator()
@@ -458,6 +486,30 @@
                     </svg>
 
                     Usuários da plataforma
+                </a>
+
+                <a
+                    href="{{ route('platform.communication.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('platform.communication.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 6.75 12 13l9-6.25M4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5Z" />
+                    </svg>
+
+                    Comunicação e SMTP
+                </a>
+
+                <a
+                    href="{{ route('platform.security-audit.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition
+                           {{ request()->routeIs('platform.security-audit.*') ? 'bg-white/15 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3 5 6v5c0 4.6 2.8 8.4 7 10 4.2-1.6 7-5.4 7-10V6l-7-3Zm-3 9 2 2 4-4" />
+                    </svg>
+
+                    Auditoria da plataforma
                 </a>
                 @endif
 

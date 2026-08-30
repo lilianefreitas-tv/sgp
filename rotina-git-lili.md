@@ -1,61 +1,62 @@
 # Rotina Git do SGP
 
-## Estado oficial
+## Estado de fechamento
 
-```text
+~~~text
 Branch estável: main
-Release: v1.0.0
-Commit da release: a5bc837
-Homologação: HOM-001 a HOM-034 aprovados
-Ressalva operacional: HOM-035 no ambiente real de produção
-```
+Release candidata: v3.0.0
+Baseline: BL-SGP-003
+Homologação funcional: P01 a P09 aprovados
+Commit e tag: registrar somente após merge e deploy
+~~~
 
-## Antes de começar
+## Validar a candidata
 
-```powershell
+Na branch feature/bl3-p09-comunicacao-acesso:
+
+~~~powershell
 Set-Location C:\Projetos\sgp
-git status
+php artisan optimize:clear
+php artisan test
+npm run build
+git diff --check
+git status --short
+~~~
+
+## Registrar o P10
+
+~~~powershell
+git add .
+git diff --cached
+git commit -m "release: prepara SGP v3.0.0 e encerra BL-SGP-003"
+git push origin feature/bl3-p09-comunicacao-acesso
+~~~
+
+Abra ou atualize o pull request para a main. Só promova com checks aprovados e revisão concluída.
+
+## Depois do merge
+
+~~~powershell
 git switch main
 git pull --ff-only origin main
-```
+git log -1 --oneline
+~~~
 
-## Registrar uma alteração
+Registre o SHA, mas ainda não crie a tag. Primeiro valide o deploy desse commit no Laravel Cloud, incluindo migrations, fila, SMTP, persistência, logs e smoke test.
 
-```powershell
-git status
-git add .
-git commit -m "tipo: descrição objetiva da alteração"
-git push
-```
+## Selar a release
 
-Tipos sugeridos: `feat`, `fix`, `docs`, `test`, `refactor`, `chore` e
-`release`.
+Somente depois do deploy aprovado:
 
-## Registrar a documentação pós-homologação
+~~~powershell
+git tag -a v3.0.0 -m "SGP v3.0.0 - BL-SGP-003 homologada"
+git push origin v3.0.0
+~~~
 
-Depois de substituir os documentos revisados e conferir a estrutura de
-`docs`, execute:
+Complete o termo de encerramento, registre a URL da release e regenere o manifesto SHA-256.
 
-```powershell
-git status
-git add README.md INSTALL.md CHANGELOG.md docs
-git diff --cached
-git commit -m "docs: atualiza registros pós-homologação da v1.0.0"
-git push origin main
-```
+## Próxima etapa
 
-Não recrie nem mova a tag `v1.0.0`. Ela identifica corretamente o commit
-homologado `a5bc837`. O commit documental posterior ficará na `main`, sem alterar
-o conteúdo histórico da tag.
+Antes de programar a BL-SGP-004, registre e analise as necessidades comerciais, jurídicas, tributárias, contratuais, de licenciamento, suporte, privacidade e operação. A reformulação da identidade visual também pertence a esse planejamento futuro.
 
-## Próximas branches
-
-A adaptação para armazenamento privado em nuvem deverá ocorrer em branch
-própria, criada a partir da `main` atualizada. Depois da publicação e validação
-da versão `v1.0.1`, o desenvolvimento da `BL-SGP-002` deverá começar em outra
-branch.
-
-Não misture a correção operacional de nuvem com a Fundação SaaS Multiempresa.
-
-Nunca versione `.env`, bancos locais, logs, anexos de teste, documentos gerados,
-`vendor` ou `node_modules`.
+Nunca versione arquivos de ambiente, bancos, logs, anexos, credenciais, vendor ou node_modules. Nunca mova uma tag histórica.

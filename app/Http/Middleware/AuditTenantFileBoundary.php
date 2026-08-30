@@ -73,6 +73,10 @@ class AuditTenantFileBoundary
             );
         }
 
+        if ($routeName === 'projects.tests.evidences.download') {
+            return $this->lookup('test_evidences', 'evidence', 'test.evidence.download', $request);
+        }
+
         return null;
     }
 

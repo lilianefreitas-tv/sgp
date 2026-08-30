@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'release_label' => env('SGP_RELEASE_LABEL', 'Versão 2.0.1 RC2 • Homologação'),
+    'release_label' => env('SGP_RELEASE_LABEL', 'Versão 3.0.0'),
 
     'storage' => [
         'private_disk' => env('SGP_PRIVATE_DISK', env('FILESYSTEM_DISK', 'local')),

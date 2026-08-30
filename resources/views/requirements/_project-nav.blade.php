@@ -43,6 +43,14 @@
        class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.change-requests.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
         Mudanças
     </a>
+    <a href="{{ route('projects.tests.index', $project) }}"
+       class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.tests.*', 'projects.homologations.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
+        Testes
+    </a>
+    <a href="{{ route('projects.traceability.show', $project) }}"
+       class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.traceability.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
+        Rastreabilidade
+    </a>
     <a href="{{ route('projects.history.index', $project) }}"
        class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ request()->routeIs('projects.history.*') ? 'bg-[#123B4A] text-white' : 'text-[#667680] hover:bg-[#F3F6F7] hover:text-[#24313A]' }}">
         Histórico
