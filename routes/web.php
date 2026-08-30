@@ -19,6 +19,9 @@ use App\Http\Controllers\OrganizationAuditController;
 use App\Http\Controllers\OrganizationContextController;
 use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\PlatformOrganizationController;
+use App\Http\Controllers\PlatformCommunicationController;
+use App\Http\Controllers\PlatformPasswordResetController;
+use App\Http\Controllers\PlatformSecurityAuditController;
 use App\Http\Controllers\PlatformUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectAttachmentController;
@@ -28,10 +31,15 @@ use App\Http\Controllers\ProjectContractController;
 use App\Http\Controllers\ProjectBaselineController;
 use App\Http\Controllers\ProjectOriginDocumentController;
 use App\Http\Controllers\ProjectHistoryController;
+use App\Http\Controllers\ProjectHomologationController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\ProjectScheduleController;
+use App\Http\Controllers\ProjectTestController;
+use App\Http\Controllers\ProjectTraceabilityController;
 use App\Http\Controllers\RequirementController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TestEvidenceController;
+use App\Http\Controllers\TestExecutionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -98,6 +106,8 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::delete('/organization-members/{membership}', [OrganizationMemberController::class, 'destroy'])->name('organization-members.destroy');
     Route::get('/requirements', [RequirementController::class, 'overview'])->name('requirements.index');
     Route::get('/tasks', [TaskController::class, 'overview'])->name('tasks.index');
+    Route::get('/tests', [ProjectTestController::class, 'overview'])->name('tests.index');
+    Route::get('/traceability', [ProjectTraceabilityController::class, 'overview'])->name('traceability.index');
     Route::get('/kanban', [KanbanController::class, 'overview'])->name('kanban.index');
     Route::get('/documents', [DocumentController::class, 'overview'])->name('documents.index');
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
@@ -130,6 +140,18 @@ Route::middleware(['auth', 'active', 'organization'])->group(function () {
     Route::get('/projects/{project}/baselines/{baseline}', [ProjectBaselineController::class, 'show'])->name('projects.baselines.show');
     Route::get('/projects/{project}/baselines/compare/{from}/{to}', [ProjectBaselineController::class, 'compare'])->name('projects.baselines.compare');
     Route::get('/projects/{project}/change-requests', [ChangeRequestController::class, 'index'])->name('projects.change-requests.index');
+    Route::get('/projects/{project}/tests', [ProjectTestController::class, 'index'])->name('projects.tests.index');
+    Route::get('/projects/{project}/traceability', [ProjectTraceabilityController::class, 'show'])->name('projects.traceability.show');
+    Route::get('/projects/{project}/tests/create', [ProjectTestController::class, 'create'])->name('projects.tests.create');
+    Route::post('/projects/{project}/tests', [ProjectTestController::class, 'store'])->name('projects.tests.store');
+    Route::get('/projects/{project}/tests/{testCase}', [ProjectTestController::class, 'show'])->name('projects.tests.show');
+    Route::get('/projects/{project}/tests/{testCase}/edit', [ProjectTestController::class, 'edit'])->name('projects.tests.edit');
+    Route::put('/projects/{project}/tests/{testCase}', [ProjectTestController::class, 'update'])->name('projects.tests.update');
+    Route::post('/projects/{project}/tests/{testCase}/executions', [TestExecutionController::class, 'store'])->name('projects.tests.executions.store');
+    Route::post('/projects/{project}/tests/{testCase}/executions/{execution}/evidences', [TestEvidenceController::class, 'store'])->name('projects.tests.evidences.store');
+    Route::get('/projects/{project}/tests/{testCase}/executions/{execution}/evidences/{evidence}', [TestEvidenceController::class, 'download'])
+        ->middleware('audit.file-boundary')->name('projects.tests.evidences.download');
+    Route::post('/projects/{project}/homologations', [ProjectHomologationController::class, 'store'])->name('projects.homologations.store');
     Route::get('/projects/{project}/change-requests/create', [ChangeRequestController::class, 'create'])->name('projects.change-requests.create');
     Route::post('/projects/{project}/change-requests', [ChangeRequestController::class, 'store'])->name('projects.change-requests.store');
     Route::get('/projects/{project}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('projects.change-requests.show');
@@ -170,6 +192,21 @@ Route::middleware(['auth', 'active', 'administrator'])->prefix('platform')->name
     Route::post('/users/{user}/password-reset-link', [PlatformUserController::class, 'sendPasswordResetLink'])
         ->middleware('throttle:6,1')
         ->name('users.password-reset-link');
+    Route::get('/users/{user}/temporary-password', [PlatformPasswordResetController::class, 'confirm'])
+        ->middleware('password.confirm')
+        ->name('users.temporary-password.confirm');
+    Route::post('/users/{user}/temporary-password', [PlatformPasswordResetController::class, 'store'])
+        ->middleware(['password.confirm', 'throttle:3,1'])
+        ->name('users.temporary-password');
+    Route::get('/communication', [PlatformCommunicationController::class, 'index'])
+        ->middleware('organization:optional')
+        ->name('communication.index');
+    Route::post('/communication/test', [PlatformCommunicationController::class, 'test'])
+        ->middleware(['organization:optional', 'throttle:3,1'])
+        ->name('communication.test');
+    Route::get('/security-audit', PlatformSecurityAuditController::class)
+        ->middleware('organization:optional')
+        ->name('security-audit.index');
     Route::post('/organizations/{organization}/access', [PlatformOrganizationController::class, 'access'])
         ->name('organizations.access');
     Route::delete('/organization-access', [PlatformOrganizationController::class, 'leave'])

@@ -37,6 +37,8 @@ use App\Models\ProjectConfigurationVersion;
 use App\Models\ProjectDocument;
 use App\Models\ProjectMembership;
 use App\Models\ProjectOriginBaseline;
+use App\Models\ProjectHomologation;
+use App\Models\ProjectTestCase;
 use App\Models\Proposal;
 use App\Models\ProposalVersion;
 use App\Models\Requirement;
@@ -44,6 +46,8 @@ use App\Models\RequirementDependency;
 use App\Models\RequirementVersion;
 use App\Models\Task;
 use App\Models\TaskHistory;
+use App\Models\TestEvidence;
+use App\Models\TestExecution;
 use App\Services\OrganizationContext;
 use App\Services\ProjectCodeGenerator;
 use Illuminate\Database\Eloquent\Model;
@@ -85,6 +89,10 @@ class OrganizationIntegrityObserver
         ChangeRequestImplementation::class => ['change_requests', 'change_request_id'],
         ChangeRequestImplementationEvent::class => ['change_request_implementations', 'implementation_id'],
         ChangeRequestTransition::class => ['change_requests', 'change_request_id'],
+        ProjectTestCase::class => ['projects', 'project_id'],
+        TestExecution::class => ['project_test_cases', 'test_case_id'],
+        TestEvidence::class => ['test_executions', 'test_execution_id'],
+        ProjectHomologation::class => ['projects', 'project_id'],
         InitiativeConfigurationVersion::class => ['initiatives', 'initiative_id'],
         ProjectConfigurationVersion::class => ['projects', 'project_id'],
         ArtifactRevision::class => ['artifacts', 'artifact_id'],

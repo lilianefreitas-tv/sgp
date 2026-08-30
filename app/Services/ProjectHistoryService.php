@@ -22,6 +22,7 @@ class ProjectHistoryService
             'comment' => 'Comentários',
             'attachment' => 'Anexos',
             'change_request' => 'Solicitações de mudança',
+            'testing' => 'Testes e homologação',
         ];
     }
 
@@ -77,6 +78,7 @@ class ProjectHistoryService
                     'task' => 'task',
                     'document' => 'document',
                     'change_request' => 'change_request',
+                    'test_case', 'homologation' => 'testing',
                     default => 'project',
                 },
                 'title' => $activity->description,
@@ -88,6 +90,7 @@ class ProjectHistoryService
                     'task' => 'green',
                     'document' => 'amber',
                     'change_request' => 'purple',
+                    'test_case', 'homologation' => 'green',
                     default => 'blue',
                 },
             ]));

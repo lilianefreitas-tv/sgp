@@ -1,5 +1,42 @@
 # Changelog
 
+## [3.0.0] - 2026-08-30
+
+Release da `BL-SGP-003 · Engenharia Documental Adaptativa`, homologada funcionalmente e preparada para promoção controlada à `main`.
+
+### Adicionado
+
+- entrada por iniciativa, jornada comercial opcional e conversão rastreável em projeto;
+- aplicabilidade e governança proporcionais ao contexto da iniciativa e do projeto;
+- artefatos estruturados, revisões, aprovação e publicações documentais;
+- contratos, baselines de projeto, itens congelados e comparação controlada;
+- solicitações de mudança, análises de impacto e registro da implementação;
+- casos de teste, execuções, evidências e matriz de rastreabilidade;
+- comunicação transacional por SMTP com diagnóstico seguro e execução em fila;
+- recuperação pública de senha, reenvio administrativo e senha temporária com troca obrigatória;
+- auditoria global de segurança da plataforma separada da auditoria organizacional.
+
+### Segurança
+
+- segredos de SMTP permanecem exclusivamente nas variáveis protegidas do ambiente;
+- tokens de redefinição são temporários, de uso único e sujeitos a limitação;
+- redefinições administrativas revogam sessões e invalidam links anteriores;
+- eventos globais registram ator, alvo, ambiente e resultado sem armazenar credenciais;
+- permissões e isolamento multiempresa foram mantidos nos novos módulos.
+
+### Validação
+
+- 367 testes automatizados aprovados, com 1.473 asserções;
+- `git diff --check` sem inconsistências;
+- percursos P01 a P09 homologados pela responsável do produto;
+- envio SMTP real, redefinição pública, senha temporária e auditorias validados funcionalmente.
+
+### Publicação
+
+- a tag `v3.0.0` deve ser criada somente no commit realmente implantado na `main`;
+- o commit e as evidências do Laravel Cloud serão registrados no selo final do P10;
+- a identidade visual vigente é preservada nesta release; sua reformulação fica para análise da `BL-SGP-004`.
+
 ## [2.0.1-rc2] - 2026-08-07
 
 ### Adicionado

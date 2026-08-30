@@ -21,7 +21,7 @@ class EnsureOrganizationContext
     {
     }
 
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $mode = 'required'): Response
     {
         $user = $request->user();
 
@@ -40,6 +40,10 @@ class EnsureOrganizationContext
 
         $requestedId = $request->session()->get(self::SESSION_KEY);
         $platformAccessId = $request->session()->get(self::PLATFORM_ACCESS_SESSION_KEY);
+
+        if ($mode === 'optional' && $requestedId === null) {
+            return $next($request);
+        }
 
         if ($user->isAdministrator()
             && $requestedId !== null
@@ -86,6 +90,10 @@ class EnsureOrganizationContext
                 self::SESSION_KEY,
                 self::PLATFORM_ACCESS_SESSION_KEY,
             ]);
+
+            if ($mode === 'optional') {
+                return $next($request);
+            }
 
             if ($user->isAdministrator()) {
                 return to_route('platform.organizations.index')->with(

@@ -12,7 +12,7 @@ use App\Models\Organization;
 use App\Models\OrganizationAuditEvent;
 use App\Models\OrganizationMembership;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -94,7 +94,7 @@ class OrganizationAdministrationTest extends TestCase
         $administrator = User::query()->where('email', 'admin@empresa.test')->firstOrFail();
 
         $response->assertRedirect(route('platform.organizations.edit', $organization));
-        Notification::assertSentTo($administrator, ResetPassword::class);
+        Notification::assertSentTo($administrator, ResetPasswordNotification::class);
         $this->assertSame(GlobalProfile::User, $administrator->global_profile);
         $this->assertDatabaseHas('organization_memberships', [
             'organization_id' => $organization->id,
@@ -173,7 +173,7 @@ class OrganizationAdministrationTest extends TestCase
         $response->assertRedirect(route('organization-members.index'));
         $response->assertSessionMissing('activation_url');
         $user = User::query()->where('email', 'analista@empresa.test')->firstOrFail();
-        Notification::assertSentTo($user, ResetPassword::class);
+        Notification::assertSentTo($user, ResetPasswordNotification::class);
         $this->assertSame(GlobalProfile::User, $user->global_profile);
         $this->assertDatabaseHas('organization_memberships', [
             'organization_id' => $organization->id,

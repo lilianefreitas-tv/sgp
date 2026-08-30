@@ -60,6 +60,16 @@
             <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#594173]">{{ $project->change_requests_count }} solicitações</span><span class="text-xl text-[#8064A2]">→</span></div>
         </a>
 
+        <a href="{{ route('projects.tests.index', $project) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFE2D9] bg-[#F3FAF8] p-5 shadow-sm transition hover:border-[#2E8B74] hover:bg-[#EDF8F5]">
+            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#2E8B74]">Qualidade verificável</p><p class="mt-1 font-bold text-[#256C5C]">Testes, evidências e homologação</p><p class="mt-1 text-sm text-[#667680]">Planeje casos, preserve execuções, vincule evidências e registre a decisão formal.</p></div>
+            <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#256C5C]">{{ $project->test_cases_count }} casos · {{ $project->homologations_count }} decisões</span><span class="text-xl text-[#2E8B74]">→</span></div>
+        </a>
+
+        <a href="{{ route('projects.traceability.show', $project) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#D8CCE8] bg-[#FBFAFD] p-5 shadow-sm transition hover:border-[#8064A2] hover:bg-[#F6F2FA]">
+            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#8064A2]">Cobertura ponta a ponta</p><p class="mt-1 font-bold text-[#594173]">Rastreabilidade e apoio ao MPS.BR</p><p class="mt-1 text-sm text-[#667680]">Identifique vínculos, lacunas e evidências desde a origem até a homologação.</p></div>
+            <span class="text-xl text-[#8064A2]">→</span>
+        </a>
+
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('projects.index') }}" class="inline-flex items-center justify-center rounded-lg border border-[#DCE3E7] bg-white px-4 py-2.5 text-sm font-semibold text-[#24313A] hover:bg-[#F5F7F9]">Voltar</a>
             @if ($canManage)
