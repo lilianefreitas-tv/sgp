@@ -67,7 +67,8 @@ class NavigationSemanticTest extends TestCase
                 'Modelos de documentos',
                 'Auditoria',
             ])
-            ->assertDontSee('Usuários da plataforma');
+            ->assertDontSee('Usuários da plataforma')
+            ->assertDontSee('Auditoria da plataforma');
     }
 
     public function test_superadmin_without_active_organization_sees_only_platform_administration(): void
@@ -81,6 +82,8 @@ class NavigationSemanticTest extends TestCase
                 'Administração da plataforma',
                 'Organizações',
                 'Usuários da plataforma',
+                'Comunicação e SMTP',
+                'Auditoria da plataforma',
             ])
             ->assertDontSee('Negócios e portfólio')
             ->assertDontSee('Gestão de projetos');
@@ -101,6 +104,8 @@ class NavigationSemanticTest extends TestCase
                 'Administração',
                 'Organizações',
                 'Usuários da plataforma',
+                'Comunicação e SMTP',
+                'Auditoria da plataforma',
                 'Equipe da organização',
                 'Modelos de documentos',
                 'Auditoria',

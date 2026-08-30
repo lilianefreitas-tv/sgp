@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\GlobalProfile;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -63,7 +63,7 @@ class UserManagementTest extends TestCase
         $this->assertSame(GlobalProfile::User, $created->global_profile);
         $this->assertTrue($created->is_active);
         $this->assertFalse($created->organizationMemberships()->exists());
-        Notification::assertSentTo($created, ResetPassword::class);
+        Notification::assertSentTo($created, ResetPasswordNotification::class);
     }
 
     public function test_superadmin_can_create_another_superadmin_account(): void

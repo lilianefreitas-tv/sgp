@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsureOrganizationContext;
 use App\Http\Middleware\AuditTenantFileBoundary;
 use App\Http\Middleware\EnsureUserIsAdministrator;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\EnsureRequiredPasswordChange;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -21,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'administrator' => EnsureUserIsAdministrator::class,
             'organization' => EnsureOrganizationContext::class,
             'audit.file-boundary' => AuditTenantFileBoundary::class,
+        ]);
+
+        $middleware->web(append: [
+            EnsureRequiredPasswordChange::class,
         ]);
 
         $middleware->prependToPriorityList(

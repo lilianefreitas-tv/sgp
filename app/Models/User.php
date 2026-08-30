@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\GlobalProfile;
 use App\Enums\OrganizationRole;
 use App\Enums\ProjectRole;
+use App\Notifications\ResetPasswordNotification;
 use App\Services\OrganizationContext;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
@@ -30,6 +31,9 @@ class User extends Authenticatable
         'password',
         'global_profile',
         'is_active',
+        'must_change_password',
+        'temporary_password_issued_at',
+        'password_changed_at',
     ];
 
     /**
@@ -54,7 +58,15 @@ class User extends Authenticatable
             'password' => 'hashed',
             'global_profile' => GlobalProfile::class,
             'is_active' => 'boolean',
+            'must_change_password' => 'boolean',
+            'temporary_password_issued_at' => 'datetime',
+            'password_changed_at' => 'datetime',
         ];
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     public function isAdministrator(): bool

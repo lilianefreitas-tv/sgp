@@ -1,0 +1,9 @@
+80930afd001a2cd2597eda94bd8c6e5816cd0ebf8dc355e06f4562a8aeb610c5  ./00-LEIA-ME.md
+6c5b1521ed87d2e0b613665580bb394532a6f0df26d88bafb1111d37879c82f2  ./01-Registro-da-Release-v3.0.0.md
+bb0fc43df79f54b23419e4e0ebd2866677fd57c8f4c27582c3128d16b316e37b  ./02-Roteiro-de-Promocao-e-Congelamento.md
+517bc000df1b77f64492e85e3180313ea6156823156ff13d4bc29240999893e6  ./03-Termo-de-Homologacao-e-Encerramento-BL-SGP-003-v3.0.0.docx
+596d8c542f3e18a1396fa22ca18475fc9dfd1837424b1cf5af18d0ff4055f361  ./03-Termo-de-Homologacao-e-Encerramento-BL-SGP-003-v3.0.0.pdf
+6f81ca4d7a6b18f146b61b4e0e3cfc3f93f9bcaba7a79dcc0d9738f81a62dfdd  ./03-Termo-de-Homologacao-e-Encerramento.md
+f8ac61eedaa226ce7bb1b74b8c8c95d956ba151b6ad7e293a4c370b23df633fb  ./04-Catalogo-do-Pacote.md
+9d824e760905e8d2c58a715979fa9e14199fde23e5fb8ab80d6cbc3a97f0420f  ./05-Matriz-Consolidada-de-Homologacao-BL-SGP-003-v3.0.0.xlsx
+4e6bd487f5e0b27f1df716efc9a6294d8e6a3858d1583c9d65faf2a8e9a613db  ./evidencias/LEIA-ME.md

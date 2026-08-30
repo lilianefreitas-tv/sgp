@@ -32,6 +32,11 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
+
+        if ($user->must_change_password) {
+            return to_route('password.required.edit');
+        }
+
         $hasAvailableOrganization = $user->organizationMemberships()
             ->where('status', OrganizationMembershipStatus::Active->value)
             ->whereHas('organization', fn ($query) => $query
