@@ -31,6 +31,7 @@ class ArtifactRevisionService
         return DB::transaction(function () use ($attributes, $actor): Artifact {
             $organizationId = $this->authorize($actor);
             [$initiative, $project] = $this->resolveParent($attributes, $organizationId);
+            $this->authorizeManagement($actor, $project);
             $type = $this->resolveType($attributes['type'] ?? null, $initiative, $project);
             $content = $this->canonicalizer->canonicalize($this->arrayValue($attributes['content'] ?? null, 'content'));
             $metadata = array_key_exists('metadata', $attributes) && $attributes['metadata'] !== null
@@ -62,6 +63,8 @@ class ArtifactRevisionService
             if ($locked === null) {
                 throw new LogicException('Artefato não encontrado no contexto organizacional ativo.');
             }
+            $project = $locked->project_id === null ? null : Project::query()->where('organization_id', $organizationId)->lockForUpdate()->find($locked->project_id);
+            $this->authorizeManagement($actor, $project);
             if ($locked->archived_at !== null) {
                 throw new LogicException('Artefatos arquivados não aceitam novas revisões.');
             }
@@ -69,7 +72,6 @@ class ArtifactRevisionService
                 throw new LogicException('Conclua a rodada de análise antes de registrar nova revisão.');
             }
             $initiative = $locked->initiative_id === null ? null : Initiative::query()->where('organization_id', $organizationId)->lockForUpdate()->find($locked->initiative_id);
-            $project = $locked->project_id === null ? null : Project::query()->where('organization_id', $organizationId)->lockForUpdate()->find($locked->project_id);
             $currentRevision = $locked->revisions()
                 ->where('sequence', $locked->current_revision_sequence)
                 ->first();
@@ -97,6 +99,8 @@ class ArtifactRevisionService
             if ($locked === null) {
                 throw new LogicException('Artefato não encontrado no contexto organizacional ativo.');
             }
+            $project = $locked->project_id === null ? null : Project::query()->where('organization_id', $organizationId)->lockForUpdate()->find($locked->project_id);
+            $this->authorizeManagement($actor, $project);
             $this->requiredText($reason, 'archive_reason', 10000);
             if (in_array($locked->workflow_state, [ArtifactWorkflowState::InReview, ArtifactWorkflowState::AwaitingApproval], true)) {
                 throw new LogicException('Conclua a rodada de análise antes de arquivar o artefato.');
@@ -195,11 +199,23 @@ class ArtifactRevisionService
             throw new LogicException('Superadministradores exigem acesso temporário explícito à organização.');
         }
         $membership = $actor->organizationMemberships()->where('organization_id', $this->context->id())->where('status', OrganizationMembershipStatus::Active->value)->first();
-        if ($membership === null || ! $actor->administersCurrentOrganization()) {
-            throw new LogicException('O usuário não possui permissão administrativa ativa para artefatos.');
+        if ($membership === null) {
+            throw new LogicException('Membership ativo obrigatório.');
         }
 
         return (int) $this->context->id();
+    }
+
+    private function authorizeManagement(User $actor, ?Project $project): void
+    {
+        if ($actor->isSuperAdmin() || $actor->administersCurrentOrganization()) {
+            return;
+        }
+        if ($project !== null && $actor->canManageProject($project)) {
+            return;
+        }
+
+        throw new LogicException('O usuário não possui permissão ativa para gerenciar artefatos neste contexto.');
     }
 
     /** @return array<mixed> */

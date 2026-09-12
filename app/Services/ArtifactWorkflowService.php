@@ -30,8 +30,10 @@ class ArtifactWorkflowService
     public function assign(Artifact $artifact, User $user, DocumentRole $role, User $actor): DocumentRoleAssignment
     {
         return DB::transaction(function () use ($artifact, $user, $role, $actor): DocumentRoleAssignment {
-            $organizationId = $this->authorizeAdministrator($actor, $artifact->organization_id);
+            $organizationId = $artifact->organization_id;
+            $this->authorizeContext($actor, $organizationId);
             $locked = $this->lockedArtifact($artifact, $organizationId);
+            $this->authorizeAssignmentManager($actor, $locked);
             if (! $user->is_active || ! $user->organizationMemberships()->where('organization_id', $organizationId)->where('status', OrganizationMembershipStatus::Active->value)->exists()) {
                 throw new LogicException('O usuário selecionado não possui membership ativo nesta organização.');
             }
@@ -187,17 +189,19 @@ class ArtifactWorkflowService
         ]);
     }
 
-    private function authorizeAdministrator(User $actor, int $organizationId): int
+    private function authorizeAssignmentManager(User $actor, Artifact $artifact): void
     {
-        $this->authorizeContext($actor, $organizationId);
         if ($actor->isSuperAdmin() && $this->context->isPlatformAccess()) {
-            return $organizationId;
+            return;
         }
-        if (! $actor->administersCurrentOrganization()) {
-            throw new LogicException('A atribuição de papéis exige Owner ou Administrator ativo.');
+        if ($actor->administersCurrentOrganization()) {
+            return;
+        }
+        if ($artifact->project_id !== null && $artifact->project !== null && $actor->canManageProject($artifact->project)) {
+            return;
         }
 
-        return $organizationId;
+        throw new LogicException('A atribuição de papéis exige administração da organização ou gerência ativa do projeto.');
     }
 
     private function authorizeRole(User $actor, int $organizationId, DocumentRole $role, Artifact $artifact): int

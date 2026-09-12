@@ -11,6 +11,7 @@ use App\Enums\ManagementLevel;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
 use App\Enums\ProjectMethodology;
+use App\Enums\ProjectRole;
 use App\Models\Artifact;
 use App\Models\ArtifactRevision;
 use App\Models\Client;
@@ -74,6 +75,33 @@ class ArtifactRevisionTest extends TestCase
         $this->assertSame(1, $first->sequence);
         $this->assertSame(2, $second->sequence);
         $this->assertSame(['a' => 1, 'z' => ['first' => true, 'second' => false]], $first->fresh()->content);
+    }
+
+    public function test_active_project_manager_without_organization_administration_can_manage_project_artifact(): void
+    {
+        [$organization, $administrator] = $this->actor();
+        $project = $this->project($administrator, $organization);
+        $manager = User::factory()->create();
+        $membership = OrganizationMembership::factory()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $manager->id,
+            'role_code' => OrganizationRole::Member,
+            'status' => OrganizationMembershipStatus::Active,
+        ]);
+        $project->memberships()->create([
+            'user_id' => $manager->id,
+            'role' => ProjectRole::ProjectManager,
+            'is_active' => true,
+            'started_at' => today(),
+        ]);
+        app(OrganizationContext::class)->activate($membership, collect([$membership]));
+
+        $artifact = $this->service()->create($this->attributes($project), $manager);
+        $revision = $this->service()->revise($artifact, ['a' => 2], null, 1, 'Ajuste do gerente.', $manager);
+        $archived = $this->service()->archive($artifact, 'Encerrado pelo gerente.', $manager);
+
+        $this->assertSame(2, $revision->sequence);
+        $this->assertNotNull($archived->archived_at);
     }
 
     public function test_revisions_are_append_only_and_checksum_is_canonical(): void

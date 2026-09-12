@@ -63,6 +63,6 @@ class ProjectBaselineController extends Controller
 
     private function canManage(Request $request, Project $project): bool
     {
-        return $request->user()->administersCurrentOrganization() || $project->manager_id === $request->user()->id;
+        return $request->user()->canManageProject($project);
     }
 }

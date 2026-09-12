@@ -14,7 +14,9 @@ use App\Enums\ManagementLevel;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
 use App\Enums\ProjectMethodology;
+use App\Enums\ProjectRole;
 use App\Models\Artifact;
+use App\Models\Client;
 use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\User;
@@ -22,6 +24,7 @@ use App\Services\ArtifactPublicationService;
 use App\Services\ArtifactRevisionService;
 use App\Services\ArtifactWorkflowService;
 use App\Services\InitiativeConfigurationService;
+use App\Services\InitiativeConversionService;
 use App\Services\OrganizationContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -59,6 +62,50 @@ class ArtifactPublicationTest extends TestCase
 
         $this->assertSame($first->id, $second->id);
         $this->assertSame(1, $artifact->publications()->count());
+    }
+
+    public function test_active_project_manager_can_publish_and_revoke_approved_project_artifact(): void
+    {
+        [$organization, $administrator] = $this->actor();
+        $initiative = app(InitiativeConfigurationService::class)->create([
+            'title' => 'Origem do projeto', 'context' => 'Contexto', 'origin' => InitiativeOrigin::Internal,
+            'execution_nature' => ExecutionNature::Internal, 'financial_management_mode' => FinancialManagementMode::NotApplicable,
+            'management_level' => ManagementLevel::Essential, 'methodology' => ProjectMethodology::Kanban,
+        ], $administrator, 'Registro inicial.');
+        $project = app(InitiativeConversionService::class)->convert($initiative, [
+            'client_id' => Client::factory()->create(['organization_id' => $organization->id])->id,
+            'objective' => 'Objetivo do projeto.',
+        ], $administrator);
+        $artifact = app(ArtifactRevisionService::class)->create([
+            'project_id' => $project->id, 'type' => ArtifactType::ProjectRecord, 'title' => 'Plano do projeto',
+            'description' => 'Documento aprovado.', 'content' => ['objetivo' => 'Publicar'],
+            'metadata' => null, 'schema_version' => 1, 'change_reason' => 'Registro inicial.',
+        ], $administrator);
+        $workflow = app(ArtifactWorkflowService::class);
+        foreach (DocumentRole::cases() as $role) {
+            $workflow->assign($artifact, $administrator, $role, $administrator);
+        }
+        $round = $workflow->submit($artifact, $administrator, 'Pronto para publicação.');
+        $workflow->decide($round, $administrator, ArtifactWorkflowDecisionType::ForwardedForApproval, 'Revisado.');
+        $workflow->decide($round, $administrator, ArtifactWorkflowDecisionType::Approved, 'Aprovado.');
+
+        $manager = User::factory()->create();
+        $membership = OrganizationMembership::factory()->create([
+            'organization_id' => $organization->id, 'user_id' => $manager->id,
+            'role_code' => OrganizationRole::Member, 'status' => OrganizationMembershipStatus::Active,
+        ]);
+        $project->memberships()->create([
+            'user_id' => $manager->id, 'role' => ProjectRole::ProjectManager,
+            'is_active' => true, 'started_at' => today(),
+        ]);
+        app(OrganizationContext::class)->activate($membership, collect([$membership]));
+
+        $service = app(ArtifactPublicationService::class);
+        $publication = $service->publish($artifact->fresh(), $manager);
+        $revoked = $service->revoke($publication, 'Substituída por nova emissão.', $manager);
+
+        $this->assertSame($manager->id, $publication->published_by);
+        $this->assertSame($manager->id, $revoked->revoked_by);
     }
 
     public function test_draft_revision_cannot_be_published(): void

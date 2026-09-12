@@ -43,7 +43,7 @@ class ArtifactPublication extends Model
 
     public function workflowRound(): BelongsTo
     {
-        return $this->belongsTo(ArtifactWorkflowRound::class);
+        return $this->belongsTo(ArtifactWorkflowRound::class, 'artifact_workflow_round_id');
     }
 
     public function referenceRevision(): BelongsTo

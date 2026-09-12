@@ -13,8 +13,10 @@ use App\Enums\ManagementLevel;
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
 use App\Enums\ProjectMethodology;
+use App\Enums\ProjectRole;
 use App\Models\Artifact;
 use App\Models\ArtifactWorkflowDecision;
+use App\Models\Client;
 use App\Models\DocumentRoleAssignment;
 use App\Models\Organization;
 use App\Models\OrganizationMembership;
@@ -24,6 +26,7 @@ use App\Services\ArtifactRevisionService;
 use App\Services\ArtifactWorkflowService;
 use App\Services\InitiativeConfigurationService;
 use App\Services\OrganizationContext;
+use App\Services\InitiativeConversionService;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +62,36 @@ class ArtifactWorkflowTest extends TestCase
         $this->assertSame($artifact->revisions()->sole()->checksum, $approved->revision->checksum);
         $this->assertCount(1, $approved->decisions);
         $this->assertSame(3, $approved->decisions()->count());
+    }
+
+    public function test_active_project_manager_can_assign_document_roles_without_organization_administration(): void
+    {
+        [$organization, $administrator] = $this->actor();
+        $initiative = app(InitiativeConfigurationService::class)->create([
+            'title' => 'Origem do projeto', 'context' => 'Contexto', 'origin' => InitiativeOrigin::Internal,
+            'execution_nature' => ExecutionNature::Internal, 'financial_management_mode' => FinancialManagementMode::NotApplicable,
+            'management_level' => ManagementLevel::Essential, 'methodology' => ProjectMethodology::Kanban,
+        ], $administrator, 'Registro inicial.');
+        $project = app(InitiativeConversionService::class)->convert($initiative, [
+            'client_id' => Client::factory()->create(['organization_id' => $organization->id])->id,
+            'objective' => 'Objetivo do projeto.',
+        ], $administrator);
+        $artifact = app(ArtifactRevisionService::class)->create([
+            'project_id' => $project->id, 'type' => ArtifactType::ProjectRecord, 'title' => 'Plano do projeto',
+            'content' => ['objetivo' => 'Homologar'], 'metadata' => null, 'schema_version' => 1,
+            'change_reason' => 'Registro inicial.',
+        ], $administrator);
+        $manager = $this->member($organization);
+        $project->memberships()->create([
+            'user_id' => $manager->id, 'role' => ProjectRole::ProjectManager,
+            'is_active' => true, 'started_at' => today(),
+        ]);
+        $this->activateContext($organization, $manager);
+
+        $assignment = app(ArtifactWorkflowService::class)->assign($artifact, $manager, DocumentRole::Author, $manager);
+
+        $this->assertSame($manager->id, $assignment->user_id);
+        $this->assertSame($project->id, $assignment->project_id);
     }
 
     public function test_complete_governance_requires_a_different_approver(): void

@@ -135,13 +135,16 @@ class ArtifactPublicationService
         if ($actor->isSuperAdmin() || $actor->administersCurrentOrganization()) {
             return;
         }
+        if ($artifact->project_id !== null && $artifact->project !== null && $actor->canManageProject($artifact->project)) {
+            return;
+        }
         $parent = $artifact->initiative_id !== null ? ['initiative_id', $artifact->initiative_id] : ['project_id', $artifact->project_id];
         $assigned = DocumentRoleAssignment::query()->where('organization_id', $artifact->organization_id)
             ->where(array_key_first($parent), current($parent))->where('user_id', $actor->id)
             ->where('role', DocumentRole::Approver->value)->whereNull('effective_until')->exists();
         $approved = $round->decisions()->where('actor_id', $actor->id)->where('decision', ArtifactWorkflowDecisionType::Approved->value)->exists();
         if (! $assigned || ! $approved) {
-            throw new LogicException('A publicação exige administrador ou aprovador responsável pela decisão vigente.');
+            throw new LogicException('A publicação exige administração, gerência ativa do projeto ou aprovador responsável pela decisão vigente.');
         }
     }
 

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\OrganizationMembershipStatus;
 use App\Enums\OrganizationRole;
+use App\Enums\ProjectRole;
 use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\Project;
@@ -49,6 +50,36 @@ class ProjectBaselineTest extends TestCase
 
         $this->actingAs($member)->withSession(['active_organization_id' => $organization->id])->get(route('projects.baselines.index', $project))->assertOk();
         $this->actingAs($member)->withSession(['active_organization_id' => $organization->id])->post(route('projects.baselines.store', $project), ['title' => 'Não autorizado', 'justification' => 'Teste'])->assertForbidden();
+    }
+
+    public function test_active_project_manager_membership_can_constitute_baseline_without_organization_administration(): void
+    {
+        [$organization, , $project] = $this->scenario();
+        $manager = User::factory()->create();
+        OrganizationMembership::factory()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $manager->id,
+            'role_code' => OrganizationRole::Member,
+            'status' => OrganizationMembershipStatus::Active,
+        ]);
+        $project->memberships()->create([
+            'user_id' => $manager->id,
+            'role' => ProjectRole::ProjectManager,
+            'is_active' => true,
+            'started_at' => today(),
+        ]);
+
+        $this->actingAs($manager)->withSession(['active_organization_id' => $organization->id])
+            ->post(route('projects.baselines.store', $project), [
+                'title' => 'Baseline do gerente',
+                'justification' => 'Marco constituído pelo papel ativo no projeto.',
+            ])->assertRedirect();
+
+        $this->assertDatabaseHas('project_baselines', [
+            'project_id' => $project->id,
+            'title' => 'Baseline do gerente',
+            'created_by' => $manager->id,
+        ]);
     }
 
     private function scenario(): array
