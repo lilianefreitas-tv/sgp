@@ -11,11 +11,11 @@
             <form method="GET" action="{{ route('audit.index') }}" class="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
                 <div>
                     <label for="action" class="text-sm font-semibold text-[#24313A]">Ação</label>
-                    <input id="action" name="action" value="{{ $action }}" placeholder="Ex.: attachment.download" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                    <input id="action" name="action" value="{{ $action }}" placeholder="Ex.: attachment.download" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                 </div>
                 <div>
                     <label for="result" class="text-sm font-semibold text-[#24313A]">Resultado</label>
-                    <select id="result" name="result" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                    <select id="result" name="result" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                         <option value="">Todos</option>
                         <option value="success" @selected($result === 'success')>Sucesso</option>
                         <option value="denied" @selected($result === 'denied')>Negado</option>

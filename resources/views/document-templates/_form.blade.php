@@ -33,12 +33,12 @@
         </div>
         <div>
             <label for="footer_text" class="sgp-field-label">Texto do rodapé</label>
-            <input id="footer_text" name="footer_text" class="sgp-input" maxlength="180" value="{{ old('footer_text', $documentTemplate->footer_text ?? 'Documento gerado automaticamente pelo SGP') }}">
+            <input id="footer_text" name="footer_text" class="sgp-input" maxlength="180" value="{{ old('footer_text', $documentTemplate->footer_text ?? 'Documento gerado automaticamente pelo PRISMA SGP') }}">
         </div>
     </div>
     <label class="flex items-center gap-3 rounded-xl border border-[#DCE3E7] bg-[#F8FAFB] px-4 py-3 text-sm font-semibold text-[#24313A]">
         <input type="hidden" name="is_active" value="0">
-        <input type="checkbox" name="is_active" value="1" class="rounded border-[#B8C5CB] text-[#123B4A] focus:ring-[#287EA1]" @checked(old('is_active', $documentTemplate->is_active ?? true))>
+        <input type="checkbox" name="is_active" value="1" class="rounded border-[#B8C5CB] text-[#185063] focus:ring-[#17A2B8]" @checked(old('is_active', $documentTemplate->is_active ?? true))>
         Modelo ativo e disponível para geração
     </label>
 </div>

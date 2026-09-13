@@ -3,7 +3,7 @@
 <div class="space-y-7">
     @if(!$editing && isset($sourceContract) && $sourceContract)
         <input type="hidden" name="contract_id" value="{{ $sourceContract->id }}">
-        <div class="rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#1D5D73]"><strong>Contrato de origem:</strong> {{ $sourceContract->code }} · {{ $sourceContract->title }}. Os dados abaixo foram pré-preenchidos e podem ser ajustados.</div>
+        <div class="rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#228A9D]"><strong>Contrato de origem:</strong> {{ $sourceContract->code }} · {{ $sourceContract->title }}. Os dados abaixo foram pré-preenchidos e podem ser ajustados.</div>
     @endif
     <section>
         <h2 class="text-base font-bold text-[#24313A]">Identificação e responsabilidade</h2>
@@ -18,7 +18,7 @@
                             <option value="{{ $value }}" @selected(old('origin_type', 'direct') === $value)>{{ $label }}</option>
                         @endforeach
                     </select>
-                    <div class="mt-3 rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#1D5D73]">
+                    <div class="mt-3 rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] px-4 py-3 text-sm text-[#228A9D]">
                         <strong>Projeto incorporado:</strong> use quando o trabalho já existia antes do cadastro e os contratos, TAP, visão ou demais documentos foram produzidos fora do SGP.
                     </div>
                     <x-input-error :messages="$errors->get('origin_type')" class="mt-2" />
@@ -110,7 +110,7 @@
                     @endforeach
                 </select>
                 <details class="mt-2 text-xs text-[#667680]">
-                    <summary class="cursor-pointer font-semibold text-[#287EA1]">Entenda as modalidades</summary>
+                    <summary class="cursor-pointer font-semibold text-[#17A2B8]">Entenda as modalidades</summary>
                     <div class="mt-2 space-y-1">
                         @foreach ($financialModes as $value => $label)
                             <p><strong>{{ $label }}:</strong> {{ \App\Enums\FinancialManagementMode::from($value)->description() }}</p>
@@ -131,7 +131,7 @@
                         <p><strong>{{ $label }}:</strong> {{ \App\Enums\ManagementLevel::from($value)->description() }}</p>
                     @endforeach
                 </div>
-                <p class="mt-2 rounded-lg bg-[#EDF6F8] px-3 py-2 text-xs text-[#1D5D73]">Alterar o nível preserva requisitos, tarefas, documentos e histórico.</p>
+                <p class="mt-2 rounded-lg bg-[#EDF6F8] px-3 py-2 text-xs text-[#228A9D]">Alterar o nível preserva requisitos, tarefas, documentos e histórico.</p>
                 <x-input-error :messages="$errors->get('management_level')" class="mt-2" />
             </div>
             <div>

@@ -26,18 +26,18 @@
                 </div>
             @else
             @foreach ($projects as $project)
-                <a href="{{ route('projects.documents.index', $project) }}" class="group rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#287EA1] hover:shadow-md">
+                <a href="{{ route('projects.documents.index', $project) }}" class="group rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#17A2B8] hover:shadow-md">
                     <div class="flex items-start justify-between gap-4">
                         <div class="min-w-0">
-                            <p class="text-xs font-bold uppercase tracking-wider text-[#287EA1]">{{ $project->code }}</p>
+                            <p class="text-xs font-bold uppercase tracking-wider text-[#17A2B8]">{{ $project->code }}</p>
                             <h2 class="mt-1 truncate font-bold text-[#24313A]">{{ $project->name }}</h2>
                             <p class="mt-2 text-sm text-[#667680]">{{ $project->client?->name ?? 'Sem demandante vinculado' }}</p>
                         </div>
-                        <span class="rounded-full bg-[#E6F0F3] px-3 py-1 text-xs font-bold text-[#1D5D73]">{{ $project->documents_count }}</span>
+                        <span class="rounded-full bg-[#E7F3F6] px-3 py-1 text-xs font-bold text-[#228A9D]">{{ $project->documents_count }}</span>
                     </div>
                     <div class="mt-5 flex items-center justify-between border-t border-[#E8EDF0] pt-4">
                         <span class="text-xs text-[#667680]">Responsável: {{ $project->manager->name }}</span>
-                        <span class="font-bold text-[#287EA1] transition group-hover:translate-x-1">→</span>
+                        <span class="font-bold text-[#17A2B8] transition group-hover:translate-x-1">→</span>
                     </div>
                 </a>
             @endforeach

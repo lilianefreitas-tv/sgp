@@ -5,15 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta
             name="description"
-            content="SGP - Sistema de Gestão de Projetos de Software"
+            content="PRISMA SGP - Sistema de Gestão de Projetos de Software"
         >
 
-        <title>SGP</title>
+        <title>PRISMA SGP</title>
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
         <link
             rel="icon"
             type="image/png"
-            href="{{ asset('images/sgp-logo.png') }}"
+            href="{{ asset('images/prisma-favicon.png') }}"
         >
 
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -33,8 +33,14 @@
                        lg:flex-col lg:justify-between"
                 style="background:
                     radial-gradient(circle at 88% 12%, rgba(94, 198, 178, .18), transparent 28%),
-                    linear-gradient(145deg, #123B4A 0%, #174E60 55%, #1D5D73 100%);"
+                    linear-gradient(145deg, #185063 0%, #185063 55%, #228A9D 100%);"
             >
+                <img
+                    src="{{ asset('images/prisma-symbol.png') }}"
+                    alt=""
+                    class="pointer-events-none absolute -right-20 top-1/2 hidden h-[32rem] w-80 -translate-y-1/2 object-contain opacity-15 lg:block"
+                    aria-hidden="true"
+                >
                 <div
                     class="pointer-events-none absolute -right-36 -top-32
                            h-[420px] w-[420px] rounded-full border
@@ -48,14 +54,14 @@
                     aria-hidden="true"
                 ></div>
 
-                <div class="relative z-10 flex w-full flex-col justify-between">
+                <div class="relative z-10 flex flex-1 w-full flex-col justify-between">
                     <div class="flex items-center gap-4">
                         <x-application-logo
-                            class="h-14 w-14 flex-none text-[#123B4A]"
+                            class="h-14 w-14 flex-none text-[#185063]"
                         />
 
                         <div>
-                            <p class="text-2xl font-bold tracking-tight">SGP</p>
+                            <p class="text-2xl font-bold tracking-tight">PRISMA <span class="text-[#3CC1CC]">SGP</span></p>
                             <p class="text-sm text-slate-200">
                                 Sistema de Gestão de Projetos de Software
                             </p>
@@ -67,7 +73,7 @@
                             class="inline-flex rounded-full border
                                    border-white/15 bg-white/10 px-4 py-2
                                    text-xs font-semibold uppercase
-                                   tracking-widest text-[#A8E2D7]"
+                                   tracking-widest text-[#B9F3F4]"
                         >
                             Estrutura conectada
                         </span>
@@ -90,7 +96,7 @@
                         class="hidden items-center justify-between text-xs
                                text-slate-300 lg:flex"
                     >
-                        <span>SGP</span>
+                        <span>PRISMA SGP</span>
                         <span>{{ config('sgp.release_label') }}</span>
                     </div>
                 </div>
@@ -107,15 +113,15 @@
                     >
                         <div class="flex items-center gap-4">
                             <img
-                                src="{{ asset('images/sgp-logo.png') }}"
-                                alt="Símbolo do SGP"
-                                class="h-16 w-16 rounded-2xl"
+                                src="{{ asset('images/prisma-symbol.png') }}"
+                                alt="Símbolo facetado do PRISMA SGP"
+                                class="h-20 w-14 object-contain"
                             >
 
                             <div>
                                 <p
                                     class="text-xs font-semibold uppercase
-                                           tracking-widest text-[#287EA1]"
+                                           tracking-widest text-[#17A2B8]"
                                 >
                                     Ambiente de gestão
                                 </p>
@@ -123,7 +129,7 @@
                                     class="mt-1 text-3xl font-bold
                                            tracking-tight text-[#24313A]"
                                 >
-                                    Bem-vindo(a) ao SGP
+                                    Bem-vindo(a) ao PRISMA SGP
                                 </h2>
                             </div>
                         </div>
@@ -187,7 +193,7 @@
                             class="mt-6 text-center text-xs leading-5
                                    text-[#667680]"
                         >
-                            SGP • Sistema de Gestão de Projetos de Software<br>
+                            PRISMA SGP • Sistema de Gestão de Projetos de Software<br>
                             {{ config('sgp.release_label') }}
                         </p>
                     </div>

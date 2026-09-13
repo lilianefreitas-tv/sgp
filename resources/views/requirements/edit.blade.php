@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-sm font-semibold text-[#287EA1]">{{ $project->code }} · {{ $project->name }}</p>
+            <p class="text-sm font-semibold text-[#17A2B8]">{{ $project->code }} · {{ $project->name }}</p>
             <h1 class="text-xl font-bold text-[#24313A]">Editar {{ $requirement->code }}</h1>
             <p class="mt-1 text-sm text-[#667680]">Versão atual: {{ $requirement->current_version }}</p>
         </div>

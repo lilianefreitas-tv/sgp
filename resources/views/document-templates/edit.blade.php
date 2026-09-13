@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-sm font-semibold text-[#287EA1]">{{ $documentTemplate->code }}</p>
+            <p class="text-sm font-semibold text-[#17A2B8]">{{ $documentTemplate->code }}</p>
             <h1 class="mt-1 text-xl font-bold text-[#24313A]">Editar modelo de documento</h1>
         </div>
     </x-slot>

@@ -16,7 +16,7 @@ class AuthenticationTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertSee('<title>SGP</title>', false)
+            ->assertSee('<title>PRISMA SGP</title>', false)
             ->assertSee('Bem-vindo(a)!');
     }
 

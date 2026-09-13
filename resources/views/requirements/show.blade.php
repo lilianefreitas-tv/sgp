@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-semibold text-[#287EA1]">{{ $requirement->code }}</span>
+                <span class="text-sm font-semibold text-[#17A2B8]">{{ $requirement->code }}</span>
                 <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $requirement->status->badgeClasses() }}">{{ $requirement->status->label() }}</span>
                 <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $requirement->priority->badgeClasses() }}">{{ $requirement->priority->label() }}</span>
                 @unless ($requirement->is_active)<span class="rounded-full bg-[#F3F5F6] px-3 py-1 text-xs font-semibold text-[#667680]">Inativo</span>@endunless
@@ -41,7 +41,7 @@
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Tipo</p><p class="mt-2 font-semibold text-[#24313A]">{{ $requirement->type->label() }}</p></article>
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Responsável</p><p class="mt-2 font-semibold text-[#24313A]">{{ $requirement->responsible?->name ?? 'Não definido' }}</p><p class="mt-1 text-xs text-[#667680]">{{ $requirement->responsible?->email }}</p></article>
             <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Origem</p><p class="mt-2 font-semibold text-[#24313A]">{{ $requirement->source ?: 'Não informada' }}</p></article>
-            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Versão atual</p><p class="mt-2 text-2xl font-bold text-[#123B4A]">{{ $requirement->current_version }}</p><p class="mt-1 text-xs text-[#667680]">Atualizado em {{ $requirement->updated_at->format('d/m/Y H:i') }}</p></article>
+            <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Versão atual</p><p class="mt-2 text-2xl font-bold text-[#185063]">{{ $requirement->current_version }}</p><p class="mt-1 text-xs text-[#667680]">Atualizado em {{ $requirement->updated_at->format('d/m/Y H:i') }}</p></article>
         </section>
 
         <section class="grid gap-5 lg:grid-cols-2">

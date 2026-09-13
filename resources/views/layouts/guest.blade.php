@@ -6,15 +6,15 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta
             name="description"
-            content="SGP - Sistema de Gestão de Projetos de Software"
+            content="PRISMA SGP - Sistema de Gestão de Projetos de Software"
         >
 
-        <title>SGP</title>
+        <title>PRISMA SGP</title>
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
         <link
             rel="icon"
             type="image/png"
-            href="{{ asset('images/sgp-logo.png') }}"
+            href="{{ asset('images/prisma-favicon.png') }}"
         >
 
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -28,15 +28,21 @@
 
     <body class="antialiased">
         <main class="sgp-login-page">
-            <section class="sgp-login-brand" aria-label="Apresentação do SGP">
+            <section class="sgp-login-brand" aria-label="Apresentação do PRISMA SGP">
+                <img
+                    src="{{ asset('images/prisma-symbol.png') }}"
+                    alt=""
+                    class="pointer-events-none absolute -right-16 top-1/2 h-[34rem] w-80 -translate-y-1/2 object-contain opacity-20"
+                    aria-hidden="true"
+                >
                 <div class="relative z-10 flex items-center gap-4">
                     <x-application-logo
-                        class="h-14 w-14 flex-none text-[#123B4A]"
+                        class="h-14 w-14 flex-none text-[#185063]"
                     />
 
                     <div>
                         <p class="text-2xl font-bold tracking-tight text-white">
-                            SGP
+                            PRISMA <span class="text-[#3CC1CC]">SGP</span>
                         </p>
 
                         <p class="text-sm text-slate-200">
@@ -49,7 +55,7 @@
                     <span
                         class="mb-6 inline-flex rounded-full border border-white/15
                                bg-white/10 px-4 py-2 text-xs font-semibold
-                               uppercase tracking-widest text-[#A8E2D7]"
+                               uppercase tracking-widest text-[#B9F3F4]"
                     >
                         Estrutura conectada
                     </span>
@@ -71,7 +77,7 @@
                     class="relative z-10 flex items-center justify-between
                            text-xs text-slate-300"
                 >
-                    <span>SGP</span>
+                    <span>PRISMA SGP</span>
                     <span>Software em evolução</span>
                 </div>
             </section>
@@ -80,12 +86,12 @@
                 <div class="w-full max-w-md">
                     <div class="mb-8 flex items-center gap-3 lg:hidden">
                         <x-application-logo
-                            class="h-12 w-12 text-[#123B4A]"
+                            class="h-12 w-12 text-[#185063]"
                         />
 
                         <div>
-                            <p class="text-xl font-bold text-[#123B4A]">
-                                SGP
+                            <p class="text-xl font-bold text-[#185063]">
+                                PRISMA <span class="text-[#17A2B8]">SGP</span>
                             </p>
 
                             <p class="text-xs text-[#667680]">

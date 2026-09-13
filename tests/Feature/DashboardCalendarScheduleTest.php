@@ -61,8 +61,8 @@ class DashboardCalendarScheduleTest extends TestCase
         $this->actingAs($administrator)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('<title>SGP</title>', false)
-            ->assertSee('Bem-vindo(a) ao SGP')
+            ->assertSee('<title>PRISMA SGP</title>', false)
+            ->assertSee('Bem-vindo(a) ao PRISMA SGP')
             ->assertDontSee('Abrir calendário')
             ->assertSeeInOrder([
                 'Painel',

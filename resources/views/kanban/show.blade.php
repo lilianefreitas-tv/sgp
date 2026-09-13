@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="min-w-0">
-            <p class="text-sm font-semibold text-[#287EA1]">{{ $project->code }}</p>
+            <p class="text-sm font-semibold text-[#17A2B8]">{{ $project->code }}</p>
             <h1 class="truncate text-xl font-bold text-[#24313A]">Kanban de {{ $project->name }}</h1>
             <p class="mt-1 text-sm text-[#667680]">Acompanhe e movimente as tarefas pelas etapas do fluxo de trabalho.</p>
         </div>
@@ -68,7 +68,7 @@
                 </select>
             </div>
 
-            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[#E6F0F3] px-4 py-3 text-sm font-semibold text-[#123B4A] hover:bg-[#D8E8ED]">Filtrar</button>
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[#E7F3F6] px-4 py-3 text-sm font-semibold text-[#185063] hover:bg-[#D8E8ED]">Filtrar</button>
             <a href="{{ route('projects.kanban.show', $project) }}" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-[#DCE3E7] px-4 py-3 text-sm font-semibold text-[#667680] hover:bg-[#F5F7F9]">Limpar filtros</a>
         </form>
 
@@ -87,7 +87,7 @@
                             <h2 class="truncate text-sm font-bold text-[#24313A]">{{ $column->name }}</h2>
                             <p class="mt-0.5 text-xs text-[#667680]">{{ $column->status->label() }}</p>
                         </div>
-                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#123B4A] shadow-sm" data-kanban-count>{{ $columnTasks->count() }}</span>
+                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#185063] shadow-sm" data-kanban-count>{{ $columnTasks->count() }}</span>
                     </header>
 
                     <div class="sgp-kanban-dropzone" data-kanban-dropzone="{{ $column->status->value }}">
@@ -107,11 +107,11 @@
                                 draggable="{{ $canMove ? 'true' : 'false' }}"
                             >
                                 <div class="flex items-start justify-between gap-3">
-                                    <span class="text-xs font-bold uppercase tracking-wide text-[#287EA1]">{{ $task->code }}</span>
+                                    <span class="text-xs font-bold uppercase tracking-wide text-[#17A2B8]">{{ $task->code }}</span>
                                     <span class="rounded-full px-2 py-1 text-[11px] font-bold {{ $task->priority->badgeClasses() }}">{{ $task->priority->label() }}</span>
                                 </div>
 
-                                <a href="{{ route('projects.tasks.show', [$project, $task]) }}" class="mt-2 block text-sm font-bold leading-5 text-[#24313A] hover:text-[#287EA1]">
+                                <a href="{{ route('projects.tasks.show', [$project, $task]) }}" class="mt-2 block text-sm font-bold leading-5 text-[#24313A] hover:text-[#17A2B8]">
                                     {{ $task->title }}
                                 </a>
 
@@ -186,7 +186,7 @@
                         @foreach ($board->columns as $index => $column)
                             <div class="rounded-xl border border-[#DCE3E7] p-4">
                                 <input type="hidden" name="columns[{{ $index }}][status]" value="{{ $column->status->value }}">
-                                <p class="mb-3 text-xs font-bold uppercase tracking-wide text-[#287EA1]">{{ $column->status->label() }}</p>
+                                <p class="mb-3 text-xs font-bold uppercase tracking-wide text-[#17A2B8]">{{ $column->status->label() }}</p>
                                 <div class="grid grid-cols-[1fr_90px] gap-3">
                                     <div>
                                         <label for="column-name-{{ $column->id }}" class="sgp-field-label">Nome</label>

@@ -2,26 +2,25 @@
     <x-slot name="header">
         <div>
             <h1 class="text-xl font-bold text-[#24313A]">Painel</h1>
-            <p class="mt-1 text-sm text-[#667680]">Visão executiva dos projetos disponíveis para você</p>
+            <p class="mt-1 text-sm text-[#667680]">Visão executiva do seu portfólio de projetos</p>
         </div>
     </x-slot>
 
     <div class="space-y-5">
-        <section class="relative overflow-hidden rounded-2xl px-6 py-5 text-white shadow-sm sm:px-8" style="background: linear-gradient(135deg, #123B4A 0%, #1D5D73 100%);">
+        <section class="sgp-welcome-banner px-6 py-5 sm:px-8">
             <div class="relative z-10 max-w-3xl">
-                <p class="text-sm font-semibold uppercase tracking-widest text-[#A8E2D7]">Bem-vindo(a) ao SGP</p>
+                <p class="text-sm font-semibold uppercase tracking-widest text-[#B9F3F4]">Bem-vindo(a) ao PRISMA SGP</p>
                 <h2 class="mt-2 text-2xl font-bold text-white">Olá, {{ Auth::user()->name }}!</h2>
                 <p class="mt-2 text-sm leading-6 text-[#E4EEF1]">Os indicadores abaixo refletem os projetos, requisitos, tarefas, prazos e documentos registrados no sistema.</p>
             </div>
-            <div class="absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" aria-hidden="true"></div>
-            <div class="absolute -bottom-24 right-24 h-52 w-52 rounded-full border border-white/10" aria-hidden="true"></div>
+            <img src="{{ asset('images/prisma-symbol.png') }}" alt="" class="pointer-events-none absolute -bottom-28 right-6 hidden h-72 w-48 object-contain opacity-20 sm:block" aria-hidden="true">
         </section>
 
         @php
             $cards = [
-                ['label' => 'Projetos ativos', 'value' => $activeProjectsCount, 'detail' => 'disponíveis para acompanhamento', 'tone' => 'bg-[#E6F0F3] text-[#123B4A]'],
+                ['label' => 'Projetos ativos', 'value' => $activeProjectsCount, 'detail' => 'disponíveis para acompanhamento', 'tone' => 'bg-[#E7F3F6] text-[#185063]'],
                 ['label' => 'Projetos atrasados', 'value' => $delayedProjectsCount, 'detail' => 'com entrega prevista vencida', 'tone' => 'bg-[#FBE8E8] text-[#C44B4B]'],
-                ['label' => 'Requisitos', 'value' => $requirementsCount, 'detail' => 'requisitos ativos cadastrados', 'tone' => 'bg-[#E8F1FA] text-[#287EA1]'],
+                ['label' => 'Requisitos', 'value' => $requirementsCount, 'detail' => 'requisitos ativos cadastrados', 'tone' => 'bg-[#E8F1FA] text-[#17A2B8]'],
                 ['label' => 'Aguardando análise', 'value' => $pendingRequirementsCount, 'detail' => 'propostos ou em análise', 'tone' => 'bg-[#FFF3DE] text-[#D89427]'],
                 ['label' => 'Tarefas pendentes', 'value' => $pendingTasksCount, 'detail' => 'tarefas ainda não concluídas', 'tone' => 'bg-[#F0F4F6] text-[#667680]'],
                 ['label' => 'Tarefas concluídas', 'value' => $completedTasksCount, 'detail' => 'tarefas finalizadas', 'tone' => 'bg-[#E4F3F0] text-[#2E8B74]'],
@@ -37,14 +36,16 @@
             </div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach ($cards as $card)
-                    <article class="rounded-2xl border border-[#DCE3E7] bg-white p-4 shadow-sm">
+                    <article class="sgp-indicator-card group">
                         <div class="flex items-start justify-between gap-3">
                             <div>
                                 <p class="text-sm font-medium text-[#667680]">{{ $card['label'] }}</p>
                                 <p class="mt-2 text-3xl font-bold text-[#24313A]">{{ $card['value'] }}</p>
                             </div>
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl {{ $card['tone'] }}">
-                                <span class="h-2.5 w-2.5 rounded-full bg-current"></span>
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl {{ $card['tone'] }} transition-transform group-hover:-translate-y-0.5">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 19V9m6 10V5m6 14v-7m4 7H2" />
+                                </svg>
                             </div>
                         </div>
                         <p class="mt-3 text-xs text-[#667680]">{{ $card['detail'] }}</p>
@@ -82,20 +83,20 @@
                         <h2 class="font-bold text-[#24313A]">Progresso dos projetos</h2>
                         <p class="mt-1 text-sm text-[#667680]">Tarefas concluídas ÷ total de tarefas ativas</p>
                     </div>
-                    <a href="{{ route('projects.index') }}" class="text-sm font-semibold text-[#287EA1] hover:underline">Ver projetos</a>
+                    <a href="{{ route('projects.index') }}" class="text-sm font-semibold text-[#17A2B8] hover:underline">Ver projetos</a>
                 </div>
                 <div class="divide-y divide-[#E8EDF0]">
                     @forelse ($progressProjects as $project)
                         <a href="{{ route('projects.show', $project) }}" class="block px-5 py-4 transition hover:bg-[#F8FAFB]">
                             <div class="flex flex-wrap items-center justify-between gap-2">
                                 <div class="min-w-0">
-                                    <p class="text-xs font-semibold text-[#287EA1]">{{ $project->code }}</p>
+                                    <p class="text-xs font-semibold text-[#17A2B8]">{{ $project->code }}</p>
                                     <p class="truncate text-sm font-bold text-[#24313A]">{{ $project->name }}</p>
                                 </div>
                                 <span class="text-sm font-bold text-[#24313A]">{{ $project->progress_percentage }}%</span>
                             </div>
                             <div class="mt-2 h-2 overflow-hidden rounded-full bg-[#EEF2F4]">
-                                <div class="h-full rounded-full bg-[#1D5D73]" style="width: {{ $project->progress_percentage }}%"></div>
+                                <div class="h-full rounded-full bg-[#228A9D]" style="width: {{ $project->progress_percentage }}%"></div>
                             </div>
                             <p class="mt-2 text-xs text-[#667680]">{{ $project->completed_tasks_count }} de {{ $project->active_tasks_count }} tarefas concluídas</p>
                         </a>

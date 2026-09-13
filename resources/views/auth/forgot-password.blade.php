@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="sgp-login-card">
-        <p class="text-sm font-semibold uppercase tracking-wider text-[#287EA1]">Recuperação de acesso</p>
+        <p class="text-sm font-semibold uppercase tracking-wider text-[#17A2B8]">Recuperação de acesso</p>
         <h2 class="mt-2 text-3xl font-bold tracking-tight text-[#24313A]">Esqueceu a senha?</h2>
         <p class="mt-3 text-sm leading-6 text-[#667680]">Informe seu e-mail. Se houver uma conta ativa, enviaremos um link temporário para você criar uma nova senha.</p>
 

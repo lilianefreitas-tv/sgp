@@ -21,7 +21,7 @@ enum TestCaseStatus: string
     {
         return match ($this) {
             self::Draft => 'bg-[#F3F5F6] text-[#667680]',
-            self::Ready => 'bg-[#E6F0F8] text-[#287EA1]',
+            self::Ready => 'bg-[#E6F0F8] text-[#17A2B8]',
             self::Retired => 'bg-[#FBE8E8] text-[#A23838]',
         };
     }

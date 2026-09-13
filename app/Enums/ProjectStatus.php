@@ -25,7 +25,7 @@ enum ProjectStatus: string
     {
         return match ($this) {
             self::Planning => 'bg-[#FFF4DE] text-[#9A6415]',
-            self::InProgress => 'bg-[#E6F0F8] text-[#287EA1]',
+            self::InProgress => 'bg-[#E6F0F8] text-[#17A2B8]',
             self::InValidation => 'bg-[#F2EAFB] text-[#7752A5]',
             self::Completed => 'bg-[#E4F3F0] text-[#2E8B74]',
             self::Cancelled => 'bg-[#FBE8E8] text-[#C44B4B]',

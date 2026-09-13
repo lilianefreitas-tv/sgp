@@ -91,7 +91,7 @@ class DashboardController extends Controller
                 'value' => (int) ($projectStatusCounts[$status->value] ?? 0),
                 'color' => match ($status) {
                     ProjectStatus::Planning => '#D89427',
-                    ProjectStatus::InProgress => '#287EA1',
+                    ProjectStatus::InProgress => '#17A2B8',
                     ProjectStatus::InValidation => '#7752A5',
                     ProjectStatus::Completed => '#2E8B74',
                     ProjectStatus::Cancelled => '#C44B4B',
@@ -102,7 +102,7 @@ class DashboardController extends Controller
                 'value' => (int) ($taskStatusCounts[$status->value] ?? 0),
                 'color' => match ($status) {
                     TaskStatus::Backlog => '#8A9AA3',
-                    TaskStatus::ToDo => '#287EA1',
+                    TaskStatus::ToDo => '#17A2B8',
                     TaskStatus::InProgress => '#4B67A1',
                     TaskStatus::InReview => '#D89427',
                     TaskStatus::InTesting => '#7752A5',

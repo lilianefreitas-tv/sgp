@@ -7,7 +7,7 @@
       @if(isset($project) && $project)
         <input type="hidden" name="project_id" value="{{ $project->id }}">
         @if($project->initiative_id)<input type="hidden" name="initiative_id" value="{{ $project->initiative_id }}">@endif
-        <div class="rounded-xl border border-[#BFD7DF] bg-[#EDF6F8] p-4 text-sm text-[#1D5D73]"><strong>Projeto:</strong> {{ $project->code }} · {{ $project->name }}@if($project->initiative)<br><strong>Iniciativa de origem:</strong> {{ $project->initiative->code }} · {{ $project->initiative->title }}@endif</div>
+        <div class="rounded-xl border border-[#BFD7DF] bg-[#EDF6F8] p-4 text-sm text-[#228A9D]"><strong>Projeto:</strong> {{ $project->code }} · {{ $project->name }}@if($project->initiative)<br><strong>Iniciativa de origem:</strong> {{ $project->initiative->code }} · {{ $project->initiative->title }}@endif</div>
       @elseif(isset($initiative) && $initiative)
         <input type="hidden" name="initiative_id" value="{{ $initiative->id }}">
         <div class="rounded-xl border border-[#BFE2D9] bg-[#F3FAF8] p-4 text-sm text-[#256C5C]"><strong>Iniciativa:</strong> {{ $initiative->code }} · {{ $initiative->title }}. Se ela for convertida, este contrato será herdado pelo projeto.</div>

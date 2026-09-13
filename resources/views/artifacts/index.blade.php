@@ -25,7 +25,7 @@
         @else
             <section class="rounded-xl border border-cyan-100 bg-cyan-50 p-5 text-sm leading-6 text-[#36535F]">
                 <strong>Documento de Visão preservado.</strong> O Documento de Visão oficial do projeto continua no módulo Documentos do projeto e não é substituído por estes registros estruturados.
-                <a class="ml-1 font-semibold text-[#1D5D73] underline" href="{{ route('projects.documents.index', $parent) }}">Abrir documentos do projeto</a>
+                <a class="ml-1 font-semibold text-[#228A9D] underline" href="{{ route('projects.documents.index', $parent) }}">Abrir documentos do projeto</a>
             </section>
         @endif
 
@@ -35,7 +35,7 @@
                 @forelse ($artifacts as $artifact)
                     <a class="grid gap-3 px-5 py-5 transition hover:bg-[#FBFCFD] sm:grid-cols-[1fr_auto] sm:items-center" href="{{ route('artifacts.show', $artifact) }}">
                         <div><div class="flex flex-wrap gap-2"><span class="sgp-badge sgp-badge-neutral">{{ $artifact->code }}</span><span class="sgp-badge {{ $artifact->archived_at ? 'sgp-badge-warning' : 'sgp-badge-info' }}">{{ $artifact->archived_at ? 'Arquivado' : 'Ativo' }}</span></div><h3 class="mt-3 font-bold text-[#24313A]">{{ $artifact->title }}</h3>@if($artifact->description)<p class="mt-1 line-clamp-2 text-sm leading-6 text-[#667680]">{{ $artifact->description }}</p>@endif</div>
-                        <div class="text-sm font-semibold text-[#1D5D73]">Revisão {{ $artifact->current_revision_sequence }} →</div>
+                        <div class="text-sm font-semibold text-[#228A9D]">Revisão {{ $artifact->current_revision_sequence }} →</div>
                     </a>
                 @empty
                     <div class="m-5 sgp-empty-state"><div class="sgp-empty-icon"><span class="text-lg">▤</span></div><h3 class="mt-4 font-bold text-[#24313A]">Nenhum documento ainda</h3><p class="mt-2 max-w-sm text-sm leading-6 text-[#667680]">{{ $parentType === 'initiative' ? 'Gere o dossiê usando os registros já existentes.' : 'Use a área avançada somente se precisar de um registro complementar.' }}</p></div>
@@ -44,7 +44,7 @@
         </section>
 
         <details class="sgp-card overflow-hidden">
-            <summary class="cursor-pointer px-5 py-4 text-sm font-semibold text-[#1D5D73]">Documento avulso ou integração técnica</summary>
+            <summary class="cursor-pointer px-5 py-4 text-sm font-semibold text-[#228A9D]">Documento avulso ou integração técnica</summary>
             <div class="border-t border-[#E8EDF0] p-5">
                 <p class="mb-5 text-sm leading-6 text-[#667680]">Uso excepcional para uma evidência complementar que não exista nos registros normais do SGP.</p>
                 <form method="post" action="{{ $parentType === 'initiative' ? route('initiatives.artifacts.store', $parent) : route('projects.artifacts.store', $parent) }}" class="grid gap-4 lg:grid-cols-2">@csrf

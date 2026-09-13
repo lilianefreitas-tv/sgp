@@ -31,7 +31,7 @@
 
                     <div>
                         <label for="context" class="text-sm font-semibold text-[#24313A]">Vincular a</label>
-                        <select id="context" name="context" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]" required>
+                        <select id="context" name="context" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]" required>
                             @php
                                 $groupedContexts = collect($contextOptions)->groupBy('group');
                             @endphp
@@ -47,13 +47,13 @@
 
                     <div>
                         <label for="file" class="text-sm font-semibold text-[#24313A]">Arquivo</label>
-                        <input id="file" name="file" type="file" class="mt-1 block w-full rounded-lg border border-[#C9D3D9] bg-white px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#E8F3F6] file:px-3 file:py-2 file:font-semibold file:text-[#1D5D73]" required>
+                        <input id="file" name="file" type="file" class="mt-1 block w-full rounded-lg border border-[#C9D3D9] bg-white px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#E8F3F6] file:px-3 file:py-2 file:font-semibold file:text-[#228A9D]" required>
                         <p class="mt-2 text-xs leading-5 text-[#82919A]">Máximo: {{ number_format($maxUploadMb, 0, ',', '.') }} MB. Tipos: {{ implode(', ', $allowedExtensions) }}.</p>
                     </div>
 
                     <div>
                         <label for="description" class="text-sm font-semibold text-[#24313A]">Descrição <span class="font-normal text-[#82919A]">(opcional)</span></label>
-                        <textarea id="description" name="description" rows="3" maxlength="300" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">{{ old('description') }}</textarea>
+                        <textarea id="description" name="description" rows="3" maxlength="300" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">{{ old('description') }}</textarea>
                     </div>
 
                     <button type="submit" class="sgp-button-primary w-full justify-center">Anexar arquivo</button>
@@ -68,13 +68,13 @@
                             <h2 class="font-bold text-[#24313A]">Arquivos disponíveis</h2>
                             <p class="mt-1 text-sm text-[#667680]">Downloads liberados somente para participantes autorizados.</p>
                         </div>
-                        <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-semibold text-[#1D5D73]">{{ $attachments->total() }} arquivo(s)</span>
+                        <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-semibold text-[#228A9D]">{{ $attachments->total() }} arquivo(s)</span>
                     </div>
                 </div>
 
                 @if($attachments->isEmpty())
                     <div class="px-6 py-14 text-center">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#E8F3F6] text-xl text-[#1D5D73]">📎</div>
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#E8F3F6] text-xl text-[#228A9D]">📎</div>
                         <p class="mt-4 font-semibold text-[#24313A]">Nenhum anexo disponível</p>
                         <p class="mt-1 text-sm text-[#667680]">Envie o primeiro arquivo usando o formulário ao lado.</p>
                     </div>
@@ -85,12 +85,12 @@
                                 <div class="flex flex-wrap items-start justify-between gap-4">
                                     <div class="min-w-0 flex-1">
                                         <p class="break-all font-semibold text-[#24313A]">{{ $attachment->original_name }}</p>
-                                        <p class="mt-1 text-xs font-medium text-[#287EA1]">{{ $attachment->context_label }}</p>
+                                        <p class="mt-1 text-xs font-medium text-[#17A2B8]">{{ $attachment->context_label }}</p>
                                         @if($attachment->description)<p class="mt-2 text-sm text-[#667680]">{{ $attachment->description }}</p>@endif
                                         <p class="mt-2 text-xs text-[#82919A]">{{ $attachment->formattedSize() }} · Enviado por {{ $attachment->uploader->name }} em {{ $attachment->created_at->format('d/m/Y H:i') }}</p>
                                     </div>
                                     <div class="flex shrink-0 flex-wrap gap-2">
-                                        <a href="{{ route('projects.attachments.download', [$project, $attachment]) }}" class="inline-flex rounded-lg border border-[#287EA1] px-3 py-2 text-xs font-semibold text-[#287EA1] hover:bg-[#EEF7FA]">Baixar</a>
+                                        <a href="{{ route('projects.attachments.download', [$project, $attachment]) }}" class="inline-flex rounded-lg border border-[#17A2B8] px-3 py-2 text-xs font-semibold text-[#17A2B8] hover:bg-[#EEF7FA]">Baixar</a>
                                         @if($attachment->can_remove)
                                             <form method="POST" action="{{ route('projects.attachments.destroy', [$project, $attachment]) }}" onsubmit="return confirm('Remover este anexo da consulta? O evento permanecerá no histórico.')">
                                                 @csrf

@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6">
-        <p class="text-xs font-bold uppercase tracking-wider text-[#287EA1]">Proteção da conta</p>
+        <p class="text-xs font-bold uppercase tracking-wider text-[#17A2B8]">Proteção da conta</p>
         <h1 class="mt-2 text-xl font-bold text-[#24313A]">Crie sua senha definitiva</h1>
         <p class="mt-2 text-sm leading-6 text-[#667680]">A senha atual é temporária e só permite concluir esta troca. Depois disso, você poderá acessar normalmente o PRISMA SGP.</p>
     </div>
@@ -31,6 +31,6 @@
 
     <form method="POST" action="{{ route('logout') }}" class="mt-4 text-center">
         @csrf
-        <button class="text-sm font-semibold text-[#667680] hover:text-[#123B4A] hover:underline">Sair da conta</button>
+        <button class="text-sm font-semibold text-[#667680] hover:text-[#185063] hover:underline">Sair da conta</button>
     </form>
 </x-guest-layout>

@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-semibold text-[#287EA1]">{{ $project->code }}</span>
+                <span class="text-sm font-semibold text-[#17A2B8]">{{ $project->code }}</span>
                 <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $project->status->badgeClasses() }}">{{ $project->status->label() }}</span>
             </div>
             <h1 class="mt-1 truncate text-xl font-bold text-[#24313A]">Documentos de {{ $project->name }}</h1>
@@ -43,7 +43,7 @@
                     <p class="mt-1 text-sm text-[#667680]">O DOCX e o PDF serão criados juntos e armazenados na mesma versão.</p>
                 </div>
                 @if ($canGenerate)
-                    <a href="{{ route('projects.documents.setup.edit', $project) }}" class="text-sm font-semibold text-[#1D5D73] hover:underline">Revisar informações documentais</a>
+                    <a href="{{ route('projects.documents.setup.edit', $project) }}" class="text-sm font-semibold text-[#228A9D] hover:underline">Revisar informações documentais</a>
                 @endif
             </div>
 
@@ -55,7 +55,7 @@
                     @endphp
                     <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm">
                         <div class="flex items-start justify-between gap-4">
-                            <div class="rounded-xl bg-[#E6F0F3] p-3 text-[#1D5D73]">
+                            <div class="rounded-xl bg-[#E7F3F6] p-3 text-[#228A9D]">
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3h7l4 4v14H7V3Zm7 0v5h5M10 12h5M10 16h5"/></svg>
                             </div>
                             <span class="rounded-full bg-[#F3F5F6] px-3 py-1 text-xs font-semibold text-[#667680]">{{ $type->shortCode() }}</span>
@@ -116,13 +116,13 @@
                         @foreach ($documents as $document)
                             <tr class="text-sm text-[#24313A]">
                                 <td class="px-6 py-4"><p class="font-semibold">{{ $document->title }}</p><p class="mt-1 text-xs text-[#667680]">{{ $document->type->shortCode() }} · {{ $document->metadata['project_code'] ?? $project->code }}</p></td>
-                                <td class="px-6 py-4"><span class="rounded-full bg-[#E6F0F3] px-3 py-1 text-xs font-bold text-[#1D5D73]">{{ $document->versionLabel() }}</span></td>
+                                <td class="px-6 py-4"><span class="rounded-full bg-[#E7F3F6] px-3 py-1 text-xs font-bold text-[#228A9D]">{{ $document->versionLabel() }}</span></td>
                                 <td class="px-6 py-4">{{ $document->template->name }}</td>
                                 <td class="px-6 py-4">{{ $document->generator->name }}</td>
                                 <td class="px-6 py-4">{{ $document->generated_at->timezone($activeOrganization->timezone)->format('d/m/Y H:i') }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex justify-end gap-2">
-                                        <a href="{{ route('projects.documents.download', [$project, $document, 'docx']) }}" class="rounded-lg border border-[#287EA1] px-3 py-2 text-xs font-bold text-[#287EA1] hover:bg-[#EDF6F8]">DOCX</a>
+                                        <a href="{{ route('projects.documents.download', [$project, $document, 'docx']) }}" class="rounded-lg border border-[#17A2B8] px-3 py-2 text-xs font-bold text-[#17A2B8] hover:bg-[#EDF6F8]">DOCX</a>
                                         <a href="{{ route('projects.documents.download', [$project, $document, 'pdf']) }}" class="rounded-lg border border-[#2E8B74] px-3 py-2 text-xs font-bold text-[#2E8B74] hover:bg-[#EDF8F5]">PDF</a>
                                     </div>
                                 </td>

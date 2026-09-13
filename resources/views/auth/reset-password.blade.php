@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="sgp-login-card">
-        <p class="text-sm font-semibold uppercase tracking-wider text-[#287EA1]">Segurança da conta</p>
+        <p class="text-sm font-semibold uppercase tracking-wider text-[#17A2B8]">Segurança da conta</p>
         <h2 class="mt-2 text-3xl font-bold tracking-tight text-[#24313A]">Criar nova senha</h2>
         <p class="mt-3 text-sm leading-6 text-[#667680]">Defina uma senha nova para concluir a recuperação do acesso.</p>
 

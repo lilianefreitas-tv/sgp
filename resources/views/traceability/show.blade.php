@@ -18,7 +18,7 @@
             'supported' => 'bg-[#E4F3F0] text-[#256C5C]',
             'partial' => 'bg-[#FFF4DE] text-[#9A6415]',
             'missing' => 'bg-[#FBE8E8] text-[#A23838]',
-            'contextual' => 'bg-[#E6F0F8] text-[#287EA1]',
+            'contextual' => 'bg-[#E6F0F8] text-[#17A2B8]',
         ];
         $coverageCards = [
             ['Requisito → tarefa', $summary['requirement_work_coverage'], $summary['requirements_with_tasks'].'/'.$summary['requirements']],
@@ -31,7 +31,7 @@
     <div class="space-y-5">
         @include('requirements._project-nav')
 
-        <section class="rounded-2xl bg-gradient-to-r from-[#123B4A] to-[#287EA1] p-7 text-white shadow-sm">
+        <section class="rounded-2xl bg-gradient-to-r from-[#185063] to-[#17A2B8] p-7 text-white shadow-sm">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <p class="text-xs font-bold uppercase tracking-[.18em] text-[#7FE4D0]">P08.2 · RF123</p>
@@ -47,7 +47,7 @@
                 <article class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">{{ $label }}</p>
                     <div class="mt-3 flex items-end justify-between gap-3">
-                        <p class="text-2xl font-bold text-[#123B4A]">{{ $value === null ? 'N/A' : $value.'%' }}</p>
+                        <p class="text-2xl font-bold text-[#185063]">{{ $value === null ? 'N/A' : $value.'%' }}</p>
                         <span class="text-sm font-semibold text-[#667680]">{{ $fraction }}</span>
                     </div>
                     <div class="mt-3 h-2 overflow-hidden rounded-full bg-[#E8EDF0]">
@@ -74,15 +74,15 @@
                 </div>
 
                 <div class="rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] p-4">
-                    <p class="text-xs font-bold uppercase text-[#287EA1]">Contratos</p>
-                    <p class="mt-2 font-semibold text-[#123B4A]">{{ $matrix['origin']['contracts']->count() }}</p>
-                    <a class="mt-1 block text-xs font-semibold text-[#287EA1] hover:underline" href="{{ route('contracts.index', ['project' => $project->id]) }}">Consultar</a>
+                    <p class="text-xs font-bold uppercase text-[#17A2B8]">Contratos</p>
+                    <p class="mt-2 font-semibold text-[#185063]">{{ $matrix['origin']['contracts']->count() }}</p>
+                    <a class="mt-1 block text-xs font-semibold text-[#17A2B8] hover:underline" href="{{ route('contracts.index', ['project' => $project->id]) }}">Consultar</a>
                 </div>
 
                 <div class="rounded-xl border border-[#BFD7DF] bg-[#F4F9FA] p-4">
-                    <p class="text-xs font-bold uppercase text-[#287EA1]">Baselines</p>
-                    <p class="mt-2 font-semibold text-[#123B4A]">{{ $matrix['origin']['baselines']->count() }}</p>
-                    <a class="mt-1 block text-xs font-semibold text-[#287EA1] hover:underline" href="{{ route('projects.baselines.index', $project) }}">Consultar</a>
+                    <p class="text-xs font-bold uppercase text-[#17A2B8]">Baselines</p>
+                    <p class="mt-2 font-semibold text-[#185063]">{{ $matrix['origin']['baselines']->count() }}</p>
+                    <a class="mt-1 block text-xs font-semibold text-[#17A2B8] hover:underline" href="{{ route('projects.baselines.index', $project) }}">Consultar</a>
                 </div>
 
                 <div class="rounded-xl border border-[#D8CCE8] bg-[#F8F5FB] p-4">
@@ -121,7 +121,7 @@
                         @forelse ($matrix['requirements'] as $row)
                             <tr class="align-top text-sm">
                                 <td class="px-5 py-4">
-                                    <a class="font-bold text-[#287EA1] hover:underline" href="{{ route('projects.requirements.show', [$project, $row['requirement']]) }}">
+                                    <a class="font-bold text-[#17A2B8] hover:underline" href="{{ route('projects.requirements.show', [$project, $row['requirement']]) }}">
                                         {{ $row['requirement']->code }}
                                     </a>
                                     <p class="mt-1 max-w-xs text-[#24313A]">{{ $row['requirement']->title }}</p>
@@ -129,7 +129,7 @@
                                 <td class="px-5 py-4">
                                     <span class="font-bold text-[#24313A]">{{ $row['tasks']->count() }}</span>
                                     @foreach ($row['tasks']->take(2) as $task)
-                                        <a class="mt-1 block text-xs text-[#287EA1] hover:underline" href="{{ route('projects.tasks.show', [$project, $task]) }}">
+                                        <a class="mt-1 block text-xs text-[#17A2B8] hover:underline" href="{{ route('projects.tasks.show', [$project, $task]) }}">
                                             {{ $task->code }}
                                         </a>
                                     @endforeach
@@ -232,7 +232,7 @@
 
         <section class="overflow-hidden rounded-2xl border border-[#BFD7DF] bg-white shadow-sm">
             <div class="border-b border-[#DCE8EC] px-6 py-5">
-                <h2 class="font-bold text-[#123B4A]">Matriz de apoio ao MPS.BR</h2>
+                <h2 class="font-bold text-[#185063]">Matriz de apoio ao MPS.BR</h2>
                 <p class="mt-1 text-sm text-[#667680]">Leitura operacional do projeto, sem declaração automática de conformidade ou maturidade.</p>
             </div>
 
@@ -251,7 +251,7 @@
                         @foreach ($matrix['mps'] as $process)
                             <tr class="align-top text-sm">
                                 <td class="px-5 py-4">
-                                    <span class="font-bold text-[#287EA1]">{{ $process['code'] }}</span>
+                                    <span class="font-bold text-[#17A2B8]">{{ $process['code'] }}</span>
                                     <p class="mt-1 font-semibold text-[#24313A]">{{ $process['name'] }}</p>
                                 </td>
                                 <td class="max-w-xs px-5 py-4 text-[#24313A]">{{ $process['capacity'] }}</td>
@@ -269,7 +269,7 @@
             </div>
 
             <div class="border-t border-[#DCE8EC] bg-[#F4F9FA] px-6 py-5 text-sm leading-6 text-[#52636D]">
-                <strong class="text-[#123B4A]">Limite institucional:</strong>
+                <strong class="text-[#185063]">Limite institucional:</strong>
                 o PRISMA SGP apoia a operacionalização de processos, a rastreabilidade e a produção de evidências úteis. O uso do sistema não certifica a organização, não atribui nível de maturidade e não substitui implementação ou avaliação autorizada.
             </div>
         </section>

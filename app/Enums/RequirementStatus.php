@@ -30,7 +30,7 @@ enum RequirementStatus: string
         return match ($this) {
             self::Proposed => 'bg-[#F3F5F6] text-[#667680]',
             self::UnderAnalysis => 'bg-[#FFF4DE] text-[#9A6415]',
-            self::Approved => 'bg-[#E6F0F8] text-[#287EA1]',
+            self::Approved => 'bg-[#E6F0F8] text-[#17A2B8]',
             self::InDevelopment => 'bg-[#EAF0FB] text-[#4B67A1]',
             self::InTesting => 'bg-[#F2EAFB] text-[#7752A5]',
             self::Delivered => 'bg-[#E4F3F0] text-[#2E8B74]',

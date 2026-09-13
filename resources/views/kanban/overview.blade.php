@@ -21,8 +21,8 @@
                 >
                     <div class="flex items-start justify-between gap-4">
                         <div class="min-w-0">
-                            <p class="text-xs font-bold uppercase tracking-wider text-[#287EA1]">{{ $project->code }}</p>
-                            <h2 class="mt-1 truncate text-base font-bold text-[#24313A] group-hover:text-[#123B4A]">{{ $project->name }}</h2>
+                            <p class="text-xs font-bold uppercase tracking-wider text-[#17A2B8]">{{ $project->code }}</p>
+                            <h2 class="mt-1 truncate text-base font-bold text-[#24313A] group-hover:text-[#185063]">{{ $project->name }}</h2>
                             <p class="mt-1 truncate text-sm text-[#667680]">{{ $project->client?->name ?? 'Sem cliente ou unidade' }}</p>
                         </div>
 

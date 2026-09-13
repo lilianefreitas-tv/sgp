@@ -125,7 +125,7 @@
                 <div class="mt-3 space-y-2">
                     @foreach($changeRequest->impactAnalyses->sortByDesc('round')->skip(1) as $analysis)
                         <details class="rounded-xl border border-[#E1E7EA] p-4">
-                            <summary class="cursor-pointer font-semibold text-[#1D5D73]">Rodada {{ $analysis->round }} · {{ $analysis->status->label() }} · {{ $analysis->recommendation?->label() ?? 'Sem recomendação' }}</summary>
+                            <summary class="cursor-pointer font-semibold text-[#228A9D]">Rodada {{ $analysis->round }} · {{ $analysis->status->label() }} · {{ $analysis->recommendation?->label() ?? 'Sem recomendação' }}</summary>
                             <p class="mt-3 whitespace-pre-line text-sm leading-6 text-[#52616A]">{{ $analysis->executive_summary ?: 'Sem síntese executiva.' }}</p>
                         </details>
                     @endforeach
