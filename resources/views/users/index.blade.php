@@ -37,7 +37,7 @@
                                 <option value="active" @selected($status === 'active')>Ativos</option>
                                 <option value="inactive" @selected($status === 'inactive')>Inativos</option>
                             </select>
-                            <button class="rounded-lg bg-[#E6F0F3] px-4 text-sm font-semibold text-[#123B4A] transition hover:bg-[#D8E8ED]">Filtrar</button>
+                            <button class="rounded-lg bg-[#E7F3F6] px-4 text-sm font-semibold text-[#185063] transition hover:bg-[#D8E8ED]">Filtrar</button>
                         </div>
                     </div>
                 </form>

@@ -9,7 +9,7 @@
             <div><label for="priority" class="sgp-field-label">Prioridade</label><select id="priority" name="priority" class="sgp-input"><option value="">Todas</option>@foreach($priorities as $value => $label)<option value="{{ $value }}" @selected($priority === $value)>{{ $label }}</option>@endforeach</select></div>
             <div><label for="responsibility" class="sgp-field-label">Responsável</label><select id="responsibility" name="responsibility" class="sgp-input"><option value="">Todos</option><option value="mine" @selected($responsibility === 'mine')>Minhas tarefas</option></select></div>
             <div><label for="activity" class="sgp-field-label">Situação</label><select id="activity" name="activity" class="sgp-input"><option value="active" @selected($activity === 'active')>Ativas</option><option value="inactive" @selected($activity === 'inactive')>Inativas</option></select></div>
-            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[#E6F0F3] px-4 py-3 text-sm font-semibold text-[#123B4A] hover:bg-[#D8E8ED]">Filtrar</button>
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[#E7F3F6] px-4 py-3 text-sm font-semibold text-[#185063] hover:bg-[#D8E8ED]">Filtrar</button>
             <a href="{{ route('tasks.index') }}" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-[#DCE3E7] px-4 py-3 text-sm font-semibold text-[#667680] hover:bg-[#F5F7F9]">Limpar filtros</a>
         </form>
         @include('tasks._table', ['showProject' => true])

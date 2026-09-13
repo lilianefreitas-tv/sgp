@@ -107,7 +107,7 @@
                         @forelse($group['items'] as $item)
                             @php($itemCode = $item->code ?? ($type === 'document' ? 'DOC-'.$item->id.'-v'.$item->version : null))
                             <label class="flex items-start gap-3 rounded-lg border border-[#E3E9EC] bg-white px-3 py-2 text-sm text-[#24313A]">
-                                <input type="checkbox" name="affected[{{ $type }}][]" value="{{ $item->id }}" class="mt-0.5 rounded border-[#B8C5CB] text-[#123B4A] focus:ring-[#287EA1]" @checked(in_array($item->id, $selectedAffected->get($type, [])))>
+                                <input type="checkbox" name="affected[{{ $type }}][]" value="{{ $item->id }}" class="mt-0.5 rounded border-[#B8C5CB] text-[#185063] focus:ring-[#17A2B8]" @checked(in_array($item->id, $selectedAffected->get($type, [])))>
                                 <span><span class="font-semibold">{{ $itemCode }}</span>{{ $itemCode ? ' · ' : '' }}{{ $item->title }}</span>
                             </label>
                         @empty

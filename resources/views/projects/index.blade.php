@@ -43,7 +43,7 @@
                                 <option value="current" @selected($archive === 'current')>Atuais</option>
                                 <option value="archived" @selected($archive === 'archived')>Arquivados</option>
                             </select>
-                            <button class="rounded-lg bg-[#E6F0F3] px-4 text-sm font-semibold text-[#123B4A] hover:bg-[#D8E8ED]">Filtrar</button>
+                            <button class="rounded-lg bg-[#E7F3F6] px-4 text-sm font-semibold text-[#185063] hover:bg-[#D8E8ED]">Filtrar</button>
                         </div>
                     </div>
                 </form>
@@ -72,7 +72,7 @@
                         @forelse ($projects as $project)
                             <tr class="text-sm text-[#24313A] hover:bg-[#FBFCFD]">
                                 <td class="px-5 py-4">
-                                    <p class="text-xs font-semibold text-[#287EA1]">{{ $project->code }}</p>
+                                    <p class="text-xs font-semibold text-[#17A2B8]">{{ $project->code }}</p>
                                     <p class="mt-1 font-semibold">{{ $project->name }}</p>
                                     @if (!$project->is_active)<p class="mt-1 text-xs text-[#C44B4B]">Registro inativo</p>@endif
                                 </td>

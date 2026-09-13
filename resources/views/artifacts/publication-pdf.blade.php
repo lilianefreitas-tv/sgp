@@ -6,8 +6,8 @@
         @page { margin: 34px 42px 44px; }
         body { font-family: DejaVu Sans, sans-serif; color: #24313a; font-size: 10.5px; line-height: 1.5; }
         h1 { color: #134559; font-size: 24px; border-bottom: 3px solid #45d6b5; padding-bottom: 10px; margin: 0 0 16px; }
-        h2 { color: #1d5d73; font-size: 16px; margin: 22px 0 8px; }
-        h3 { color: #1d5d73; font-size: 13px; margin: 17px 0 7px; border-bottom: 1px solid #dbe4e8; padding-bottom: 4px; }
+        h2 { color: #228A9D; font-size: 16px; margin: 22px 0 8px; }
+        h3 { color: #228A9D; font-size: 13px; margin: 17px 0 7px; border-bottom: 1px solid #dbe4e8; padding-bottom: 4px; }
         h4, h5 { color: #315d6b; font-size: 11px; margin: 12px 0 5px; }
         .meta { background: #f1f5f7; padding: 12px; border-radius: 6px; }
         .publication-meta { margin: 12px 0 4px; padding: 8px 10px; background: #f8fafb; border-left: 3px solid #45d6b5; }
@@ -47,7 +47,7 @@
     ])
 
     <div class="footer">
-        SGP · Documento para leitura humana · Código de verificação da revisão: {{ $round->revision->checksum }}<br>
+        PRISMA SGP · Documento para leitura humana · Código de verificação da revisão: {{ $round->revision->checksum }}<br>
         O manifesto JSON técnico permanece disponível exclusivamente dentro do pacote verificável.
     </div>
 </body>

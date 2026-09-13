@@ -25,7 +25,7 @@ enum TestCaseSeverity: string
             self::Critical => 'bg-[#FBE8E8] text-[#A23838]',
             self::High => 'bg-[#FFF0E3] text-[#A85520]',
             self::Medium => 'bg-[#FFF4DE] text-[#9A6415]',
-            self::Low => 'bg-[#E6F0F8] text-[#287EA1]',
+            self::Low => 'bg-[#E6F0F8] text-[#17A2B8]',
         };
     }
 

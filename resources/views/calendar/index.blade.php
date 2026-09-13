@@ -15,12 +15,12 @@
             <form method="GET" action="{{ $selectedProject ? route('projects.calendar.index', $selectedProject) : route('calendar.index') }}" class="flex flex-wrap items-end gap-3">
                 <div>
                     <label for="month" class="mb-1 block text-xs font-semibold text-[#52616A]">Mês</label>
-                    <input id="month" name="month" type="month" value="{{ $month->format('Y-m') }}" class="rounded-lg border-[#CBD5DA] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                    <input id="month" name="month" type="month" value="{{ $month->format('Y-m') }}" class="rounded-lg border-[#CBD5DA] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                 </div>
                 @unless ($selectedProject)
                     <div class="min-w-64 flex-1">
                         <label for="project" class="mb-1 block text-xs font-semibold text-[#52616A]">Projeto</label>
-                        <select id="project" name="project" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                        <select id="project" name="project" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                             <option value="">Todos os projetos</option>
                             @foreach ($projects as $project)
                                 <option value="{{ $project->id }}" @selected(request('project') == $project->id)>{{ $project->code }} · {{ $project->name }}</option>
@@ -30,7 +30,7 @@
                 @endunless
                 <div class="min-w-48">
                     <label for="responsible" class="mb-1 block text-xs font-semibold text-[#52616A]">Responsável</label>
-                    <select id="responsible" name="responsible" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                    <select id="responsible" name="responsible" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                         <option value="">Todos</option>
                         @foreach ($responsibles as $responsible)
                             <option value="{{ $responsible->id }}" @selected(request('responsible') == $responsible->id)>{{ $responsible->name }}</option>
@@ -39,7 +39,7 @@
                 </div>
                 <div class="min-w-44">
                     <label for="status" class="mb-1 block text-xs font-semibold text-[#52616A]">Situação da tarefa</label>
-                    <select id="status" name="status" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                    <select id="status" name="status" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                         <option value="">Todas</option>
                         @foreach (\App\Enums\TaskStatus::options() as $value => $label)
                             <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
@@ -48,14 +48,14 @@
                 </div>
                 <div class="min-w-44">
                     <label for="type" class="mb-1 block text-xs font-semibold text-[#52616A]">Tipo de evento</label>
-                    <select id="type" name="type" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                    <select id="type" name="type" class="w-full rounded-lg border-[#CBD5DA] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                         <option value="">Todos</option>
                         @foreach (['project_start' => 'Início de projeto', 'project_due' => 'Entrega de projeto', 'task_start' => 'Início de tarefa', 'task_due' => 'Prazo de tarefa', 'task_completed' => 'Conclusão de tarefa'] as $value => $label)
                             <option value="{{ $value }}" @selected(request('type') === $value)>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
-                <button class="rounded-lg bg-[#123B4A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1D5D73]">Aplicar filtros</button>
+                <button class="rounded-lg bg-[#185063] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#228A9D]">Aplicar filtros</button>
                 <a href="{{ $selectedProject ? route('projects.calendar.index', $selectedProject) : route('calendar.index') }}" class="rounded-lg border border-[#CBD5DA] px-4 py-2.5 text-sm font-semibold text-[#52616A] hover:bg-[#F3F6F7]">Hoje</a>
             </form>
         </section>
@@ -75,7 +75,7 @@
                 @foreach ($days as $day)
                     <div class="min-h-32 border-b border-r border-[#E8EDF0] p-2 {{ $day['date']->month !== $month->month ? 'bg-[#FAFBFC]' : 'bg-white' }}">
                         <div class="mb-1 flex justify-end">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold {{ $day['date']->isToday() ? 'bg-[#123B4A] text-white' : ($day['date']->month !== $month->month ? 'text-[#AAB5BB]' : 'text-[#52616A]') }}">{{ $day['date']->day }}</span>
+                            <span class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold {{ $day['date']->isToday() ? 'bg-[#185063] text-white' : ($day['date']->month !== $month->month ? 'text-[#AAB5BB]' : 'text-[#52616A]') }}">{{ $day['date']->day }}</span>
                         </div>
                         <div class="space-y-1">
                             @foreach ($day['events']->take(3) as $event)
@@ -95,8 +95,8 @@
             <p class="mt-1 text-sm text-[#667680]">Tarefas abertas que ainda não possuem data de início nem prazo</p>
             <div class="mt-4 grid gap-3 md:grid-cols-2">
                 @forelse ($unplannedTasks as $task)
-                    <a href="{{ route('projects.tasks.show', [$task->project, $task]) }}" class="rounded-xl border border-[#DCE3E7] p-3 hover:border-[#287EA1]">
-                        <p class="text-xs font-semibold text-[#287EA1]">{{ $task->project->code }} · {{ $task->code }}</p>
+                    <a href="{{ route('projects.tasks.show', [$task->project, $task]) }}" class="rounded-xl border border-[#DCE3E7] p-3 hover:border-[#17A2B8]">
+                        <p class="text-xs font-semibold text-[#17A2B8]">{{ $task->project->code }} · {{ $task->code }}</p>
                         <p class="mt-1 text-sm font-bold text-[#24313A]">{{ $task->title }}</p>
                     </a>
                 @empty

@@ -20,8 +20,8 @@
 @endphp
 
 <aside
-        class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full
-               flex-col bg-[#123B4A] text-white shadow-xl
+        class="sgp-sidebar fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full
+               flex-col text-white shadow-xl
                transition-transform duration-300 lg:translate-x-0"
         :class="{ 'translate-x-0': sidebarOpen }"
     >
@@ -33,17 +33,15 @@
                 href="{{ route($homeRoute) }}"
                 class="flex items-center gap-3"
             >
-                <x-application-logo
-                    class="h-11 w-11 flex-none text-[#123B4A]"
-                />
+                <x-application-logo class="h-14 w-10 flex-none" />
 
                 <div>
                     <p class="text-xl font-bold tracking-tight">
-                        SGP
+                        PRISMA <span class="text-[#3CC1CC]">SGP</span>
                     </p>
 
                     <p class="text-xs text-slate-300">
-                        Gestão de Projetos
+                        Gestão de Projetos de Software
                     </p>
                 </div>
             </a>
@@ -594,7 +592,7 @@
                             <select
                                 id="organization_id"
                                 name="organization_id"
-                                class="w-full rounded-lg border-white/20 bg-[#123B4A] px-3 py-2 text-sm text-white"
+                                class="w-full rounded-lg border-white/20 bg-[#185063] px-3 py-2 text-sm text-white"
                                 onchange="this.form.submit()"
                             >
                                 @foreach ($availableOrganizationMemberships as $membership)

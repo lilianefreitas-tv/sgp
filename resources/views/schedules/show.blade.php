@@ -55,7 +55,7 @@
                                 @if (today()->between($timelineStart, $timelineEnd))
                                     <div class="absolute inset-y-0 z-10 w-px bg-[#C44B4B]/60" style="left: {{ ($timelineStart->diffInDays(today()) / $totalDays) * 100 }}%;" title="Hoje"></div>
                                 @endif
-                                <div class="absolute top-1/2 h-7 -translate-y-1/2 overflow-hidden rounded-lg {{ $task->status === \App\Enums\TaskStatus::Completed ? 'bg-[#2E8B74]' : (($task->due_date?->lt(today())) ? 'bg-[#C44B4B]' : 'bg-[#287EA1]') }}" style="left: {{ $task->gantt_left }}%; width: {{ $task->gantt_width }}%;" title="{{ $task->code }} · {{ $task->title }}">
+                                <div class="absolute top-1/2 h-7 -translate-y-1/2 overflow-hidden rounded-lg {{ $task->status === \App\Enums\TaskStatus::Completed ? 'bg-[#2E8B74]' : (($task->due_date?->lt(today())) ? 'bg-[#C44B4B]' : 'bg-[#17A2B8]') }}" style="left: {{ $task->gantt_left }}%; width: {{ $task->gantt_width }}%;" title="{{ $task->code }} · {{ $task->title }}">
                                     <div class="flex h-full items-center px-2 text-[10px] font-bold text-white">{{ $task->code }}</div>
                                 </div>
                             </div>
@@ -72,8 +72,8 @@
             <p class="mt-1 text-sm text-[#667680]">Itens que precisam de início ou prazo para aparecer no cronograma</p>
             <div class="mt-4 grid gap-3 md:grid-cols-2">
                 @forelse ($unplannedTasks as $task)
-                    <a href="{{ route('projects.tasks.edit', [$project, $task]) }}" class="rounded-xl border border-[#DCE3E7] p-3 hover:border-[#287EA1]">
-                        <p class="text-xs font-semibold text-[#287EA1]">{{ $task->code }}</p>
+                    <a href="{{ route('projects.tasks.edit', [$project, $task]) }}" class="rounded-xl border border-[#DCE3E7] p-3 hover:border-[#17A2B8]">
+                        <p class="text-xs font-semibold text-[#17A2B8]">{{ $task->code }}</p>
                         <p class="mt-1 text-sm font-bold text-[#24313A]">{{ $task->title }}</p>
                     </a>
                 @empty

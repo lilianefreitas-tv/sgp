@@ -13,7 +13,7 @@
             <form method="GET" action="{{ route('projects.history.index', $project) }}" class="flex flex-wrap items-end gap-3">
                 <div class="min-w-[240px] flex-1">
                     <label for="type" class="text-sm font-semibold text-[#24313A]">Filtrar eventos</label>
-                    <select id="type" name="type" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]">
+                    <select id="type" name="type" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]">
                         @foreach($filters as $value => $label)
                             <option value="{{ $value }}" @selected($filter === $value)>{{ $label }}</option>
                         @endforeach
@@ -31,7 +31,7 @@
                         <h2 class="font-bold text-[#24313A]">Linha do tempo do projeto</h2>
                         <p class="mt-1 text-sm text-[#667680]">Eventos relevantes reunidos em ordem cronológica decrescente.</p>
                     </div>
-                    <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-semibold text-[#1D5D73]">{{ $events->total() }} evento(s)</span>
+                    <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-semibold text-[#228A9D]">{{ $events->total() }} evento(s)</span>
                 </div>
             </div>
 
@@ -44,7 +44,7 @@
                 <div class="px-6 py-2">
                     @php
                         $toneClasses = [
-                            'blue' => 'bg-[#DDEFF5] text-[#1D5D73]',
+                            'blue' => 'bg-[#DDEFF5] text-[#228A9D]',
                             'purple' => 'bg-[#EEE8F7] text-[#694A8B]',
                             'green' => 'bg-[#E3F3EE] text-[#2E8B74]',
                             'amber' => 'bg-[#FFF1D9] text-[#A86A08]',

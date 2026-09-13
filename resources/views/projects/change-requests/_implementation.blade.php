@@ -19,7 +19,7 @@
                 <p class="mt-1 text-sm text-[#667680]">Execução controlada, tratamento contratual, evidências e destino de baseline.</p>
             </div>
             @if($implementation)
-                <span class="rounded-full px-3 py-1 text-xs font-bold {{ $implementation->status === \App\Enums\ChangeRequestImplementationStatus::Completed ? 'bg-[#EDF8F5] text-[#256C5C]' : ($implementation->status === \App\Enums\ChangeRequestImplementationStatus::InProgress ? 'bg-[#E8F3F6] text-[#1D5D73]' : 'bg-[#FFF4D9] text-[#8A6400]') }}">
+                <span class="rounded-full px-3 py-1 text-xs font-bold {{ $implementation->status === \App\Enums\ChangeRequestImplementationStatus::Completed ? 'bg-[#EDF8F5] text-[#256C5C]' : ($implementation->status === \App\Enums\ChangeRequestImplementationStatus::InProgress ? 'bg-[#E8F3F6] text-[#228A9D]' : 'bg-[#FFF4D9] text-[#8A6400]') }}">
                     {{ $implementation->status->label() }}
                 </span>
             @endif
@@ -167,7 +167,7 @@
                 <div class="sgp-change-request-grid-three">
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Tratamento contratual</p><p class="mt-2 font-semibold text-[#24313A]">{{ $implementation->contract_disposition->label() }}</p><p class="mt-1 text-sm text-[#667680]">{{ $implementation->contract?->code ?? 'Sem contrato vinculado' }}</p></div>
                     <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Aditivo</p><p class="mt-2 font-semibold text-[#24313A]">{{ $implementation->amendment_reference ?: 'Não aplicável' }}</p>@if($implementation->amendment_contract_version)<p class="mt-1 text-sm text-[#667680]">Versão contratual {{ $implementation->amendment_contract_version }}</p>@endif</div>
-                    <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Nova baseline</p>@if($implementation->newBaseline)<a href="{{ route('projects.baselines.show', [$project, $implementation->newBaseline]) }}" class="mt-2 inline-flex font-semibold text-[#287EA1]">v{{ $implementation->newBaseline->version }} · {{ $implementation->newBaseline->title }}</a>@else<p class="mt-2 font-semibold text-[#24313A]">Não constituída</p>@endif</div>
+                    <div><p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Nova baseline</p>@if($implementation->newBaseline)<a href="{{ route('projects.baselines.show', [$project, $implementation->newBaseline]) }}" class="mt-2 inline-flex font-semibold text-[#17A2B8]">v{{ $implementation->newBaseline->version }} · {{ $implementation->newBaseline->title }}</a>@else<p class="mt-2 font-semibold text-[#24313A]">Não constituída</p>@endif</div>
                 </div>
                 @if($implementation->events->isNotEmpty())
                     <div class="border-t border-[#E8EDF0] pt-5">

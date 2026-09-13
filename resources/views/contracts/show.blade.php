@@ -13,7 +13,7 @@
         <section class="rounded-2xl border border-[#DCE3E7] bg-white p-5 shadow-sm">
             <div class="grid gap-4 md:grid-cols-2">
                 <div><p class="text-xs font-bold uppercase tracking-wider text-[#667680]">Iniciativa</p>@if($contract->initiative)<a class="mt-2 inline-block font-semibold text-[#2E8B74]" href="{{ $contract->initiative->origin->value === 'commercial' ? route('commercial.show',$contract->initiative) : route('initiatives.conversion.show',$contract->initiative) }}">{{ $contract->initiative->code }} · {{ $contract->initiative->title }}</a>@else<p class="mt-2 text-sm text-[#667680]">Sem iniciativa vinculada.</p>@endif</div>
-                <div><p class="text-xs font-bold uppercase tracking-wider text-[#667680]">Projeto</p>@if($contract->project)<a class="mt-2 inline-block font-semibold text-[#287EA1]" href="{{ route('projects.show',$contract->project) }}">{{ $contract->project->code }} · {{ $contract->project->name }}</a>@else<p class="mt-2 text-sm text-[#667680]">Contrato ainda independente de projeto.</p>@endif</div>
+                <div><p class="text-xs font-bold uppercase tracking-wider text-[#667680]">Projeto</p>@if($contract->project)<a class="mt-2 inline-block font-semibold text-[#17A2B8]" href="{{ route('projects.show',$contract->project) }}">{{ $contract->project->code }} · {{ $contract->project->name }}</a>@else<p class="mt-2 text-sm text-[#667680]">Contrato ainda independente de projeto.</p>@endif</div>
             </div>
         </section>
 
@@ -33,7 +33,7 @@
 
                 @if(!$contract->project && $availableProjects->isNotEmpty())
                     <section class="rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5">
-                        <h2 class="font-bold text-[#123B4A]">Vincular a projeto existente</h2>
+                        <h2 class="font-bold text-[#185063]">Vincular a projeto existente</h2>
                         <p class="mt-1 text-xs leading-5 text-[#667680]">O vínculo gera nova versão e não permite transferência silenciosa.</p>
                         <form method="POST" action="{{ route('contracts.project.link',$contract) }}" class="mt-4 space-y-3">@csrf @method('PATCH')
                             <select name="project_id" class="sgp-input" required><option value="">Selecione o projeto</option>@foreach($availableProjects as $projectOption)<option value="{{ $projectOption->id }}">{{ $projectOption->code }} · {{ $projectOption->name }}</option>@endforeach</select>

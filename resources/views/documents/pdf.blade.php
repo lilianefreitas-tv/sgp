@@ -12,17 +12,17 @@
         header td { padding: 0; border: 0; vertical-align: middle; }
         footer { position: fixed; bottom: -43px; left: 0; right: 0; border-top: 1px solid #DCE3E7; padding-top: 5px; color: #667680; text-align: center; font-size: 7.5pt; line-height: 1.25; }
         footer .page-number:after { content: counter(page); }
-        h1 { margin: 20px 0 8px; color: #123B4A; font-size: 16pt; page-break-after: avoid; }
-        h2 { margin: 16px 0 7px; color: #287EA1; font-size: 12pt; page-break-after: avoid; }
+        h1 { margin: 20px 0 8px; color: #185063; font-size: 16pt; page-break-after: avoid; }
+        h2 { margin: 16px 0 7px; color: #17A2B8; font-size: 12pt; page-break-after: avoid; }
         p { margin: 0 0 9px; text-align: justify; }
         ul { margin: 4px 0 10px 20px; padding: 0; }
         li { margin-bottom: 4px; }
         table.data { width: 100%; margin: 7px 0 15px; border-collapse: collapse; page-break-inside: avoid; }
         table.data th, table.data td { border: 1px solid #DCE3E7; padding: 7px 8px; vertical-align: middle; }
-        table.data th { background: #123B4A; color: #FFF; font-size: 9pt; text-align: left; }
+        table.data th { background: #185063; color: #FFF; font-size: 9pt; text-align: left; }
         table.data td.label { width: 28%; background: #F3F7F8; font-weight: bold; }
         .cover { min-height: 610px; padding-top: 145px; text-align: center; page-break-after: always; }
-        .cover .brand { color: #287EA1; font-size: 15pt; font-weight: bold; letter-spacing: 1px; }
+        .cover .brand { color: #17A2B8; font-size: 15pt; font-weight: bold; letter-spacing: 1px; }
         .cover h1 { margin-top: 28px; font-size: 26pt; text-align: center; }
         .cover .project-name { margin-top: 20px; font-size: 17pt; text-align: center; }
         .cover .code { color: #667680; font-weight: bold; text-align: center; }
@@ -39,18 +39,18 @@
     <header>
         <table>
             <tr>
-                <td style="width: 20%; color: #123B4A; font-size: 11pt; font-weight: bold;">SGP</td>
+                <td style="width: 20%; color: #185063; font-size: 11pt; font-weight: bold;">PRISMA SGP</td>
                 <td style="text-align: right;">{{ $template->header_text ?: 'Sistema de Gestão de Projetos de Software' }}</td>
             </tr>
         </table>
     </header>
     <footer>
-        <div>{{ $template->footer_text ?: 'Documento gerado automaticamente pelo SGP' }}</div>
+        <div>{{ $template->footer_text ?: 'Documento gerado automaticamente pelo PRISMA SGP' }}</div>
         <div>Gerado por: {{ $generatedBy->name }} | {{ $generatedAt->format('d/m/Y H:i') }} | Fuso: {{ $generatedTimezone }} | Página <span class="page-number"></span></div>
     </footer>
 
     <section class="cover">
-        <div class="brand">SGP</div>
+        <div class="brand">PRISMA SGP</div>
         <h1>{{ $title }}</h1>
         <p class="project-name">{{ $project->name }}</p>
         <p class="code">{{ $project->code }}</p>

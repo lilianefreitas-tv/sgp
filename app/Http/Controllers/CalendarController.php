@@ -106,7 +106,7 @@ class CalendarController extends Controller
                     'label' => 'Início · '.$project->code,
                     'title' => $project->name,
                     'url' => route('projects.show', $project),
-                    'classes' => 'bg-[#E6F0F8] text-[#1D5D73]',
+                    'classes' => 'bg-[#E6F0F8] text-[#228A9D]',
                 ]);
             }
 

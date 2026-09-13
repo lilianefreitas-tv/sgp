@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-sm font-semibold text-[#287EA1]">{{ $project->code }}</p>
+            <p class="text-sm font-semibold text-[#17A2B8]">{{ $project->code }}</p>
             <h1 class="mt-1 text-xl font-bold text-[#24313A]">Informações para o Documento de Visão</h1>
             <p class="mt-1 text-sm text-[#667680]">Esses dados ficam salvos no projeto e poderão ser atualizados antes de qualquer nova versão.</p>
         </div>

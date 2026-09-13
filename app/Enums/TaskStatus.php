@@ -27,7 +27,7 @@ enum TaskStatus: string
     {
         return match ($this) {
             self::Backlog => 'bg-[#F3F5F6] text-[#667680]',
-            self::ToDo => 'bg-[#E6F0F8] text-[#287EA1]',
+            self::ToDo => 'bg-[#E6F0F8] text-[#17A2B8]',
             self::InProgress => 'bg-[#EAF0FB] text-[#4B67A1]',
             self::InReview => 'bg-[#FFF4DE] text-[#9A6415]',
             self::InTesting => 'bg-[#F2EAFB] text-[#7752A5]',

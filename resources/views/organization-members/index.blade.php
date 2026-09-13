@@ -22,7 +22,7 @@
         <section class="rounded-2xl border border-[#D7E6EA] bg-[#F2F8FA] p-5 shadow-sm">
             <div class="sgp-membership-explanation">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-[#287EA1]">Como funciona</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-[#17A2B8]">Como funciona</p>
                     <h2 class="mt-1 text-base font-bold text-[#24313A]">Primeiro a pessoa entra na equipe; depois, recebe funções nos projetos</h2>
                     <p class="mt-1 text-sm leading-6 text-[#53636C]">Você pode criar uma conta nova ou associar uma conta existente a <strong>{{ $activeOrganization->name }}</strong>. Gerente, DBA, Cliente e outras funções são definidas separadamente dentro de cada projeto.</p>
                 </div>

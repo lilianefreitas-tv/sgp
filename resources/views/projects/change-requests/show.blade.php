@@ -49,7 +49,7 @@
             <div>
                 <div class="flex flex-wrap items-center gap-3">
                     <h1 class="text-xl font-bold text-[#24313A]">{{ $changeRequest->code }} · {{ $changeRequest->title }}</h1>
-                    <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-bold text-[#1D5D73]">{{ $changeRequest->state->label() }}</span>
+                    <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-bold text-[#228A9D]">{{ $changeRequest->state->label() }}</span>
                 </div>
                 <p class="mt-1 text-sm text-[#667680]">{{ $project->code }} · {{ $project->name }}</p>
             </div>
@@ -88,7 +88,7 @@
                     <p class="text-xs font-semibold uppercase tracking-wider text-[#667680]">Itens potencialmente afetados</p>
                     <div class="mt-3 flex flex-wrap gap-2">
                         @forelse($changeRequest->affectedItems as $item)
-                            <span class="rounded-full border border-[#C9DCE4] bg-[#F5F9FB] px-3 py-1 text-xs font-semibold text-[#1D5D73]">{{ $item->code ? $item->code.' · ' : '' }}{{ $item->title }}</span>
+                            <span class="rounded-full border border-[#C9DCE4] bg-[#F5F9FB] px-3 py-1 text-xs font-semibold text-[#228A9D]">{{ $item->code ? $item->code.' · ' : '' }}{{ $item->title }}</span>
                         @empty
                             <span class="text-sm text-[#82919A]">Nenhum item indicado.</span>
                         @endforelse
@@ -122,7 +122,7 @@
                     <form method="POST" action="{{ route('projects.change-requests.start-analysis', [$project, $changeRequest]) }}" class="space-y-3 rounded-xl border border-[#B9D9E3] bg-[#F2F9FB] p-4">
                         @csrf
                         <div>
-                            <p class="font-bold text-[#123B4A]">Iniciar minha análise</p>
+                            <p class="font-bold text-[#185063]">Iniciar minha análise</p>
                             <p class="mt-1 text-xs text-[#456B78]">O início, a rodada e todas as ações serão registrados em nome de {{ auth()->user()->name }}.</p>
                         </div>
                         <button class="sgp-button-primary w-full justify-center">Iniciar análise como meu usuário</button>
@@ -213,7 +213,7 @@
                         <div class="flex flex-wrap items-start justify-between gap-4 px-6 py-4">
                             <div><p class="font-semibold text-[#24313A]">{{ $attachment->original_name }}</p><p class="mt-1 text-xs text-[#667680]">{{ $attachment->attachment_kind === 'evidence' ? 'Evidência' : 'Anexo' }} · {{ $attachment->formattedSize() }} · {{ $attachment->uploader->name }}</p>@if($attachment->description)<p class="mt-2 text-sm text-[#667680]">{{ $attachment->description }}</p>@endif</div>
                             <div class="flex gap-2">
-                                <a href="{{ route('projects.change-requests.attachments.download', [$project, $changeRequest, $attachment]) }}" class="inline-flex rounded-lg border border-[#287EA1] px-3 py-2 text-xs font-semibold text-[#287EA1]">Baixar</a>
+                                <a href="{{ route('projects.change-requests.attachments.download', [$project, $changeRequest, $attachment]) }}" class="inline-flex rounded-lg border border-[#17A2B8] px-3 py-2 text-xs font-semibold text-[#17A2B8]">Baixar</a>
                                 @can('manageAttachments', $changeRequest)<form method="POST" action="{{ route('projects.change-requests.attachments.destroy', [$project, $changeRequest, $attachment]) }}" onsubmit="return confirm('Remover este anexo da consulta?')">@csrf @method('DELETE')<button class="inline-flex rounded-lg border border-[#E6B8B8] px-3 py-2 text-xs font-semibold text-[#A53E3E]">Remover</button></form>@endcan
                             </div>
                         </div>

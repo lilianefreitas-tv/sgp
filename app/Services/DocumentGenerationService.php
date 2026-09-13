@@ -20,9 +20,9 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 
 class DocumentGenerationService
 {
-    private const PRIMARY = '123B4A';
+    private const PRIMARY = '185063';
 
-    private const ACCENT = '287EA1';
+    private const ACCENT = '17A2B8';
 
     private const TEXT = '24313A';
 
@@ -191,7 +191,7 @@ class DocumentGenerationService
     private function writeDocx(array $payload, string $path): void
     {
         $phpWord = new PhpWord;
-        $phpWord->setDefaultFontName('Arial');
+        $phpWord->setDefaultFontName('Inter');
         $phpWord->setDefaultFontSize(10);
         $phpWord->addTitleStyle(1, ['name' => 'Arial', 'size' => 16, 'bold' => true, 'color' => self::PRIMARY], ['spaceBefore' => 240, 'spaceAfter' => 120]);
         $phpWord->addTitleStyle(2, ['name' => 'Arial', 'size' => 12, 'bold' => true, 'color' => self::ACCENT], ['spaceBefore' => 180, 'spaceAfter' => 80]);
@@ -234,11 +234,11 @@ class DocumentGenerationService
         $headerTable = $header->addTable(['width' => 9500, 'unit' => 'dxa']);
         $headerTable->addRow();
         $brandCell = $headerTable->addCell(1200);
-        $logoPath = public_path('images/sgp-logo.png');
+        $logoPath = public_path('images/prisma-favicon.png');
         if (is_file($logoPath)) {
             $brandCell->addImage($logoPath, ['width' => 28, 'height' => 28]);
         } else {
-            $brandCell->addText('SGP', ['bold' => true, 'color' => self::PRIMARY, 'size' => 13]);
+            $brandCell->addText('PRISMA SGP', ['bold' => true, 'color' => self::PRIMARY, 'size' => 13]);
         }
         $headerTable->addCell(8300)->addText(
             $payload['template']->header_text ?: 'Sistema de Gestão de Projetos de Software',
@@ -248,7 +248,7 @@ class DocumentGenerationService
 
         $footer = $section->addFooter();
         $footer->addText(
-            $payload['template']->footer_text ?: 'Documento gerado automaticamente pelo SGP',
+            $payload['template']->footer_text ?: 'Documento gerado automaticamente pelo PRISMA SGP',
             ['size' => 8, 'color' => self::MUTED],
             ['alignment' => Jc::CENTER],
         );
@@ -267,7 +267,7 @@ class DocumentGenerationService
     {
         $project = $payload['project'];
         $section->addTextBreak(5);
-        $section->addText('SGP', ['size' => 15, 'bold' => true, 'color' => self::ACCENT], ['alignment' => Jc::CENTER]);
+        $section->addText('PRISMA SGP', ['size' => 15, 'bold' => true, 'color' => self::ACCENT], ['alignment' => Jc::CENTER]);
         $section->addText($payload['title'], ['size' => 24, 'bold' => true, 'color' => self::PRIMARY], ['alignment' => Jc::CENTER, 'spaceBefore' => 240]);
         $section->addText($project->name, ['size' => 16, 'color' => self::TEXT], ['alignment' => Jc::CENTER, 'spaceBefore' => 160]);
         $section->addText($project->code, ['size' => 11, 'bold' => true, 'color' => self::MUTED], ['alignment' => Jc::CENTER, 'spaceBefore' => 80]);

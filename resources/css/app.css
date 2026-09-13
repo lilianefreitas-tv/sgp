@@ -3,24 +3,49 @@
 @tailwind utilities;
 
 :root {
-    --sgp-primary: #123b4a;
-    --sgp-primary-light: #1d5d73;
-    --sgp-accent: #287ea1;
+    --sgp-primary: #185063;
+    --sgp-primary-light: #228A9D;
+    --sgp-accent: #17A2B8;
+    --sgp-accent-light: #3CC1CC;
+    --sgp-soft: #E7F3F6;
     --sgp-success: #2e8b74;
-    --sgp-success-light: #5ec6b2;
+    --sgp-success-light: #3CC1CC;
     --sgp-warning: #d89427;
     --sgp-danger: #c44b4b;
-    --sgp-background: #f5f7f9;
+    --sgp-background: #f4f9fa;
     --sgp-surface: #ffffff;
     --sgp-text: #24313a;
     --sgp-text-muted: #667680;
-    --sgp-border: #dce3e7;
+    --sgp-border: #d7e6ea;
+    --sgp-shadow: 0 12px 34px rgba(24, 80, 99, 0.08);
 }
 
 @layer components {
+    .sgp-sidebar {
+        background:
+            radial-gradient(circle at 15% 9%, rgba(60, 193, 204, 0.15), transparent 20%),
+            linear-gradient(180deg, #185063 0%, #185063 52%, #185063 100%);
+    }
+
+    .sgp-sidebar nav a {
+        position: relative;
+        border: 1px solid transparent;
+    }
+
+    .sgp-sidebar nav a:hover {
+        border-color: rgba(60, 193, 204, 0.14);
+    }
+
+    .sgp-topbar {
+        border-color: var(--sgp-border);
+        box-shadow: 0 1px 0 rgba(24, 80, 99, 0.03);
+    }
+
     .sgp-page-intro {
         @apply relative overflow-hidden rounded-2xl px-6 py-6 text-white shadow-sm sm:px-7;
-        background: linear-gradient(135deg, #123b4a 0%, #1d5d73 72%, #287ea1 100%);
+        background:
+            radial-gradient(circle at 88% 15%, rgba(60, 193, 204, 0.24), transparent 24%),
+            linear-gradient(135deg, #185063 0%, #228A9D 72%, #17A2B8 100%);
     }
 
     .sgp-page-intro::after {
@@ -56,6 +81,7 @@
     .sgp-card {
         @apply rounded-2xl border bg-white shadow-sm;
         border-color: var(--sgp-border);
+        transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
     }
 
     .sgp-section-heading {
@@ -109,7 +135,7 @@
 
     .sgp-empty-icon {
         @apply flex h-12 w-12 items-center justify-center rounded-2xl;
-        background-color: #e6f0f3;
+        background-color: #E7F3F6;
         color: var(--sgp-primary);
     }
 
@@ -148,6 +174,17 @@
     }
 }
 
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
 @layer base {
     [x-cloak] {
         display: none !important;
@@ -156,11 +193,22 @@
     html {
         font-family: Inter, ui-sans-serif, system-ui, -apple-system,
             BlinkMacSystemFont, "Segoe UI", sans-serif;
+        scroll-behavior: smooth;
     }
 
     body {
         color: var(--sgp-text);
         background-color: var(--sgp-background);
+    }
+
+    ::selection {
+        color: #ffffff;
+        background-color: var(--sgp-primary-light);
+    }
+
+    :focus-visible {
+        outline: 3px solid rgba(23, 162, 184, 0.35);
+        outline-offset: 2px;
     }
 }
 
@@ -175,10 +223,10 @@
         background:
             radial-gradient(
                 circle at 85% 15%,
-                rgba(94, 198, 178, 0.16),
+                rgba(60, 193, 204, 0.22),
                 transparent 28%
             ),
-            linear-gradient(145deg, #123b4a 0%, #174e60 55%, #1d5d73 100%);
+            linear-gradient(145deg, #185063 0%, #185063 55%, #228A9D 100%);
     }
 
     .sgp-login-brand::before,
@@ -210,6 +258,7 @@
     .sgp-login-card {
         @apply w-full max-w-md rounded-2xl border bg-white p-7 shadow-sm sm:p-9;
         border-color: var(--sgp-border);
+        box-shadow: var(--sgp-shadow);
     }
 
     .sgp-field-label {
@@ -230,23 +279,24 @@
 
     .sgp-input:focus {
         border-color: var(--sgp-accent);
-        box-shadow: 0 0 0 3px rgba(40, 126, 161, 0.14);
+        box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.14);
     }
 
     .sgp-button-primary {
         @apply inline-flex w-full items-center justify-center rounded-lg px-5 py-3
             text-sm font-semibold text-white transition duration-200;
-        background-color: var(--sgp-primary);
+        background: linear-gradient(135deg, var(--sgp-primary) 0%, var(--sgp-primary-light) 100%);
+        box-shadow: 0 7px 18px rgba(24, 80, 99, 0.16);
     }
 
     .sgp-button-primary:hover {
-        background-color: var(--sgp-primary-light);
+        background: linear-gradient(135deg, var(--sgp-primary-light) 0%, var(--sgp-accent) 100%);
         transform: translateY(-1px);
     }
 
     .sgp-button-primary:focus {
         @apply outline-none;
-        box-shadow: 0 0 0 3px rgba(40, 126, 161, 0.2);
+        box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.2);
     }
 
     .sgp-kanban-board {
@@ -290,7 +340,7 @@
         border-radius: 0.85rem;
         padding: 1rem;
         background-color: #ffffff;
-        box-shadow: 0 1px 3px rgba(18, 59, 74, 0.08);
+        box-shadow: 0 1px 3px rgba(24, 80, 99, 0.08);
         transition: opacity 160ms ease, transform 160ms ease, box-shadow 160ms ease;
     }
 
@@ -304,7 +354,7 @@
 
     .sgp-kanban-card:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(18, 59, 74, 0.1);
+        box-shadow: 0 4px 12px rgba(24, 80, 99, 0.1);
     }
 
     .sgp-kanban-card.is-dragging,
@@ -346,8 +396,10 @@
         border-radius: 1rem;
         padding: 1.25rem 1.5rem;
         color: #ffffff;
-        background: linear-gradient(135deg, #123b4a 0%, #1d5d73 100%);
-        box-shadow: 0 1px 3px rgba(18, 59, 74, 0.12);
+        background:
+            radial-gradient(circle at 88% 20%, rgba(60, 193, 204, 0.28), transparent 24%),
+            linear-gradient(135deg, #185063 0%, #228A9D 70%, #17A2B8 100%);
+        box-shadow: 0 10px 26px rgba(24, 80, 99, 0.16);
     }
 
     .sgp-welcome-banner h2,
@@ -369,7 +421,14 @@
         border-radius: 1rem;
         padding: 1.25rem;
         background-color: #ffffff;
-        box-shadow: 0 1px 3px rgba(18, 59, 74, 0.06);
+        box-shadow: 0 1px 3px rgba(24, 80, 99, 0.06);
+        transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .sgp-indicator-card:hover {
+        border-color: rgba(23, 162, 184, 0.4);
+        box-shadow: 0 12px 28px rgba(24, 80, 99, 0.1);
+        transform: translateY(-2px);
     }
 
     .sgp-dashboard-columns {
@@ -420,8 +479,8 @@
         justify-content: center;
         border-radius: 0.5rem;
         padding: 0.75rem 1.25rem;
-        background-color: #e6f0f3;
-        color: #123b4a;
+        background-color: #E7F3F6;
+        color: #185063;
         font-size: 0.875rem;
         font-weight: 600;
         transition: background-color 160ms ease, transform 160ms ease;
@@ -447,7 +506,7 @@
     }
 
     .sgp-clear-action:hover {
-        color: #123b4a;
+        color: #185063;
         text-decoration: underline;
     }
 
@@ -510,7 +569,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 9999px;
-        background-color: #123b4a;
+        background-color: #185063;
         color: #ffffff;
         font-size: 0.75rem;
         font-weight: 700;
@@ -572,7 +631,7 @@
     }
 
     .sgp-role-guide p {
-        border-left: 3px solid #5ec6b2;
+        border-left: 3px solid #3CC1CC;
         padding-left: 0.75rem;
     }
 

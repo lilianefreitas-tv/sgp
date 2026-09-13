@@ -3,7 +3,7 @@
         <div class="mb-8">
             <p
                 class="mb-2 text-sm font-semibold uppercase tracking-wider
-                       text-[#287EA1]"
+                       text-[#17A2B8]"
             >
                 Acesso ao sistema
             </p>
@@ -81,8 +81,8 @@
                         id="remember_me"
                         type="checkbox"
                         name="remember"
-                        class="rounded border-gray-300 text-[#123B4A]
-                               shadow-sm focus:ring-[#287EA1]"
+                        class="rounded border-gray-300 text-[#185063]
+                               shadow-sm focus:ring-[#17A2B8]"
                     >
 
                     <span class="ms-2 text-sm text-[#667680]">
@@ -109,7 +109,7 @@
             class="mt-8 border-t border-[#DCE3E7] pt-5 text-center
                    text-xs text-[#667680]"
         >
-            <p>SGP • Sistema de Gestão de Projetos de Software</p>
+            <p>PRISMA SGP • Sistema de Gestão de Projetos de Software</p>
             <p class="mt-1">{{ config('sgp.release_label') }}</p>
         </div>
     </div>

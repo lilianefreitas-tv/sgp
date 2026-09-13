@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-semibold text-[#287EA1]">{{ $project->code }}</span>
+                <span class="text-sm font-semibold text-[#17A2B8]">{{ $project->code }}</span>
                 <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $project->status->badgeClasses() }}">{{ $project->status->label() }}</span>
                 @if ($project->archived_at)<span class="rounded-full bg-[#F3F5F6] px-3 py-1 text-xs font-semibold text-[#667680]">Arquivado</span>@endif
             </div>
@@ -45,14 +45,14 @@
             </div>
         </a>
 
-        <a href="{{ route('contracts.index', ['project' => $project->id]) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
-            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#287EA1]">Fundação contratual</p><p class="mt-1 font-bold text-[#123B4A]">Contratos do projeto</p><p class="mt-1 text-sm text-[#667680]">Consulte o conteúdo, os anexos, as versões e os vínculos contratuais estruturados.</p></div>
-            <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#1D5D73]">{{ $project->contracts_count }} contrato(s)</span><span class="text-xl text-[#287EA1]">→</span></div>
+        <a href="{{ route('contracts.index', ['project' => $project->id]) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm transition hover:border-[#17A2B8] hover:bg-[#EDF6F8]">
+            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#17A2B8]">Fundação contratual</p><p class="mt-1 font-bold text-[#185063]">Contratos do projeto</p><p class="mt-1 text-sm text-[#667680]">Consulte o conteúdo, os anexos, as versões e os vínculos contratuais estruturados.</p></div>
+            <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#228A9D]">{{ $project->contracts_count }} contrato(s)</span><span class="text-xl text-[#17A2B8]">→</span></div>
         </a>
 
-        <a href="{{ route('projects.baselines.index', $project) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
-            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#287EA1]">Governança da configuração</p><p class="mt-1 font-bold text-[#123B4A]">Baselines do projeto</p><p class="mt-1 text-sm text-[#667680]">Constitua versões imutáveis do escopo, requisitos, documentos e contratos vigentes.</p></div>
-            <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#1D5D73]">{{ $project->baselines_count }} versões</span><span class="text-xl text-[#287EA1]">→</span></div>
+        <a href="{{ route('projects.baselines.index', $project) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 shadow-sm transition hover:border-[#17A2B8] hover:bg-[#EDF6F8]">
+            <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#17A2B8]">Governança da configuração</p><p class="mt-1 font-bold text-[#185063]">Baselines do projeto</p><p class="mt-1 text-sm text-[#667680]">Constitua versões imutáveis do escopo, requisitos, documentos e contratos vigentes.</p></div>
+            <div class="flex items-center gap-3"><span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#228A9D]">{{ $project->baselines_count }} versões</span><span class="text-xl text-[#17A2B8]">→</span></div>
         </a>
 
         <a href="{{ route('projects.change-requests.index', $project) }}" class="group flex items-center justify-between gap-4 rounded-2xl border border-[#D8CCE8] bg-[#F8F5FB] p-5 shadow-sm transition hover:border-[#8064A2] hover:bg-[#F3EEF8]">
@@ -92,7 +92,7 @@
         <section class="rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-6 shadow-sm">
             <div class="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <h2 class="text-base font-bold text-[#123B4A]">Configuração adaptativa</h2>
+                    <h2 class="text-base font-bold text-[#185063]">Configuração adaptativa</h2>
                     <p class="mt-1 text-sm text-[#667680]">As dimensões são independentes e orientam a gestão sem ocultar dados ou presumir módulos futuros.</p>
                 </div>
             </div>
@@ -104,14 +104,14 @@
             </div>
         </section>
 
-        <a href="{{ route('projects.requirements.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+        <a href="{{ route('projects.requirements.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 transition hover:border-[#17A2B8] hover:bg-[#EDF6F8]">
             <div>
-                <p class="font-bold text-[#123B4A]">Requisitos do projeto</p>
+                <p class="font-bold text-[#185063]">Requisitos do projeto</p>
                 <p class="mt-1 text-sm text-[#667680]">Cadastre, priorize e acompanhe as necessidades desta solução.</p>
             </div>
             <div class="flex items-center gap-3">
-                <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#1D5D73]">{{ $project->active_requirements_count }} ativos</span>
-                <span class="text-xl text-[#287EA1]">→</span>
+                <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#228A9D]">{{ $project->active_requirements_count }} ativos</span>
+                <span class="text-xl text-[#17A2B8]">→</span>
             </div>
         </a>
 
@@ -126,23 +126,23 @@
             </div>
         </a>
 
-        <a href="{{ route('projects.documents.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#C9DCE4] bg-[#F5F9FB] p-5 transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+        <a href="{{ route('projects.documents.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#C9DCE4] bg-[#F5F9FB] p-5 transition hover:border-[#17A2B8] hover:bg-[#EDF6F8]">
             <div>
-                <p class="font-bold text-[#1D5D73]">Documentos do projeto</p>
+                <p class="font-bold text-[#228A9D]">Documentos do projeto</p>
                 <p class="mt-1 text-sm text-[#667680]">Gere artefatos em DOCX e PDF e consulte o histórico de versões.</p>
             </div>
             <div class="flex items-center gap-3">
-                <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#287EA1]">{{ $project->documents_count }} gerados</span>
-                <span class="text-xl text-[#287EA1]">→</span>
+                <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-[#17A2B8]">{{ $project->documents_count }} gerados</span>
+                <span class="text-xl text-[#17A2B8]">→</span>
             </div>
         </a>
 
-        <a href="{{ route('projects.artifacts.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 transition hover:border-[#287EA1] hover:bg-[#EDF6F8]">
+        <a href="{{ route('projects.artifacts.index', $project) }}" class="flex items-center justify-between gap-4 rounded-2xl border border-[#BFD7DF] bg-[#F4F9FA] p-5 transition hover:border-[#17A2B8] hover:bg-[#EDF6F8]">
             <div>
-                <p class="font-bold text-[#123B4A]">Registros documentais complementares</p>
+                <p class="font-bold text-[#185063]">Registros documentais complementares</p>
                 <p class="mt-1 text-sm text-[#667680]">Gerencie conteúdo versionado, papéis, revisões e aprovações documentais.</p>
             </div>
-            <span class="text-xl text-[#287EA1]">→</span>
+            <span class="text-xl text-[#17A2B8]">→</span>
         </a>
 
         <section class="rounded-2xl border border-[#DCE3E7] bg-white p-6 shadow-sm">
@@ -176,7 +176,7 @@
                             <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
                                 @foreach ($roles as $value => $label)
                                     <label class="flex items-center gap-2 rounded-lg border border-[#DCE3E7] bg-white px-3 py-2 text-sm text-[#24313A]">
-                                        <input type="checkbox" name="roles[]" value="{{ $value }}" class="rounded border-[#B8C5CB] text-[#123B4A] focus:ring-[#287EA1]" @checked(in_array($value, old('roles', []), true))>
+                                        <input type="checkbox" name="roles[]" value="{{ $value }}" class="rounded border-[#B8C5CB] text-[#185063] focus:ring-[#17A2B8]" @checked(in_array($value, old('roles', []), true))>
                                         {{ $label }}
                                     </label>
                                 @endforeach
@@ -194,7 +194,7 @@
                         @forelse ($members as $member)
                             <tr class="text-sm text-[#24313A]">
                                 <td class="px-6 py-4"><p class="font-semibold">{{ $member['user']->name }}</p><p class="mt-1 text-xs text-[#667680]">{{ $member['user']->email }}</p></td>
-                                <td class="px-6 py-4"><div class="flex flex-wrap gap-2">@foreach($member['roles'] as $role)<span class="rounded-full bg-[#E6F0F3] px-3 py-1 text-xs font-semibold text-[#1D5D73]">{{ $role->label() }}</span>@endforeach</div></td>
+                                <td class="px-6 py-4"><div class="flex flex-wrap gap-2">@foreach($member['roles'] as $role)<span class="rounded-full bg-[#E7F3F6] px-3 py-1 text-xs font-semibold text-[#228A9D]">{{ $role->label() }}</span>@endforeach</div></td>
                                 @if ($canManage)
                                     <td class="px-6 py-4 text-right">
                                         @if ($member['user']->id === $project->manager_id)

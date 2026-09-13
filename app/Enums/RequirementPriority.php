@@ -23,7 +23,7 @@ enum RequirementPriority: string
     {
         return match ($this) {
             self::Low => 'bg-[#E4F3F0] text-[#2E8B74]',
-            self::Medium => 'bg-[#E6F0F8] text-[#287EA1]',
+            self::Medium => 'bg-[#E6F0F8] text-[#17A2B8]',
             self::High => 'bg-[#FFF4DE] text-[#9A6415]',
             self::Critical => 'bg-[#FBE8E8] text-[#C44B4B]',
         };

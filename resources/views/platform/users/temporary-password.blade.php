@@ -13,7 +13,7 @@
             <p class="mt-2 text-sm leading-6 text-[#53636C]">O SGP não armazenará nem mostrará novamente esta senha. Entregue-a a <strong>{{ $managedUser->name }}</strong> por um canal seguro e separado.</p>
 
             <div class="mt-5 flex flex-col gap-3 rounded-xl border border-[#D7E6EA] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-                <code id="temporary-password" class="break-all text-lg font-bold tracking-wide text-[#123B4A]">{{ $temporaryPassword }}</code>
+                <code id="temporary-password" class="break-all text-lg font-bold tracking-wide text-[#185063]">{{ $temporaryPassword }}</code>
                 <button type="button" class="sgp-button-secondary sm:w-auto" @click="navigator.clipboard.writeText(document.getElementById('temporary-password').textContent.trim()); copied = true; setTimeout(() => copied = false, 2000)">
                     <span x-text="copied ? 'Copiada' : 'Copiar senha'">Copiar senha</span>
                 </button>

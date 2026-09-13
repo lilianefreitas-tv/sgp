@@ -46,7 +46,7 @@
                     <option value="inactive" @selected($activity === 'inactive')>Inativos</option>
                 </select>
             </div>
-            <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[#E6F0F3] px-4 py-3 text-sm font-semibold text-[#123B4A] transition hover:bg-[#D8E8ED]">Filtrar</button>
+            <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[#E7F3F6] px-4 py-3 text-sm font-semibold text-[#185063] transition hover:bg-[#D8E8ED]">Filtrar</button>
             <a href="{{ route('requirements.index') }}" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-[#DCE3E7] px-4 py-3 text-sm font-semibold text-[#667680] transition hover:bg-[#F5F7F9]">Limpar filtros</a>
         </form>
 
@@ -73,11 +73,11 @@
                         @forelse ($requirements as $requirement)
                             <tr class="text-sm text-[#24313A] {{ $requirement->is_active ? '' : 'bg-[#FAFBFB] opacity-75' }}">
                                 <td class="max-w-md px-6 py-4">
-                                    <a href="{{ route('projects.requirements.show', [$requirement->project, $requirement]) }}" class="font-semibold text-[#1D5D73] hover:underline">{{ $requirement->code }} · {{ $requirement->title }}</a>
+                                    <a href="{{ route('projects.requirements.show', [$requirement->project, $requirement]) }}" class="font-semibold text-[#228A9D] hover:underline">{{ $requirement->code }} · {{ $requirement->title }}</a>
                                     <p class="mt-1 line-clamp-2 text-xs leading-5 text-[#667680]">{{ $requirement->description ?: 'Sem descrição detalhada.' }}</p>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <p class="text-xs font-semibold text-[#287EA1]">{{ $requirement->project->code }}</p>
+                                    <p class="text-xs font-semibold text-[#17A2B8]">{{ $requirement->project->code }}</p>
                                     <p class="mt-1 font-medium">{{ $requirement->project->name }}</p>
                                 </td>
                                 <td class="px-6 py-4">{{ $requirement->type->label() }}</td>
@@ -89,7 +89,7 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="px-6 py-14 text-center">
-                                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E6F0F3] text-[#123B4A]">
+                                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E7F3F6] text-[#185063]">
                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6M9 16h6M8 3h8l4 4v14H4V3h4Zm8 0v5h5"/></svg>
                                     </div>
                                     <p class="mt-4 font-semibold text-[#24313A]">Nenhum requisito encontrado</p>

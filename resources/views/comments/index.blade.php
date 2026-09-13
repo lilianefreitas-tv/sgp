@@ -24,7 +24,7 @@
 
                     <div>
                         <label for="context" class="text-sm font-semibold text-[#24313A]">Vincular a</label>
-                        <select id="context" name="context" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]" required>
+                        <select id="context" name="context" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]" required>
                             @php
                                 $groupedContexts = collect($contextOptions)->groupBy('group');
                             @endphp
@@ -41,7 +41,7 @@
 
                     <div>
                         <label for="body" class="text-sm font-semibold text-[#24313A]">Comentário</label>
-                        <textarea id="body" name="body" rows="7" maxlength="5000" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#287EA1] focus:ring-[#287EA1]" placeholder="Escreva uma decisão, observação, orientação ou ponto de atenção..." required>{{ old('body') }}</textarea>
+                        <textarea id="body" name="body" rows="7" maxlength="5000" class="mt-1 block w-full rounded-lg border-[#C9D3D9] text-sm focus:border-[#17A2B8] focus:ring-[#17A2B8]" placeholder="Escreva uma decisão, observação, orientação ou ponto de atenção..." required>{{ old('body') }}</textarea>
                         <p class="mt-1 text-xs text-[#82919A]">Até 5.000 caracteres.</p>
                         @error('body')<p class="mt-1 text-xs font-medium text-[#C44B4B]">{{ $message }}</p>@enderror
                     </div>
@@ -58,13 +58,13 @@
                             <h2 class="font-bold text-[#24313A]">Comentários registrados</h2>
                             <p class="mt-1 text-sm text-[#667680]">Comunicação contextual preservada no histórico do projeto.</p>
                         </div>
-                        <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-semibold text-[#1D5D73]">{{ $comments->total() }} registro(s)</span>
+                        <span class="rounded-full bg-[#E8F3F6] px-3 py-1 text-xs font-semibold text-[#228A9D]">{{ $comments->total() }} registro(s)</span>
                     </div>
                 </div>
 
                 @if($comments->isEmpty())
                     <div class="px-6 py-14 text-center">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#E8F3F6] text-xl text-[#1D5D73]">💬</div>
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#E8F3F6] text-xl text-[#228A9D]">💬</div>
                         <p class="mt-4 font-semibold text-[#24313A]">Nenhum comentário registrado</p>
                         <p class="mt-1 text-sm text-[#667680]">O primeiro comentário aparecerá aqui.</p>
                     </div>
@@ -75,7 +75,7 @@
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div>
                                         <p class="font-semibold text-[#24313A]">{{ $comment->author->name }}</p>
-                                        <p class="mt-1 text-xs font-medium text-[#287EA1]">{{ $comment->context_label }}</p>
+                                        <p class="mt-1 text-xs font-medium text-[#17A2B8]">{{ $comment->context_label }}</p>
                                     </div>
                                     <time class="text-xs text-[#667680]" datetime="{{ $comment->created_at->toIso8601String() }}">{{ $comment->created_at->format('d/m/Y H:i') }}</time>
                                 </div>
