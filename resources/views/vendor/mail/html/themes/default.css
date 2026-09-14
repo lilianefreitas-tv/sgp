@@ -1,0 +1,348 @@
+/* Base */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: Inter, Arial, Helvetica, sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #e7f3f6;
+    color: #24313a;
+    height: 100%;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.6;
+    text-align: left;
+}
+
+a {
+    color: #228a9d;
+}
+
+a img {
+    border: none;
+}
+
+/* Typography */
+
+h1 {
+    color: #173247;
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 0;
+    text-align: left;
+}
+
+h2 {
+    color: #173247;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 0;
+    text-align: left;
+}
+
+h3 {
+    color: #173247;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    color: #425966;
+    font-size: 16px;
+    line-height: 1.65;
+    margin-top: 0;
+    text-align: left;
+}
+
+p.sub {
+    font-size: 13px;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* Layout */
+
+.wrapper {
+    background-color: #e7f3f6;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.header {
+    padding: 28px 0 0;
+    text-align: center;
+}
+
+.brand-header {
+    background-color: #185063;
+    border-radius: 14px 14px 0 0;
+    margin: 0 auto;
+    width: 600px;
+}
+
+.brand-symbol-cell {
+    padding: 20px 10px 20px 28px;
+    vertical-align: middle;
+}
+
+.brand-copy-cell {
+    padding: 20px 28px 20px 0;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.brand-link {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.brand-symbol {
+    display: block;
+    height: 48px;
+    width: 48px;
+}
+
+.brand-name {
+    color: #ffffff;
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.brand-name-accent {
+    color: #3cc1cc;
+}
+
+.brand-description {
+    color: #d7f3f5;
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-top: 3px;
+}
+
+.body {
+    background-color: #e7f3f6;
+    border-bottom: 1px solid #e7f3f6;
+    border-top: 1px solid #e7f3f6;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.inner-body {
+    background-color: #ffffff;
+    border: 1px solid #d7e5e9;
+    border-radius: 0 0 14px 14px;
+    border-top: 4px solid #17a2b8;
+    box-shadow: 0 8px 24px rgba(24, 80, 99, 0.09);
+    margin: 0 auto;
+    padding: 0;
+    width: 600px;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 38px;
+}
+
+.subcopy {
+    border-top: 1px solid #dce7ea;
+    margin-top: 28px;
+    padding-top: 24px;
+}
+
+.subcopy p {
+    color: #667680;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.footer {
+    margin: 0 auto;
+    text-align: center;
+    width: 600px;
+}
+
+.footer .content-cell {
+    padding: 24px 28px 34px;
+}
+
+.brand-tagline {
+    color: #185063;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.brand-footer-copy,
+.brand-footer-link {
+    color: #71858f;
+    font-size: 12px;
+    line-height: 1.55;
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.brand-footer-link a {
+    color: #228a9d;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Tables */
+
+.table table {
+    margin: 28px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #dce7ea;
+    color: #173247;
+    font-size: 14px;
+    margin: 0;
+    padding-bottom: 8px;
+}
+
+.table td {
+    border-bottom: 1px solid #dce7ea;
+    color: #425966;
+    font-size: 14px;
+    line-height: 18px;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.content-cell ul,
+.content-cell ol {
+    color: #425966;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+/* Buttons */
+
+.action {
+    margin: 30px auto;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 8px;
+    color: #ffffff !important;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 700;
+    overflow: hidden;
+    padding: 13px 28px;
+    text-decoration: none;
+}
+
+.button-primary,
+.button-success {
+    background-color: #228a9d;
+    border-bottom: 8px solid #228a9d;
+    border-left: 18px solid #228a9d;
+    border-right: 18px solid #228a9d;
+    border-top: 8px solid #228a9d;
+}
+
+.button-error {
+    background-color: #c53f4a;
+    border-bottom: 8px solid #c53f4a;
+    border-left: 18px solid #c53f4a;
+    border-right: 18px solid #c53f4a;
+    border-top: 8px solid #c53f4a;
+}
+
+/* Panels */
+
+.panel {
+    border-left: 4px solid #17a2b8;
+    margin: 24px 0;
+}
+
+.panel-content {
+    background-color: #f1f8fa;
+    color: #425966;
+    padding: 16px 18px;
+}
+
+.panel-content p {
+    color: #425966;
+    margin: 0;
+}
+
+/* Utilities */
+
+.break-all {
+    word-break: break-all;
+}
+
+@media only screen and (max-width: 620px) {
+    .brand-header,
+    .inner-body,
+    .footer {
+        width: 100% !important;
+    }
+
+    .header {
+        padding: 0 !important;
+    }
+
+    .brand-header,
+    .inner-body {
+        border-radius: 0 !important;
+    }
+
+    .content-cell {
+        padding: 28px 22px !important;
+    }
+
+    .brand-symbol-cell {
+        padding-left: 20px !important;
+    }
+
+    .brand-copy-cell {
+        padding-right: 18px !important;
+    }
+
+    .brand-name {
+        font-size: 19px !important;
+    }
+
+    .brand-description {
+        font-size: 11px !important;
+    }
+}
